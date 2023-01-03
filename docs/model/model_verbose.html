@@ -1,0 +1,253 @@
+<html>
+<head>
+<meta charset='utf-8'>
+<style>
+  #mld .relation { font-variant: small-caps; font-weight: bold }
+  #mld .primary { text-decoration: underline }
+  #mld .foreign { font-style: oblique }
+  #mld .normal { }
+  #mld strong { font-weight: bold }
+  #mld i { font-style: italic }
+  #mld ul { list-style-type:square; margin: 0 0 1em 2em }
+</style>
+</head>
+<body>
+<div id='mld'>
+<div>
+  <details><summary><span class='relation'>CLAIMS</span> (
+    <span title='primary_key (None)' class='primary'>num_claim</span>,
+    <span title='normal_attribute (None)' class='normal'>absorption</span>,
+    <span title='normal_attribute (None)' class='normal'>timestampz</span>,
+    <span title='foreign_key (OFFSETERS)' class='foreign'>#num_offseter</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_claim</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>CLAIMS</i>.</li>
+    <li>Les champs <i>absorption</i> et <i>timestampz</i> étaient déjà de simples attributs de l'entité <i>CLAIMS</i>.</li>
+    <li>Le champ <i>num_offseter</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>HAS_MANY_CLAIMS</i> à partir de l'entité <i>OFFSETERS</i> en perdant son caractère identifiant.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>MINTERS</span> (
+    <span title='primary_key (None)' class='primary'>num_minter</span>,
+    <span title='normal_attribute (None)' class='normal'>address</span>,
+    <span title='normal_attribute (None)' class='normal'>max_supply</span>,
+    <span title='normal_attribute (None)' class='normal'>reserved_supply</span>,
+    <span title='normal_attribute (None)' class='normal'>status</span>,
+    <span title='normal_attribute (None)' class='normal'>unit_price</span>,
+    <span title='normal_attribute (None)' class='normal'>public_sale_open</span>,
+    <span title='normal_attribute (None)' class='normal'>whitelist_sale_open</span>,
+    <span title='normal_attribute (None)' class='normal'>max_buy_per_tx</span>,
+    <span title='normal_attribute (None)' class='normal'>payment_token_address</span>,
+    <span title='foreign_key (PROJECTS)' class='foreign'>#num_project</span>,
+    <span title='foreign_key (PAYMENTS)' class='foreign'>#num_payment</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_minter</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>MINTERS</i>.</li>
+    <li>Les champs <i>address</i>, <i>max_supply</i>, <i>reserved_supply</i>, <i>status</i>, <i>unit_price</i>, <i>public_sale_open</i>, <i>whitelist_sale_open</i>, <i>max_buy_per_tx</i> et <i>payment_token_address</i> étaient déjà de simples attributs de l'entité <i>MINTERS</i>.</li>
+    <li>Le champ <i>num_project</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>HAS_MANY_MINTERS</i> à partir de l'entité <i>PROJECTS</i> en perdant son caractère identifiant.</li>
+    <li>Le champ <i>num_payment</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>HAS_ONE_PAYMENT</i> à partir de l'entité <i>PAYMENTS</i> en perdant son caractère identifiant.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>OFFSETERS</span> (
+    <span title='primary_key (None)' class='primary'>num_offseter</span>,
+    <span title='normal_attribute (None)' class='normal'>address</span>,
+    <span title='normal_attribute (None)' class='normal'>apr</span>,
+    <span title='normal_attribute (None)' class='normal'>total deposited</span>,
+    <span title='normal_attribute (None)' class='normal'>min_claimable</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_offseter</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>OFFSETERS</i>.</li>
+    <li>Les champs <i>address</i>, <i>apr</i>, <i>total deposited</i> et <i>min_claimable</i> étaient déjà de simples attributs de l'entité <i>OFFSETERS</i>.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>OFFSETTING_POSITIONS</span> (
+    <span title='primary_foreign_key (USERS)' class='foreign primary'>#num_user</span>,
+    <span title='primary_foreign_key (OFFSETERS)' class='foreign primary'>#num_offseter</span>,
+    <span title='association_attribute (None)' class='normal'>num_offseter_position</span>,
+    <span title='association_attribute (None)' class='normal'>deposited</span>,
+    <span title='association_attribute (None)' class='normal'>claimable</span>,
+    <span title='association_attribute (None)' class='normal'>claimed</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_user</i> fait partie de la clé primaire de la table. C'est une clé étrangère qui a migré directement à partir de l'entité <i>USERS</i>.</li>
+    <li>Le champ <i>num_offseter</i> fait partie de la clé primaire de la table. C'est une clé étrangère qui a migré directement à partir de l'entité <i>OFFSETERS</i>.</li>
+    <li>Les champs <i>num_offseter_position</i>, <i>deposited</i>, <i>claimable</i> et <i>claimed</i> étaient déjà de simples attributs de l'association <i>OFFSETTING_POSITIONS</i>.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>PAYMENTS</span> (
+    <span title='primary_key (None)' class='primary'>num_payment</span>,
+    <span title='normal_attribute (None)' class='normal'>address</span>,
+    <span title='normal_attribute (None)' class='normal'>decimal</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_payment</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>PAYMENTS</i>.</li>
+    <li>Les champs <i>address</i> et <i>decimal</i> étaient déjà de simples attributs de l'entité <i>PAYMENTS</i>.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>PROJECTS</span> (
+    <span title='primary_key (None)' class='primary'>num_project</span>,
+    <span title='normal_attribute (None)' class='normal'>address</span>,
+    <span title='normal_attribute (None)' class='normal'>name</span>,
+    <span title='normal_attribute (None)' class='normal'>total_supply</span>,
+    <span title='normal_attribute (None)' class='normal'>uri</span>,
+    <span title='foreign_key (OFFSETERS)' class='foreign'>#num_offseter</span>,
+    <span title='foreign_key (YIELDERS)' class='foreign'>#num_yielder</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_project</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>PROJECTS</i>.</li>
+    <li>Les champs <i>address</i>, <i>name</i>, <i>total_supply</i> et <i>uri</i> étaient déjà de simples attributs de l'entité <i>PROJECTS</i>.</li>
+    <li>Le champ <i>num_offseter</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>HAS_ONE_OFFSETER</i> à partir de l'entité <i>OFFSETERS</i> en perdant son caractère identifiant.</li>
+    <li>Le champ <i>num_yielder</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>HAS_ONE_YIELDER</i> à partir de l'entité <i>YIELDERS</i> en perdant son caractère identifiant.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>SNAPSHOTS</span> (
+    <span title='primary_key (None)' class='primary'>num_snapshot</span>,
+    <span title='normal_attribute (None)' class='normal'>project</span>,
+    <span title='normal_attribute (None)' class='normal'>previous_timestampz</span>,
+    <span title='normal_attribute (None)' class='normal'>previous_project_absorption</span>,
+    <span title='normal_attribute (None)' class='normal'>previous_offseter_absorption</span>,
+    <span title='normal_attribute (None)' class='normal'>previous_yielder_absorption</span>,
+    <span title='normal_attribute (None)' class='normal'>current_timestampz</span>,
+    <span title='normal_attribute (None)' class='normal'>current_project_absorption</span>,
+    <span title='normal_attribute (None)' class='normal'>current_offseter_absorption</span>,
+    <span title='normal_attribute (None)' class='normal'>current_yielder_absorption</span>,
+    <span title='normal_attribute (None)' class='normal'>period_project_absorption</span>,
+    <span title='normal_attribute (None)' class='normal'>period_offseter_absorption</span>,
+    <span title='normal_attribute (None)' class='normal'>period_yielder_absorption</span>,
+    <span title='foreign_key (YIELDERS)' class='foreign'>#num_yielder</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_snapshot</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>SNAPSHOTS</i>.</li>
+    <li>Les champs <i>project</i>, <i>previous_timestampz</i>, <i>previous_project_absorption</i>, <i>previous_offseter_absorption</i>, <i>previous_yielder_absorption</i>, <i>current_timestampz</i>, <i>current_project_absorption</i>, <i>current_offseter_absorption</i>, <i>current_yielder_absorption</i>, <i>period_project_absorption</i>, <i>period_offseter_absorption</i> et <i>period_yielder_absorption</i> étaient déjà de simples attributs de l'entité <i>SNAPSHOTS</i>.</li>
+    <li>Le champ <i>num_yielder</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>HAS_MANY_SNAPSHOTS</i> à partir de l'entité <i>YIELDERS</i> en perdant son caractère identifiant.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>TOKENS</span> (
+    <span title='primary_key (None)' class='primary'>num_tokoen</span>,
+    <span title='normal_attribute (None)' class='normal'>token_blockchain_identifier</span>,
+    <span title='normal_attribute (None)' class='normal'>uri</span>,
+    <span title='foreign_key (USERS)' class='foreign'>#num_user</span>,
+    <span title='foreign_key (PROJECTS)' class='foreign'>#num_project</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_tokoen</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>TOKENS</i>.</li>
+    <li>Les champs <i>token_blockchain_identifier</i> et <i>uri</i> étaient déjà de simples attributs de l'entité <i>TOKENS</i>.</li>
+    <li>Le champ <i>num_user</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>HAS_ONE_OWNER</i> à partir de l'entité <i>USERS</i> en perdant son caractère identifiant.</li>
+    <li>Le champ <i>num_project</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>HAS_MANY_TOKENS</i> à partir de l'entité <i>PROJECTS</i> en perdant son caractère identifiant.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>USERS</span> (
+    <span title='primary_key (None)' class='primary'>num_user</span>,
+    <span title='normal_attribute (None)' class='normal'>address</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_user</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>USERS</i>.</li>
+    <li>Le champ <i>address</i> était déjà un simple attribut de l'entité <i>USERS</i>.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>VESTERS</span> (
+    <span title='primary_key (None)' class='primary'>num_vester</span>,
+    <span title='normal_attribute (None)' class='normal'>address</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_vester</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>VESTERS</i>.</li>
+    <li>Le champ <i>address</i> était déjà un simple attribut de l'entité <i>VESTERS</i>.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>VESTINGS</span> (
+    <span title='primary_key (None)' class='primary'>num_vesting</span>,
+    <span title='normal_attribute (None)' class='normal'>address</span>,
+    <span title='normal_attribute (None)' class='normal'>vesting_blockchain_identifier</span>,
+    <span title='normal_attribute (None)' class='normal'>claimable</span>,
+    <span title='normal_attribute (None)' class='normal'>timestampz</span>,
+    <span title='foreign_key (YIELDERS)' class='foreign'>#num_yielder</span>,
+    <span title='foreign_key (VESTERS)' class='foreign'>#num_vester</span>,
+    <span title='foreign_key (USERS)' class='foreign'>#num_user</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_vesting</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>VESTINGS</i>.</li>
+    <li>Les champs <i>address</i>, <i>vesting_blockchain_identifier</i>, <i>claimable</i> et <i>timestampz</i> étaient déjà de simples attributs de l'entité <i>VESTINGS</i>.</li>
+    <li>Le champ <i>num_yielder</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>HAS_MANY_VESTINGS</i> à partir de l'entité <i>YIELDERS</i> en perdant son caractère identifiant.</li>
+    <li>Le champ <i>num_vester</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>HAS_ONE_VESTER</i> à partir de l'entité <i>VESTERS</i> en perdant son caractère identifiant.</li>
+    <li>Le champ <i>num_user</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>HAS_ONE_USER</i> à partir de l'entité <i>USERS</i> en perdant son caractère identifiant.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>WHITELISTINGS</span> (
+    <span title='primary_foreign_key (USERS)' class='foreign primary'>#num_user</span>,
+    <span title='primary_foreign_key (WHITELISTS)' class='foreign primary'>#num_whitelist</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_user</i> fait partie de la clé primaire de la table. C'est une clé étrangère qui a migré directement à partir de l'entité <i>USERS</i>.</li>
+    <li>Le champ <i>num_whitelist</i> fait partie de la clé primaire de la table. C'est une clé étrangère qui a migré directement à partir de l'entité <i>WHITELISTS</i>.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>WHITELISTS</span> (
+    <span title='primary_key (None)' class='primary'>num_whitelist</span>,
+    <span title='normal_attribute (None)' class='normal'>user</span>,
+    <span title='normal_attribute (None)' class='normal'>proofs</span>,
+    <span title='normal_attribute (None)' class='normal'>leaf</span>,
+    <span title='normal_attribute (None)' class='normal'>slots</span>,
+    <span title='foreign_key (MINTERS)' class='foreign'>#num_minter</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_whitelist</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>WHITELISTS</i>.</li>
+    <li>Les champs <i>user</i>, <i>proofs</i>, <i>leaf</i> et <i>slots</i> étaient déjà de simples attributs de l'entité <i>WHITELISTS</i>.</li>
+    <li>Le champ <i>num_minter</i> est une clé étrangère. Il a migré par l'association de dépendance fonctionnelle <i>HAS_ONE_WHITELIST</i> à partir de l'entité <i>MINTERS</i> en perdant son caractère identifiant.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>YIELDERS</span> (
+    <span title='primary_key (None)' class='primary'>num_yielder</span>,
+    <span title='normal_attribute (None)' class='normal'>address</span>,
+    <span title='normal_attribute (None)' class='normal'>apr</span>,
+    <span title='normal_attribute (None)' class='normal'>total deposited</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_yielder</i> constitue la clé primaire de la table. C'était déjà un identifiant de l'entité <i>YIELDERS</i>.</li>
+    <li>Les champs <i>address</i>, <i>apr</i> et <i>total deposited</i> étaient déjà de simples attributs de l'entité <i>YIELDERS</i>.</li>
+  </ul></details>
+</div>
+
+<div>
+  <details><summary><span class='relation'>YIELDING_POSITIONS</span> (
+    <span title='primary_foreign_key (USERS)' class='foreign primary'>#num_user</span>,
+    <span title='primary_foreign_key (YIELDERS)' class='foreign primary'>#num_yielder</span>,
+    <span title='association_attribute (None)' class='normal'>num_yielder_position</span>,
+    <span title='association_attribute (None)' class='normal'>deposited</span>,
+    <span title='association_attribute (None)' class='normal'>claimable</span>,
+    <span title='association_attribute (None)' class='normal'>claimed</span>
+  )</summary>
+  <ul>
+    <li>Le champ <i>num_user</i> fait partie de la clé primaire de la table. C'est une clé étrangère qui a migré directement à partir de l'entité <i>USERS</i>.</li>
+    <li>Le champ <i>num_yielder</i> fait partie de la clé primaire de la table. C'est une clé étrangère qui a migré directement à partir de l'entité <i>YIELDERS</i>.</li>
+    <li>Les champs <i>num_yielder_position</i>, <i>deposited</i>, <i>claimable</i> et <i>claimed</i> étaient déjà de simples attributs de l'association <i>YIELDING_POSITIONS</i>.</li>
+  </ul></details>
+</div>
+
+</div>
+</body>
+</html>

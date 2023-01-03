@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="1293" height="1030" viewBox="0 0 1293 1030" xmlns="http://www.w3.org/2000/svg">
+<rect id="frame" x="0" y="0" width="1293" height="1030" fill="#f7f7f7" stroke="none" stroke-width="0"/>
+
+<!-- Association HAS_MANY_SNAPSHOTS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="261" y1="288" x2="261" y2="136" stroke="#e08214" stroke-width="2"/>
+	<text x="234" y="229" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<line x1="470" y1="136" x2="261" y2="136" stroke="#e08214" stroke-width="2"/>
+	<text x="350" y="153" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<g>
+		<path d="M330 111 a14 14 90 0 1 14 14 V136 h-166 V125 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M344 136 v11 a14 14 90 0 1 -14 14 H192 a14 14 90 0 1 -14 -14 V136 H166" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="178" y="111" width="166" height="50" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="178" y1="136" x2="344" y2="136" stroke="#e08214" stroke-width="1"/>
+		<text x="186" y="128.75" fill="#000" font-family="Verdana" font-size="12">HAS_MANY_SNAPSHOTS</text>
+	</g>
+</g>
+
+<!-- Association HAS_MANY_VESTINGS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="261" y1="288" x2="673" y2="136" stroke="#e08214" stroke-width="2"/>
+	<text x="317" y="283.3" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<line x1="1028" y1="288" x2="673" y2="136" stroke="#e08214" stroke-width="2"/>
+	<text x="908" y="261.4" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<g>
+		<path d="M736 111 a14 14 90 0 1 14 14 V136 h-154 V125 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M750 136 v11 a14 14 90 0 1 -14 14 H610 a14 14 90 0 1 -14 -14 V136 H154" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="596" y="111" width="154" height="50" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="596" y1="136" x2="750" y2="136" stroke="#e08214" stroke-width="1"/>
+		<text x="604" y="128.75" fill="#000" font-family="Verdana" font-size="12">HAS_MANY_VESTINGS</text>
+	</g>
+</g>
+
+<!-- Association YIELDING_POSITIONS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="826" y1="415" x2="826" y2="288" stroke="#e08214" stroke-width="2"/>
+	<text x="831" y="373" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<line x1="261" y1="288" x2="826" y2="288" stroke="#e08214" stroke-width="2"/>
+	<text x="317" y="305" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<g>
+		<path d="M888 237 a14 14 90 0 1 14 14 V262 h-152 V251 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M902 262 v63 a14 14 90 0 1 -14 14 H764 a14 14 90 0 1 -14 -14 V262 H152" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="750" y="237" width="152" height="102" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="750" y1="262" x2="902" y2="262" stroke="#e08214" stroke-width="1"/>
+		<text x="758" y="254.75" fill="#000" font-family="Verdana" font-size="12">YIELDING_POSITIONS</text>
+		<text x="757" y="279.8" fill="#000" font-family="Verdana" font-size="12">num_yielder_position</text>
+		<text x="757" y="296.8" fill="#000" font-family="Verdana" font-size="12">deposited</text>
+		<text x="757" y="313.8" fill="#000" font-family="Verdana" font-size="12">claimable</text>
+		<text x="757" y="330.8" fill="#000" font-family="Verdana" font-size="12">claimed</text>
+	</g>
+</g>
+
+<!-- Association HAS_ONE_VESTER -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="1219" y1="415" x2="1219" y2="288" stroke="#e08214" stroke-width="2"/>
+	<text x="1224" y="373" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<line x1="1028" y1="288" x2="1219" y2="288" stroke="#e08214" stroke-width="2"/>
+	<text x="1127" y="305" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<g>
+		<path d="M1270 263 a14 14 90 0 1 14 14 V288 h-130 V277 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M1284 288 v11 a14 14 90 0 1 -14 14 H1168 a14 14 90 0 1 -14 -14 V288 H130" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="1154" y="263" width="130" height="50" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="1154" y1="288" x2="1284" y2="288" stroke="#e08214" stroke-width="1"/>
+		<text x="1162" y="280.75" fill="#000" font-family="Verdana" font-size="12">HAS_ONE_VESTER</text>
+	</g>
+</g>
+
+<!-- Association HAS_ONE_OFFSETER -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="261" y1="524" x2="261" y2="415" stroke="#e08214" stroke-width="2"/>
+	<text x="266" y="457" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<line x1="470" y1="415" x2="261" y2="415" stroke="#e08214" stroke-width="2"/>
+	<text x="393" y="432" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<g>
+		<path d="M319 390 a14 14 90 0 1 14 14 V415 h-144 V404 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M333 415 v11 a14 14 90 0 1 -14 14 H203 a14 14 90 0 1 -14 -14 V415 H144" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="189" y="390" width="144" height="50" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="189" y1="415" x2="333" y2="415" stroke="#e08214" stroke-width="1"/>
+		<text x="196" y="407.75" fill="#000" font-family="Verdana" font-size="12">HAS_ONE_OFFSETER</text>
+	</g>
+</g>
+
+<!-- Association OFFSETTING_POSITIONS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="826" y1="415" x2="673" y2="415" stroke="#e08214" stroke-width="2"/>
+	<text x="763" y="432" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<line x1="470" y1="415" x2="673" y2="415" stroke="#e08214" stroke-width="2"/>
+	<text x="526" y="432" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<g>
+		<path d="M744 364 a14 14 90 0 1 14 14 V389 h-170 V378 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M758 389 v63 a14 14 90 0 1 -14 14 H602 a14 14 90 0 1 -14 -14 V389 H170" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="588" y="364" width="170" height="102" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="588" y1="389" x2="758" y2="389" stroke="#e08214" stroke-width="1"/>
+		<text x="596" y="381.75" fill="#000" font-family="Verdana" font-size="12">OFFSETTING_POSITIONS</text>
+		<text x="595" y="406.8" fill="#000" font-family="Verdana" font-size="12">num_offseter_position</text>
+		<text x="595" y="423.8" fill="#000" font-family="Verdana" font-size="12">deposited</text>
+		<text x="595" y="440.8" fill="#000" font-family="Verdana" font-size="12">claimable</text>
+		<text x="595" y="457.8" fill="#000" font-family="Verdana" font-size="12">claimed</text>
+	</g>
+</g>
+
+<!-- Association HAS_ONE_USER -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="826" y1="415" x2="1028" y2="415" stroke="#e08214" stroke-width="2"/>
+	<text x="867" y="407" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<line x1="1028" y1="288" x2="1028" y2="415" stroke="#e08214" stroke-width="2"/>
+	<text x="1033" y="364" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<g>
+		<path d="M1072 390 a14 14 90 0 1 14 14 V415 h-116 V404 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M1086 415 v11 a14 14 90 0 1 -14 14 H984 a14 14 90 0 1 -14 -14 V415 H116" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="970" y="390" width="116" height="50" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="970" y1="415" x2="1086" y2="415" stroke="#e08214" stroke-width="1"/>
+		<text x="978" y="407.75" fill="#000" font-family="Verdana" font-size="12">HAS_ONE_USER</text>
+	</g>
+</g>
+
+<!-- Association HAS_ONE_YIELDER -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="261" y1="524" x2="79" y2="524" stroke="#e08214" stroke-width="2"/>
+	<text x="191" y="541" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<line x1="261" y1="288" x2="79" y2="524" stroke="#e08214" stroke-width="2"/>
+	<text x="220.88" y="356" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<g>
+		<path d="M132 499 a14 14 90 0 1 14 14 V524 h-134 V513 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M146 524 v11 a14 14 90 0 1 -14 14 H26 a14 14 90 0 1 -14 -14 V524 H134" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="12" y="499" width="134" height="50" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="12" y1="524" x2="146" y2="524" stroke="#e08214" stroke-width="1"/>
+		<text x="19" y="516.75" fill="#000" font-family="Verdana" font-size="12">HAS_ONE_YIELDER</text>
+	</g>
+</g>
+
+<!-- Association HAS_MANY_CLAIMS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="470" y1="415" x2="470" y2="524" stroke="#e08214" stroke-width="2"/>
+	<text x="475" y="491" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<line x1="470" y1="633" x2="470" y2="524" stroke="#e08214" stroke-width="2"/>
+	<text x="475" y="583" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<g>
+		<path d="M525 499 a14 14 90 0 1 14 14 V524 h-138 V513 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M539 524 v11 a14 14 90 0 1 -14 14 H415 a14 14 90 0 1 -14 -14 V524 H138" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="401" y="499" width="138" height="50" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="401" y1="524" x2="539" y2="524" stroke="#e08214" stroke-width="1"/>
+		<text x="409" y="516.75" fill="#000" font-family="Verdana" font-size="12">HAS_MANY_CLAIMS</text>
+	</g>
+</g>
+
+<!-- Association HAS_ONE_OWNER -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="826" y1="415" x2="826" y2="524" stroke="#e08214" stroke-width="2"/>
+	<text x="799" y="466" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<line x1="673" y1="633" x2="826" y2="524" stroke="#e08214" stroke-width="2"/>
+	<text x="711.37" y="583" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<g>
+		<path d="M876 499 a14 14 90 0 1 14 14 V524 h-128 V513 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M890 524 v11 a14 14 90 0 1 -14 14 H776 a14 14 90 0 1 -14 -14 V524 H128" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="762" y="499" width="128" height="50" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="762" y1="524" x2="890" y2="524" stroke="#e08214" stroke-width="1"/>
+		<text x="769" y="516.75" fill="#000" font-family="Verdana" font-size="12">HAS_ONE_OWNER</text>
+	</g>
+</g>
+
+<!-- Association WHITELISTINGS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="826" y1="415" x2="1028" y2="524" stroke="#e08214" stroke-width="2"/>
+	<text x="867" y="430.63" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<line x1="1028" y1="633" x2="1028" y2="524" stroke="#e08214" stroke-width="2"/>
+	<text x="1033" y="566" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<g>
+		<path d="M1072 499 a14 14 90 0 1 14 14 V524 h-116 V513 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M1086 524 v11 a14 14 90 0 1 -14 14 H984 a14 14 90 0 1 -14 -14 V524 H116" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="970" y="499" width="116" height="50" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="970" y1="524" x2="1086" y2="524" stroke="#e08214" stroke-width="1"/>
+		<text x="978" y="516.75" fill="#000" font-family="Verdana" font-size="12">WHITELISTINGS</text>
+	</g>
+</g>
+
+<!-- Association HAS_MANY_MINTERS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="261" y1="524" x2="261" y2="633" stroke="#e08214" stroke-width="2"/>
+	<text x="234" y="600" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<line x1="261" y1="852" x2="261" y2="633" stroke="#e08214" stroke-width="2"/>
+	<text x="235" y="742" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<g>
+		<path d="M320 608 a14 14 90 0 1 14 14 V633 h-146 V622 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M334 633 v11 a14 14 90 0 1 -14 14 H202 a14 14 90 0 1 -14 -14 V633 H146" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="188" y="608" width="146" height="50" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="188" y1="633" x2="334" y2="633" stroke="#e08214" stroke-width="1"/>
+		<text x="195" y="625.75" fill="#000" font-family="Verdana" font-size="12">HAS_MANY_MINTERS</text>
+	</g>
+</g>
+
+<!-- Association HAS_MANY_TOKENS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="261" y1="524" x2="470" y2="725" stroke="#e08214" stroke-width="2"/>
+	<text x="310" y="565.19" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<line x1="673" y1="633" x2="470" y2="725" stroke="#e08214" stroke-width="2"/>
+	<text x="558" y="668.88" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<g>
+		<path d="M526 700 a14 14 90 0 1 14 14 V725 h-140 V714 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M540 725 v11 a14 14 90 0 1 -14 14 H414 a14 14 90 0 1 -14 -14 V725 H140" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="400" y="700" width="140" height="50" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="400" y1="725" x2="540" y2="725" stroke="#e08214" stroke-width="1"/>
+		<text x="407" y="717.75" fill="#000" font-family="Verdana" font-size="12">HAS_MANY_TOKENS</text>
+	</g>
+</g>
+
+<!-- Association HAS_ONE_WHITELIST -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="261" y1="852" x2="673" y2="725" stroke="#e08214" stroke-width="2"/>
+	<text x="346" y="841.94" fill="#542788" font-family="Verdana" font-size="12">0,1</text>
+	<line x1="1028" y1="633" x2="673" y2="725" stroke="#e08214" stroke-width="2"/>
+	<text x="954" y="639.44" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<g>
+		<path d="M734 700 a14 14 90 0 1 14 14 V725 h-150 V714 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M748 725 v11 a14 14 90 0 1 -14 14 H612 a14 14 90 0 1 -14 -14 V725 H150" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="598" y="700" width="150" height="50" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="598" y1="725" x2="748" y2="725" stroke="#e08214" stroke-width="1"/>
+		<text x="605" y="717.75" fill="#000" font-family="Verdana" font-size="12">HAS_ONE_WHITELIST</text>
+	</g>
+</g>
+
+<!-- Association HAS_ONE_PAYMENT -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<line x1="79" y1="979" x2="79" y2="852" stroke="#e08214" stroke-width="2"/>
+	<text x="84" y="929" fill="#542788" font-family="Verdana" font-size="12">0,N</text>
+	<line x1="261" y1="852" x2="79" y2="852" stroke="#e08214" stroke-width="2"/>
+	<text x="155" y="869" fill="#542788" font-family="Verdana" font-size="12">1,1</text>
+	<g>
+		<path d="M135 827 a14 14 90 0 1 14 14 V852 h-140 V841 a14 14 90 0 1 14 -14" fill="#fdb863" stroke="#fdb863" stroke-width="0"/>
+		<path d="M149 852 v11 a14 14 90 0 1 -14 14 H23 a14 14 90 0 1 -14 -14 V852 H140" fill="#fee0b6" stroke="#fee0b6" stroke-width="0"/>
+		<rect x="9" y="827" width="140" height="50" fill="none" rx="14" stroke="#e08214" stroke-width="2"/>
+		<line x1="9" y1="852" x2="149" y2="852" stroke="#e08214" stroke-width="1"/>
+		<text x="17" y="844.75" fill="#000" font-family="Verdana" font-size="12">HAS_ONE_PAYMENT</text>
+	</g>
+</g>
+
+<!-- Entity SNAPSHOTS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<g>
+		<rect x="376" y="9" width="188" height="25" fill="#b2abd2" stroke="#b2abd2" stroke-width="0" opacity="1"/>
+		<rect x="376" y="34" width="188" height="229" fill="#d8daeb" stroke="#d8daeb" stroke-width="0" opacity="1"/>
+		<rect x="376" y="9" width="188" height="254" fill="none" stroke="#8073ac" stroke-width="2" opacity="1"/>
+		<line x1="376" y1="34" x2="564" y2="34" stroke="#8073ac" stroke-width="1"/>
+	</g>
+	<text x="432" y="26.75" fill="#000" font-family="Verdana" font-size="12">SNAPSHOTS</text>
+	<text x="381" y="51.8" fill="#000" font-family="Verdana" font-size="12">num_snapshot</text>
+	<line x1="381" y1="54" x2="471" y2="54" stroke="#000" stroke-width="1"/>
+	<text x="381" y="68.8" fill="#000" font-family="Verdana" font-size="12">project</text>
+	<text x="381" y="85.8" fill="#000" font-family="Verdana" font-size="12">previous_timestampz</text>
+	<text x="381" y="102.8" fill="#000" font-family="Verdana" font-size="12">previous_project_absorption</text>
+	<text x="381" y="119.8" fill="#000" font-family="Verdana" font-size="12">previous_offseter_absorption</text>
+	<text x="381" y="136.8" fill="#000" font-family="Verdana" font-size="12">previous_yielder_absorption</text>
+	<text x="381" y="153.8" fill="#000" font-family="Verdana" font-size="12">current_timestampz</text>
+	<text x="381" y="170.8" fill="#000" font-family="Verdana" font-size="12">current_project_absorption</text>
+	<text x="381" y="187.8" fill="#000" font-family="Verdana" font-size="12">current_offseter_absorption</text>
+	<text x="381" y="204.8" fill="#000" font-family="Verdana" font-size="12">current_yielder_absorption</text>
+	<text x="381" y="221.8" fill="#000" font-family="Verdana" font-size="12">period_project_absorption</text>
+	<text x="381" y="238.8" fill="#000" font-family="Verdana" font-size="12">period_offseter_absorption</text>
+	<text x="381" y="255.8" fill="#000" font-family="Verdana" font-size="12">period_yielder_absorption</text>
+</g>
+
+<!-- Entity YIELDERS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<g>
+		<rect x="210" y="237" width="102" height="25" fill="#b2abd2" stroke="#b2abd2" stroke-width="0" opacity="1"/>
+		<rect x="210" y="262" width="102" height="77" fill="#d8daeb" stroke="#d8daeb" stroke-width="0" opacity="1"/>
+		<rect x="210" y="237" width="102" height="102" fill="none" stroke="#8073ac" stroke-width="2" opacity="1"/>
+		<line x1="210" y1="262" x2="312" y2="262" stroke="#8073ac" stroke-width="1"/>
+	</g>
+	<text x="231" y="254.75" fill="#000" font-family="Verdana" font-size="12">YIELDERS</text>
+	<text x="215" y="279.8" fill="#000" font-family="Verdana" font-size="12">num_yielder</text>
+	<line x1="215" y1="282" x2="291" y2="282" stroke="#000" stroke-width="1"/>
+	<text x="215" y="296.8" fill="#000" font-family="Verdana" font-size="12">address</text>
+	<text x="215" y="313.8" fill="#000" font-family="Verdana" font-size="12">apr</text>
+	<text x="215" y="330.8" fill="#000" font-family="Verdana" font-size="12">total deposited</text>
+</g>
+
+<!-- Entity VESTINGS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<g>
+		<rect x="934" y="229" width="188" height="25" fill="#b2abd2" stroke="#b2abd2" stroke-width="0" opacity="1"/>
+		<rect x="934" y="254" width="188" height="93" fill="#d8daeb" stroke="#d8daeb" stroke-width="0" opacity="1"/>
+		<rect x="934" y="229" width="188" height="118" fill="none" stroke="#8073ac" stroke-width="2" opacity="1"/>
+		<line x1="934" y1="254" x2="1122" y2="254" stroke="#8073ac" stroke-width="1"/>
+	</g>
+	<text x="996" y="246.75" fill="#000" font-family="Verdana" font-size="12">VESTINGS</text>
+	<text x="939" y="271.8" fill="#000" font-family="Verdana" font-size="12">num_vesting</text>
+	<line x1="939" y1="274" x2="1018" y2="274" stroke="#000" stroke-width="1"/>
+	<text x="939" y="288.8" fill="#000" font-family="Verdana" font-size="12">address</text>
+	<text x="939" y="305.8" fill="#000" font-family="Verdana" font-size="12">vesting_blockchain_identifier</text>
+	<text x="939" y="322.8" fill="#000" font-family="Verdana" font-size="12">claimable</text>
+	<text x="939" y="339.8" fill="#000" font-family="Verdana" font-size="12">timestampz</text>
+</g>
+
+<!-- Entity OFFSETERS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<g>
+		<rect x="419" y="356" width="102" height="25" fill="#b2abd2" stroke="#b2abd2" stroke-width="0" opacity="1"/>
+		<rect x="419" y="381" width="102" height="93" fill="#d8daeb" stroke="#d8daeb" stroke-width="0" opacity="1"/>
+		<rect x="419" y="356" width="102" height="118" fill="none" stroke="#8073ac" stroke-width="2" opacity="1"/>
+		<line x1="419" y1="381" x2="521" y2="381" stroke="#8073ac" stroke-width="1"/>
+	</g>
+	<text x="434" y="373.75" fill="#000" font-family="Verdana" font-size="12">OFFSETERS</text>
+	<text x="424" y="398.8" fill="#000" font-family="Verdana" font-size="12">num_offseter</text>
+	<line x1="424" y1="401" x2="506" y2="401" stroke="#000" stroke-width="1"/>
+	<text x="424" y="415.8" fill="#000" font-family="Verdana" font-size="12">address</text>
+	<text x="424" y="432.8" fill="#000" font-family="Verdana" font-size="12">apr</text>
+	<text x="424" y="449.8" fill="#000" font-family="Verdana" font-size="12">total deposited</text>
+	<text x="424" y="466.8" fill="#000" font-family="Verdana" font-size="12">min_claimable</text>
+</g>
+
+<!-- Entity USERS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<g>
+		<rect x="790" y="381" width="72" height="25" fill="#b2abd2" stroke="#b2abd2" stroke-width="0" opacity="1"/>
+		<rect x="790" y="406" width="72" height="43" fill="#d8daeb" stroke="#d8daeb" stroke-width="0" opacity="1"/>
+		<rect x="790" y="381" width="72" height="68" fill="none" stroke="#8073ac" stroke-width="2" opacity="1"/>
+		<line x1="790" y1="406" x2="862" y2="406" stroke="#8073ac" stroke-width="1"/>
+	</g>
+	<text x="805" y="398.75" fill="#000" font-family="Verdana" font-size="12">USERS</text>
+	<text x="795" y="423.8" fill="#000" font-family="Verdana" font-size="12">num_user</text>
+	<line x1="795" y1="426" x2="857" y2="426" stroke="#000" stroke-width="1"/>
+	<text x="795" y="440.8" fill="#000" font-family="Verdana" font-size="12">address</text>
+</g>
+
+<!-- Entity VESTERS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<g>
+		<rect x="1177" y="381" width="84" height="25" fill="#b2abd2" stroke="#b2abd2" stroke-width="0" opacity="1"/>
+		<rect x="1177" y="406" width="84" height="43" fill="#d8daeb" stroke="#d8daeb" stroke-width="0" opacity="1"/>
+		<rect x="1177" y="381" width="84" height="68" fill="none" stroke="#8073ac" stroke-width="2" opacity="1"/>
+		<line x1="1177" y1="406" x2="1261" y2="406" stroke="#8073ac" stroke-width="1"/>
+	</g>
+	<text x="1191" y="398.75" fill="#000" font-family="Verdana" font-size="12">VESTERS</text>
+	<text x="1182" y="423.8" fill="#000" font-family="Verdana" font-size="12">num_vester</text>
+	<line x1="1182" y1="426" x2="1255" y2="426" stroke="#000" stroke-width="1"/>
+	<text x="1182" y="440.8" fill="#000" font-family="Verdana" font-size="12">address</text>
+</g>
+
+<!-- Entity PROJECTS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<g>
+		<rect x="217" y="465" width="88" height="25" fill="#b2abd2" stroke="#b2abd2" stroke-width="0" opacity="1"/>
+		<rect x="217" y="490" width="88" height="93" fill="#d8daeb" stroke="#d8daeb" stroke-width="0" opacity="1"/>
+		<rect x="217" y="465" width="88" height="118" fill="none" stroke="#8073ac" stroke-width="2" opacity="1"/>
+		<line x1="217" y1="490" x2="305" y2="490" stroke="#8073ac" stroke-width="1"/>
+	</g>
+	<text x="230" y="482.75" fill="#000" font-family="Verdana" font-size="12">PROJECTS</text>
+	<text x="222" y="507.8" fill="#000" font-family="Verdana" font-size="12">num_project</text>
+	<line x1="222" y1="510" x2="300" y2="510" stroke="#000" stroke-width="1"/>
+	<text x="222" y="524.8" fill="#000" font-family="Verdana" font-size="12">address</text>
+	<text x="222" y="541.8" fill="#000" font-family="Verdana" font-size="12">name</text>
+	<text x="222" y="558.8" fill="#000" font-family="Verdana" font-size="12">total_supply</text>
+	<text x="222" y="575.8" fill="#000" font-family="Verdana" font-size="12">uri</text>
+</g>
+
+<!-- Entity CLAIMS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<g>
+		<rect x="429" y="591" width="82" height="25" fill="#b2abd2" stroke="#b2abd2" stroke-width="0" opacity="1"/>
+		<rect x="429" y="616" width="82" height="59" fill="#d8daeb" stroke="#d8daeb" stroke-width="0" opacity="1"/>
+		<rect x="429" y="591" width="82" height="84" fill="none" stroke="#8073ac" stroke-width="2" opacity="1"/>
+		<line x1="429" y1="616" x2="511" y2="616" stroke="#8073ac" stroke-width="1"/>
+	</g>
+	<text x="446" y="608.75" fill="#000" font-family="Verdana" font-size="12">CLAIMS</text>
+	<text x="434" y="633.8" fill="#000" font-family="Verdana" font-size="12">num_claim</text>
+	<line x1="434" y1="636" x2="501" y2="636" stroke="#000" stroke-width="1"/>
+	<text x="434" y="650.8" fill="#000" font-family="Verdana" font-size="12">absorption</text>
+	<text x="434" y="667.8" fill="#000" font-family="Verdana" font-size="12">timestampz</text>
+</g>
+
+<!-- Entity TOKENS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<g>
+		<rect x="584" y="591" width="178" height="25" fill="#b2abd2" stroke="#b2abd2" stroke-width="0" opacity="1"/>
+		<rect x="584" y="616" width="178" height="59" fill="#d8daeb" stroke="#d8daeb" stroke-width="0" opacity="1"/>
+		<rect x="584" y="591" width="178" height="84" fill="none" stroke="#8073ac" stroke-width="2" opacity="1"/>
+		<line x1="584" y1="616" x2="762" y2="616" stroke="#8073ac" stroke-width="1"/>
+	</g>
+	<text x="648" y="608.75" fill="#000" font-family="Verdana" font-size="12">TOKENS</text>
+	<text x="589" y="633.8" fill="#000" font-family="Verdana" font-size="12">num_tokoen</text>
+	<line x1="589" y1="636" x2="666" y2="636" stroke="#000" stroke-width="1"/>
+	<text x="589" y="650.8" fill="#000" font-family="Verdana" font-size="12">token_blockchain_identifier</text>
+	<text x="589" y="667.8" fill="#000" font-family="Verdana" font-size="12">uri</text>
+</g>
+
+<!-- Entity WHITELISTS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<g>
+		<rect x="980" y="574" width="96" height="25" fill="#b2abd2" stroke="#b2abd2" stroke-width="0" opacity="1"/>
+		<rect x="980" y="599" width="96" height="93" fill="#d8daeb" stroke="#d8daeb" stroke-width="0" opacity="1"/>
+		<rect x="980" y="574" width="96" height="118" fill="none" stroke="#8073ac" stroke-width="2" opacity="1"/>
+		<line x1="980" y1="599" x2="1076" y2="599" stroke="#8073ac" stroke-width="1"/>
+	</g>
+	<text x="990" y="591.75" fill="#000" font-family="Verdana" font-size="12">WHITELISTS</text>
+	<text x="985" y="616.8" fill="#000" font-family="Verdana" font-size="12">num_whitelist</text>
+	<line x1="985" y1="619" x2="1071" y2="619" stroke="#000" stroke-width="1"/>
+	<text x="985" y="633.8" fill="#000" font-family="Verdana" font-size="12">user</text>
+	<text x="985" y="650.8" fill="#000" font-family="Verdana" font-size="12">proofs</text>
+	<text x="985" y="667.8" fill="#000" font-family="Verdana" font-size="12">leaf</text>
+	<text x="985" y="684.8" fill="#000" font-family="Verdana" font-size="12">slots</text>
+</g>
+
+<!-- Entity MINTERS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<g>
+		<rect x="181" y="750" width="160" height="25" fill="#b2abd2" stroke="#b2abd2" stroke-width="0" opacity="1"/>
+		<rect x="181" y="775" width="160" height="179" fill="#d8daeb" stroke="#d8daeb" stroke-width="0" opacity="1"/>
+		<rect x="181" y="750" width="160" height="204" fill="none" stroke="#8073ac" stroke-width="2" opacity="1"/>
+		<line x1="181" y1="775" x2="341" y2="775" stroke="#8073ac" stroke-width="1"/>
+	</g>
+	<text x="233" y="767.75" fill="#000" font-family="Verdana" font-size="12">MINTERS</text>
+	<text x="186" y="792.8" fill="#000" font-family="Verdana" font-size="12">num_minter</text>
+	<line x1="186" y1="795" x2="261" y2="795" stroke="#000" stroke-width="1"/>
+	<text x="186" y="809.8" fill="#000" font-family="Verdana" font-size="12">address</text>
+	<text x="186" y="826.8" fill="#000" font-family="Verdana" font-size="12">max_supply</text>
+	<text x="186" y="843.8" fill="#000" font-family="Verdana" font-size="12">reserved_supply</text>
+	<text x="186" y="860.8" fill="#000" font-family="Verdana" font-size="12">status</text>
+	<text x="186" y="877.8" fill="#000" font-family="Verdana" font-size="12">unit_price</text>
+	<text x="186" y="894.8" fill="#000" font-family="Verdana" font-size="12">public_sale_open</text>
+	<text x="186" y="911.8" fill="#000" font-family="Verdana" font-size="12">whitelist_sale_open</text>
+	<text x="186" y="928.8" fill="#000" font-family="Verdana" font-size="12">max_buy_per_tx</text>
+	<text x="186" y="945.8" fill="#000" font-family="Verdana" font-size="12">payment_token_address</text>
+</g>
+
+<!-- Entity PAYMENTS -->
+<g class="page_0_sGOQc9gM diagram_page" visibility="visible">
+	<g>
+		<rect x="29" y="937" width="100" height="25" fill="#b2abd2" stroke="#b2abd2" stroke-width="0" opacity="1"/>
+		<rect x="29" y="962" width="100" height="59" fill="#d8daeb" stroke="#d8daeb" stroke-width="0" opacity="1"/>
+		<rect x="29" y="937" width="100" height="84" fill="none" stroke="#8073ac" stroke-width="2" opacity="1"/>
+		<line x1="29" y1="962" x2="129" y2="962" stroke="#8073ac" stroke-width="1"/>
+	</g>
+	<text x="46" y="954.75" fill="#000" font-family="Verdana" font-size="12">PAYMENTS</text>
+	<text x="34" y="979.8" fill="#000" font-family="Verdana" font-size="12">num_payment</text>
+	<line x1="34" y1="982" x2="123" y2="982" stroke="#000" stroke-width="1"/>
+	<text x="34" y="996.8" fill="#000" font-family="Verdana" font-size="12">address</text>
+	<text x="34" y="1013.8" fill="#000" font-family="Verdana" font-size="12">decimal</text>
+</g>
+</svg>
