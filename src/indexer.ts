@@ -9,9 +9,9 @@ import { Block, Transaction, TransactionReceipt } from "@apibara/starknet";
 import BN from "bn.js";
 import { getSelectorFromName } from "starknet/dist/utils/hash";
 
-const BRIQ_DEPLOY_BLOCK = 180_000;
+const BRIQ_DEPLOY_BLOCK = 584_300;
 const BRIQ_ADDRESS = hexToBuffer(
-  "0x0266b1276d23ffb53d99da3f01be7e29fa024dd33cd7f7b1eb7a46c67891c9d0",
+  "0x5a85cf2c715955a5d8971e01d1d98e04c31d919b6d59824efb32cc72ae90e63",
   32
 );
 const TRANSFER_KEY = hexToBuffer(getSelectorFromName("Transfer"), 32);
