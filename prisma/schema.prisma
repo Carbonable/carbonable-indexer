@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  address     String   @unique
+  name        String
+  symbol      String
+  totalSupply Int
+  contractUri String
+  image       String
+  owner       String
+  Minter      Minter[]
+}
+
+model Payment {
+  id      Int      @id @default(autoincrement())
+  decimal Int
+  Minter  Minter[]
+}
+
+model Minter {
+  id                  Int     @id @default(autoincrement())
+  maxSupply           Int
+  reservedSupply      Int
+  whitelistedSaleOpen Boolean
+  publicSaleOpen      Boolean
+  maxBuyPerTx         Int
+  unitPrice           Int
+  whitelistMerkleRoot Int
+  soldOut             Boolean
+
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId Int
+
+  payment   Payment @relation(fields: [paymentId], references: [id])
+  paymentId Int
+}
