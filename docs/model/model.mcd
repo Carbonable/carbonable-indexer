@@ -1,0 +1,57 @@
+:
+HAS_MANY_SNAPSHOTS, 0N YIELDERS, 11 SNAPSHOTS
+SNAPSHOTS: num_snapshot, project, previous_timestampz, previous_project_absorption, previous_offseter_absorption, previous_yielder_absorption, current_timestampz, current_project_absorption, current_offseter_absorption, current_yielder_absorption, period_project_absorption, period_offseter_absorption, period_yielder_absorption
+HAS_MANY_VESTINGS, 0N YIELDERS, 11 VESTINGS
+:
+:
+
+:
+YIELDERS: num_yielder, address, apr, total deposited
+:
+:
+YIELDING_POSITIONS, 0N USERS, 0N YIELDERS: num_yielder_position, deposited, claimable, claimed
+VESTINGS: num_vesting, address, vesting_blockchain_identifier, claimable, timestampz
+HAS_ONE_VESTER, 0N VESTERS, 11 VESTINGS
+
+:
+HAS_ONE_OFFSETER, 11 PROJECTS, 11 OFFSETERS
+OFFSETERS: num_offseter, address, apr, total deposited, min_claimable
+OFFSETTING_POSITIONS, 0N USERS, 0N OFFSETERS: num_offseter_position, deposited, claimable, claimed
+USERS: num_user, address
+HAS_ONE_USER, 0N USERS, 11 VESTINGS
+VESTERS: num_vester, address
+
+HAS_ONE_YIELDER, 11 PROJECTS, 11 YIELDERS
+PROJECTS: num_project, address, name, total_supply, uri
+HAS_MANY_CLAIMS, 0N OFFSETERS, 11 CLAIMS
+:
+HAS_ONE_OWNER, 0N USERS, 11 TOKENS
+WHITELISTINGS, 0N USERS, 0N WHITELISTS
+
+:
+HAS_MANY_MINTERS, 0N PROJECTS, 11 MINTERS
+CLAIMS: num_claim, absorption, timestampz
+TOKENS: num_tokoen, token_blockchain_identifier, uri
+:
+WHITELISTS: num_whitelist, user, proofs, leaf, slots
+
+:
+:
+HAS_MANY_TOKENS, 0N PROJECTS, 11 TOKENS
+HAS_ONE_WHITELIST, 01 MINTERS, 11 WHITELISTS
+:
+:
+
+HAS_ONE_PAYMENT, 0N PAYMENTS, 11 MINTERS
+MINTERS: num_minter, address, max_supply, reserved_supply, status, unit_price, public_sale_open, whitelist_sale_open, max_buy_per_tx, payment_token_address
+:
+:
+:
+:
+
+PAYMENTS: num_payment, address, decimal
+:
+:
+:
+:
+:

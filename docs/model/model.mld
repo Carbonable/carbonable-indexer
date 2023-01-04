@@ -1,0 +1,51 @@
+%%mocodo
+:::::
+SNAPSHOTS: num_snapshot, project, previous_timestampz, previous_project_absorption, previous_offseter_absorption, previous_yielder_absorption, current_timestampz, current_project_absorption, current_offseter_absorption, current_yielder_absorption, period_project_absorption, period_offseter_absorption, period_yielder_absorption, #num_yielder->YIELDERS->num_yielder
+:::::::::
+
+
+:::
+YIELDERS: num_yielder, address, apr, total deposited
+:::::
+YIELDING_POSITIONS: #num_user->USERS->num_user, _#num_yielder->YIELDERS->num_yielder, num_yielder_position, deposited, claimable, claimed
+:
+VESTINGS: num_vesting, address, vesting_blockchain_identifier, claimable, timestampz, #num_yielder->YIELDERS->num_yielder, #num_vester->VESTERS->num_vester, #num_user->USERS->num_user
+:::
+
+
+:::::
+OFFSETERS: num_offseter, address, apr, total deposited, min_claimable
+:
+OFFSETTING_POSITIONS: #num_user->USERS->num_user, _#num_offseter->OFFSETERS->num_offseter, num_offseter_position, deposited, claimable, claimed
+:
+USERS: num_user, address
+:::
+VESTERS: num_vester, address
+:
+
+
+:::
+PROJECTS: num_project, address, name, total_supply, uri, #num_offseter->OFFSETERS->num_offseter, #num_yielder->YIELDERS->num_yielder
+:::::::
+WHITELISTINGS: #num_user->USERS->num_user, _#num_whitelist->WHITELISTS->num_whitelist
+:::
+
+
+:::::
+CLAIMS: num_claim, absorption, timestampz, #num_offseter->OFFSETERS->num_offseter
+:
+TOKENS: num_tokoen, token_blockchain_identifier, uri, #num_user->USERS->num_user, #num_project->PROJECTS->num_project
+:::
+WHITELISTS: num_whitelist, user, proofs, leaf, slots, #num_minter->MINTERS->num_minter
+:::
+
+
+
+:::
+MINTERS: num_minter, address, max_supply, reserved_supply, status, unit_price, public_sale_open, whitelist_sale_open, max_buy_per_tx, payment_token_address, #num_project->PROJECTS->num_project, #num_payment->PAYMENTS->num_payment
+:::::::::::
+
+
+:
+PAYMENTS: num_payment, address, decimal
+:::::::::::::
