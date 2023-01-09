@@ -125,4 +125,31 @@ export class Project {
     })
     return number.toHex(number.toBN(result[0]));
   }
+
+  async getTonEquivalent(calldata?: RawCalldata) {
+    const { result } = await this.provider.callContract({
+      contractAddress: this.address,
+      entrypoint: 'getTonEquivalent',
+      calldata,
+    })
+    return Number(number.toBN(result[0]));
+  }
+
+  async getTimes(calldata?: RawCalldata) {
+    const { result } = await this.provider.callContract({
+      contractAddress: this.address,
+      entrypoint: 'getTimes',
+      calldata,
+    })
+    return result.slice(1).map((time) => Number(time));
+  }
+
+  async getAbsorptions(calldata?: RawCalldata) {
+    const { result } = await this.provider.callContract({
+      contractAddress: this.address,
+      entrypoint: 'getAbsorptions',
+      calldata,
+    })
+    return result.slice(1).map((time) => Number(time));
+  }
 }

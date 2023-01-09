@@ -11,25 +11,32 @@ datasource db {
 }
 
 model Project {
-  id          Int      @id @default(autoincrement())
-  address     String   @unique
-  name        String
-  symbol      String
-  totalSupply Int
-  contractUri String
-  image       String
-  owner       String
-  Minter      Minter[]
+  id             Int        @id @default(autoincrement())
+  address        String     @unique
+  name           String
+  symbol         String
+  totalSupply    Int
+  contractUri    String
+  image          String
+  owner          String
+  ton_equivalent Int
+  times          DateTime[]
+  absorptions    Int[]
+  Minter         Minter[]
+  Token          Token[]
+  Snapshot       Snapshot[]
 }
 
 model Payment {
   id      Int      @id @default(autoincrement())
+  address String   @unique
   decimal Int
   Minter  Minter[]
 }
 
 model Minter {
-  id                  Int     @id @default(autoincrement())
+  id                  Int      @id @default(autoincrement())
+  address             String   @unique
   maxSupply           Int
   reservedSupply      Int
   whitelistedSaleOpen Boolean
@@ -38,10 +45,91 @@ model Minter {
   unitPrice           Int
   whitelistMerkleRoot Int
   soldOut             Boolean
+  Project             Project? @relation(fields: [projectId], references: [id])
+  projectId           Int?
+  Payment             Payment? @relation(fields: [paymentId], references: [id])
+  paymentId           Int?
+}
 
-  project   Project @relation(fields: [projectId], references: [id])
+model Token {
+  id       Int    @id @default(autoincrement())
+  token_id Int
+  uri      String
+
+  Project   Project @relation(fields: [projectId], references: [id])
   projectId Int
+  User      User?   @relation(fields: [userId], references: [id])
+  userId    Int?
+}
 
-  payment   Payment @relation(fields: [paymentId], references: [id])
-  paymentId Int
+model User {
+  id      Int    @id @default(autoincrement())
+  address String @unique
+
+  Token     Token[]
+  Whitelist Whitelist[]
+  Vesting   Vesting[]
+  Yielder   Yielder[]
+  Offseter  Offseter[]
+}
+
+model Whitelist {
+  id     Int    @id @default(autoincrement())
+  proofs Json
+  user   User[]
+}
+
+model Offseter {
+  id              Int    @id @default(autoincrement())
+  address         String @unique
+  total_deposited Int
+  min_claimable   Int
+  user            User[]
+}
+
+model Snapshot {
+  id                           Int      @id @default(autoincrement())
+  previous_time                DateTime
+  previous_project_absorption  Int
+  previous_offseter_absorption Int
+  previous_yielder_absorption  Int
+  current_project_absorption   Int
+  current_offseter_absorption  Int
+  current_yielder_absorption   Int
+  project_absorption           Int
+  offseter_absorption          Int
+  yielder_absorption           Int
+  time                         DateTime
+  Yielder                      Yielder? @relation(fields: [yielderId], references: [id])
+  yielderId                    Int?
+  Project                      Project? @relation(fields: [projectId], references: [id])
+  projectId                    Int?
+}
+
+model Yielder {
+  id              Int        @id @default(autoincrement())
+  address         String     @unique
+  total_deposited Int
+  user            User[]
+  snapshot        Snapshot[]
+  vesting         Vesting[]
+}
+
+model Vesting {
+  id         Int      @id @default(autoincrement())
+  vesting_id Int
+  claimable  Int
+  time       DateTime
+  Yielder    Yielder? @relation(fields: [yielderId], references: [id])
+  yielderId  Int?
+  Vester     Vester?  @relation(fields: [vesterId], references: [id])
+  vesterId   Int?
+  User       User?    @relation(fields: [userId], references: [id])
+  userId     Int?
+}
+
+model Vester {
+  id      Int       @id @default(autoincrement())
+  address String    @unique
+  vesting Vesting[]
 }
