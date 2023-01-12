@@ -11,20 +11,21 @@ datasource db {
 }
 
 model Project {
-  id             Int        @id @default(autoincrement())
-  address        String     @unique
-  name           String
-  symbol         String
-  totalSupply    Int
-  contractUri    String
-  image          String
-  owner          String
-  ton_equivalent Int
-  times          DateTime[]
-  absorptions    Int[]
-  Minter         Minter[]
-  Token          Token[]
-  Snapshot       Snapshot[]
+  id            Int        @id @default(autoincrement())
+  address       String     @unique
+  name          String
+  symbol        String
+  totalSupply   Int
+  contractUri   String
+  owner         String
+  tonEquivalent Int
+  times         DateTime[]
+  absorptions   String[]
+  Minter        Minter[]
+  Token         Token[]
+  Snapshot      Snapshot[]
+  Offseter      Offseter[]
+  Yielder       Yielder[]
 }
 
 model Payment {
@@ -80,11 +81,13 @@ model Whitelist {
 }
 
 model Offseter {
-  id              Int    @id @default(autoincrement())
-  address         String @unique
+  id              Int      @id @default(autoincrement())
+  address         String   @unique
   total_deposited Int
   min_claimable   Int
   user            User[]
+  Project         Project? @relation(fields: [projectId], references: [id])
+  projectId       Int?
 }
 
 model Snapshot {
@@ -113,6 +116,8 @@ model Yielder {
   user            User[]
   snapshot        Snapshot[]
   vesting         Vesting[]
+  Project         Project?   @relation(fields: [projectId], references: [id])
+  projectId       Int?
 }
 
 model Vesting {

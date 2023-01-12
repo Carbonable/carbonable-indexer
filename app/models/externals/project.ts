@@ -3,19 +3,10 @@ import { ContractClass, ProviderInterface, RawCalldata, shortString, number } fr
 export class Project {
   private readonly address: string;
   private readonly provider: ProviderInterface;
-  private contract: ContractClass;
 
   constructor(address: string, provider: ProviderInterface) {
     this.address = address;
     this.provider = provider;
-  }
-
-  async init() {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getImplementationHash',
-    })
-    this.contract = await this.provider.getClassByHash(result[0]);
   }
 
   async getTotalSupply(calldata?: RawCalldata) {
@@ -141,7 +132,7 @@ export class Project {
       entrypoint: 'getTimes',
       calldata,
     })
-    return result.slice(1).map((time) => Number(time));
+    return result.slice(1).map((time) => new Date(Number(time) * 1000));
   }
 
   async getAbsorptions(calldata?: RawCalldata) {
@@ -150,6 +141,6 @@ export class Project {
       entrypoint: 'getAbsorptions',
       calldata,
     })
-    return result.slice(1).map((time) => Number(time));
+    return result.slice(1).map((absorption) => String(Number(absorption)));
   }
 }
