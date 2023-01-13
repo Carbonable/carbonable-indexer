@@ -26,7 +26,7 @@
     "typeorm": "0.3.10"
   },
   "scripts": {
-    "start": "ts-node app/index.ts",
+    "start": "ts-node ./app/index.ts",
     "debug": "nodemon ./app/index.ts",
     "typeorm": "typeorm-ts-node-commonjs"
   }
