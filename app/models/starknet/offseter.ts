@@ -12,10 +12,9 @@ export class Offseter {
   async getImplementationHash(calldata?: RawCalldata) {
     const { result } = await this.provider.callContract({
       contractAddress: this.address,
-      entrypoint: 'getCarbonableProjectAddress',
+      entrypoint: 'getImplementationHash',
       calldata,
     })
-    console.log(this.address, result);
     return number.toHex(number.toBN(result[0]));
   }
 

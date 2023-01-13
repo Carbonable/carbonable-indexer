@@ -12,18 +12,22 @@ const initialize = async () => {
         if (!isProject) {
             await project.create(content.project);
         }
+
         const isMinter = await minter.read({ address: content.minter })
         if (!isMinter) {
             await minter.create(content.minter);
         }
+
         const isVester = await vester.read({ address: content.vester })
         if (!isVester) {
             await vester.create(content.vester);
         }
-        // const isOffseter = await offseter.read({ address: content.offseter })
-        // if (!isOffseter) {
-        //     await offseter.create(content.offseter);
-        // }
+
+        const isOffseter = await offseter.read({ address: content.offseter })
+        if (!isOffseter) {
+            await offseter.create(content.offseter);
+        }
+
         const isYielder = await yielder.read({ address: content.yielder })
         if (!isYielder) {
             await yielder.create(content.yielder);
