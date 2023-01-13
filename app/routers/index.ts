@@ -11,12 +11,12 @@ import { Request, Response } from 'express';
 
 const router = Router();
 
-router.use('/project', project);
-router.use('/minter', minter);
-router.use('/payment', payment);
-router.use('/vester', vester);
-router.use('/offseter', offseter);
-router.use('/yielder', yielder);
+router.use('/projects', project);
+router.use('/minters', minter);
+router.use('/payments', payment);
+router.use('/vesters', vester);
+router.use('/offseters', offseter);
+router.use('/yielders', yielder);
 
 // API 404
 router.use((_request: Request, response: Response) => {

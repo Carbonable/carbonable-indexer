@@ -8,9 +8,9 @@ CREATE TABLE "Project" (
     "totalSupply" INTEGER NOT NULL,
     "contractUri" TEXT NOT NULL,
     "owner" TEXT NOT NULL,
-    "tonEquivalent" INTEGER NOT NULL,
+    "tonEquivalent" DOUBLE PRECISION NOT NULL,
     "times" TIMESTAMP(3)[],
-    "absorptions" TEXT[],
+    "absorptions" DOUBLE PRECISION[],
 
     CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
 );
@@ -37,7 +37,7 @@ CREATE TABLE "Minter" (
     "unitPrice" INTEGER NOT NULL,
     "whitelistMerkleRoot" INTEGER NOT NULL,
     "soldOut" BOOLEAN NOT NULL,
-    "totalValue" TEXT NOT NULL,
+    "totalValue" DOUBLE PRECISION NOT NULL,
     "Whitelist" JSONB,
     "projectId" INTEGER NOT NULL,
     "paymentId" INTEGER NOT NULL,
@@ -61,8 +61,10 @@ CREATE TABLE "Offseter" (
     "id" SERIAL NOT NULL,
     "address" TEXT NOT NULL,
     "implementation" TEXT NOT NULL,
-    "total_deposited" INTEGER NOT NULL,
-    "min_claimable" INTEGER NOT NULL,
+    "totalDeposited" INTEGER NOT NULL,
+    "totalClaimed" DOUBLE PRECISION NOT NULL,
+    "totalClaimable" DOUBLE PRECISION NOT NULL,
+    "minClaimable" DOUBLE PRECISION NOT NULL,
     "projectId" INTEGER NOT NULL,
 
     CONSTRAINT "Offseter_pkey" PRIMARY KEY ("id")
@@ -93,7 +95,9 @@ CREATE TABLE "Yielder" (
     "id" SERIAL NOT NULL,
     "address" TEXT NOT NULL,
     "implementation" TEXT NOT NULL,
-    "total_deposited" INTEGER NOT NULL,
+    "totalDeposited" DOUBLE PRECISION NOT NULL,
+    "totalAbsorption" DOUBLE PRECISION NOT NULL,
+    "snapshotedTime" TIMESTAMP(3) NOT NULL,
     "projectId" INTEGER NOT NULL,
 
     CONSTRAINT "Yielder_pkey" PRIMARY KEY ("id")
@@ -117,6 +121,8 @@ CREATE TABLE "Vester" (
     "id" SERIAL NOT NULL,
     "address" TEXT NOT NULL,
     "implementation" TEXT NOT NULL,
+    "totalAmount" DOUBLE PRECISION NOT NULL,
+    "withdrawableAmount" DOUBLE PRECISION NOT NULL,
 
     CONSTRAINT "Vester_pkey" PRIMARY KEY ("id")
 );

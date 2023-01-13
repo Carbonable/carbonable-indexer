@@ -14,7 +14,7 @@ const controller = {
         return new Minter(address, provider);
     },
 
-    async create(address: string) {
+    async create(address: string, whitelist?: object) {
         const model = controller.load(address);
 
         const [implementation, maxSupply, reservedSupply, preSaleOpen, publicSaleOpen, maxBuyPerTx, unitPrice, whitelistMerkleRoot, soldOut, totalValue, projectAddress, paymentAddress] = await Promise.all([
@@ -42,7 +42,7 @@ const controller = {
             payment = await paymentController.create(paymentAddress);
         }
 
-        const data = { address, implementation, maxSupply, reservedSupply, preSaleOpen, publicSaleOpen, maxBuyPerTx, unitPrice, whitelistMerkleRoot, soldOut, totalValue, projectId: project.id, paymentId: payment.id };
+        const data = { address, implementation, maxSupply, reservedSupply, preSaleOpen, publicSaleOpen, maxBuyPerTx, unitPrice, whitelistMerkleRoot, soldOut, totalValue, whitelist, projectId: project.id, paymentId: payment.id };
         return await prisma.minter.create({ data });
     },
 
@@ -75,6 +75,20 @@ const controller = {
     async getAll(_request: Request, response: Response, _next: NextFunction) {
         const projects = await prisma.minter.findMany({ include: { Payment: true } });
         return response.status(200).json(projects);
+    },
+
+    async getWhitelistedSlots(request: Request, response: Response, _next: NextFunction) {
+        const minter = await controller.read({ id: Number(request.params.id) });
+        const model = controller.load(minter.address);
+        const balance = await model.getWhitelistedSlots([]);
+        return response.status(200).json({ address: minter.address, user: request.params.user, balance });
+    },
+
+    async getClaimedSlots(request: Request, response: Response, _next: NextFunction) {
+        const minter = await controller.read({ id: Number(request.params.id) });
+        const model = controller.load(minter.address);
+        const slots = await model.getClaimedSlots([request.params.user]);
+        return response.status(200).json({ address: minter.address, user: request.params.user, slots });
     },
 }
 
