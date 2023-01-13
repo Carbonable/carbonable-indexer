@@ -1,8 +1,9 @@
-import { Project } from '../models/externals/project';
-import provider from '../models/externals/client';
-import prisma from '../models/internals/client';
+import { Project } from '../models/starknet/project';
+import provider from '../models/starknet/client';
+import prisma from '../models/database/client';
 
 import { Request, Response, NextFunction } from 'express';
+import { Prisma } from '@prisma/client';
 
 const controller = {
 
@@ -13,7 +14,8 @@ const controller = {
     async create(address: string) {
         const model = controller.load(address);
 
-        const [name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions] = await Promise.all([
+        const [implementation, name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions] = await Promise.all([
+            model.getImplementationHash(),
             model.getName(),
             model.getSymbol(),
             model.getTotalSupply(),
@@ -24,12 +26,12 @@ const controller = {
             model.getAbsorptions(),
         ]);
 
-        const data = { address, name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions };
+        const data = { address, implementation, name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions };
         return await prisma.project.create({ data });
     },
 
-    async read(where: { id?: number, address?: string }) {
-        return await prisma.project.findUnique({ where });
+    async read(where: { id?: number, address?: string }, include?: Prisma.ProjectInclude) {
+        return await prisma.project.findUnique({ where, include });
     },
 
     async update(where: { id?: number, address?: string }, data: object) {
@@ -62,8 +64,8 @@ const controller = {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
         const model = controller.load(project.address);
-        const balance = await model.getBalanceOf([request.params.owner]);
-        return response.status(200).json({ address: project.address, owner: request.params.owner, balance });
+        const balance = await model.getBalanceOf([request.params.user]);
+        return response.status(200).json({ address: project.address, user: request.params.user, balance });
     },
 
     async getOwnerOf(request: Request, response: Response, _next: NextFunction) {

@@ -1,4 +1,4 @@
-import { ContractClass, ProviderInterface, RawCalldata, shortString, number } from "starknet";
+import { ProviderInterface, RawCalldata, shortString, number } from "starknet";
 
 export class Project {
   private readonly address: string;
@@ -7,6 +7,15 @@ export class Project {
   constructor(address: string, provider: ProviderInterface) {
     this.address = address;
     this.provider = provider;
+  }
+
+  async getImplementationHash(calldata?: RawCalldata) {
+    const { result } = await this.provider.callContract({
+      contractAddress: this.address,
+      entrypoint: 'getImplementationHash',
+      calldata,
+    })
+    return number.toHex(number.toBN(result[0]));
   }
 
   async getTotalSupply(calldata?: RawCalldata) {
@@ -141,6 +150,6 @@ export class Project {
       entrypoint: 'getAbsorptions',
       calldata,
     })
-    return result.slice(1).map((absorption) => String(Number(absorption)));
+    return result.slice(1).map((absorption) => Number(absorption));
   }
 }
