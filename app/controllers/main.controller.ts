@@ -1,3 +1,15 @@
+
+import { proto, hexToBuffer } from "@apibara/protocol";
+import { Block, TransactionReceipt } from "@apibara/starknet";
+
+import prisma from '../models/database/client';
+import indexer, { START_BLOCK, INDEXER_NAME } from '../models/indexer/client';
+import { UPGRADED } from '../models/starknet/contract';
+import { ABSORPTION_UPDATE } from '../models/starknet/project';
+import { PRE_SALE_OPEN, PRE_SALE_CLOSE, PUBLIC_SALE_OPEN, PUBLIC_SALE_CLOSE, SOLD_OUT } from '../models/starknet/minter';
+import { DEPOSIT, WITHDRAW, CLAIM } from '../models/starknet/offseter';
+import { SNAPSHOT, VESTING } from '../models/starknet/yielder';
+
 import project from './project.controller';
 import minter from './minter.controller';
 import vester from './vester.controller';
@@ -5,6 +17,7 @@ import offseter from './offseter.controller';
 import yielder from './yielder.controller';
 
 import data from '../models/database/mainnet.data.json';
+import { Prisma } from "@prisma/client";
 
 const main = {
 
@@ -38,8 +51,108 @@ const main = {
     },
 
     async run() {
-        project.run();
-    }
+        // Read or create indexer
+        let block = await prisma.block.findUnique({ where: { name: INDEXER_NAME } });
+        if (!block) {
+            const data = { name: INDEXER_NAME, number: START_BLOCK }
+            block = await prisma.block.create({ data })
+        }
+
+        // Run stream
+        const messages = indexer.streamMessages({ startingSequence: START_BLOCK || block.number }); // TODO: remove
+        return new Promise((resolve, reject) => {
+            messages.on("end", resolve);
+            messages.on("error", reject);
+            messages.on("data", main.handleData);
+        });
+    },
+
+    async handleData(message: proto.StreamMessagesResponse__Output) {
+        if (message.data) {
+            if (!message.data.data.value) {
+                throw new Error("received invalid data");
+            }
+            const block = Block.decode(message.data.data.value);
+            await main.handleBlock(block);
+        } else if (message.invalidate) {
+            console.log(message.invalidate);
+        }
+    },
+
+    async handleBlock(block: Block) {
+        // Loop over txs
+        block.transactionReceipts.forEach(async (receipt) => {
+            main.handleTransaction(receipt);
+        });
+
+        // updated indexed block
+        console.log(block.blockNumber);
+        await prisma.block.update({
+            where: { name: INDEXER_NAME },
+            data: { number: block.blockNumber }
+        });
+    },
+
+    async handleTransaction(receipt: TransactionReceipt) {
+        // Loop over tx events
+        receipt.events.forEach(async (event) => {
+            let found: { address?: string };
+
+            const projects = await prisma.project.findMany();
+            found = projects.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
+            if (found) {
+                if (UPGRADED.equals(event.keys[0])) {
+                    project.handleUpgraded(found.address);
+                    return;
+                };
+                if (ABSORPTION_UPDATE.equals(event.keys[0])) {
+                    project.handleAbsorptionUpdate(found.address);
+                    return;
+                };
+            };
+
+            const minters = await prisma.minter.findMany();
+            found = minters.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
+            if (found) {
+                if (PRE_SALE_OPEN.equals(event.keys[0]) || PRE_SALE_CLOSE.equals(event.keys[0])) {
+                    minter.handlePreSale(found.address);
+                } else if (PUBLIC_SALE_OPEN.equals(event.keys[0]) || PUBLIC_SALE_CLOSE.equals(event.keys[0])) {
+                    minter.handlePublicSale(found.address);
+                } else if (SOLD_OUT.equals(event.keys[0])) {
+                    minter.handleSoldOut(found.address);
+                };
+                return;
+            };
+
+            const offseters = await prisma.offseter.findMany();
+            found = offseters.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
+            if (found) {
+                if (DEPOSIT.equals(event.keys[0]) || WITHDRAW.equals(event.keys[0])) {
+                    offseter.handleDepositOrWithdraw(found.address);
+                } else if (CLAIM.equals(event.keys[0])) {
+                    offseter.handleClaim(found.address);
+                };
+                return;
+            };
+
+            const yielders = await prisma.yielder.findMany();
+            found = yielders.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
+            if (found) {
+                if (DEPOSIT.equals(event.keys[0]) || WITHDRAW.equals(event.keys[0])) {
+                    yielder.handleDepositOrWithdraw(found.address);
+                } else if (SNAPSHOT.equals(event.keys[0])) {
+                    // Remove first value and convert the rest
+                    const args = event.data.slice(1).map((row) => Buffer.from(row).toString());
+                    yielder.handleSnapshot(found.address, args);
+                } else if (VESTING.equals(event.keys[0])) {
+                    // Remove first value and convert the rest
+                    const args = event.data.slice(1).map((row) => Buffer.from(row).toString());
+                    yielder.handleVesting(found.address, args);
+                };
+                return;
+            };
+        });
+    },
 }
 
 export default main;

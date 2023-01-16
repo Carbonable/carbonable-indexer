@@ -1,7 +1,14 @@
-import { ProviderInterface, RawCalldata } from "starknet";
-import { Contract } from './contract';
+import { ProviderInterface, RawCalldata, hash } from "starknet";
+import Contract from './contract';
+import { hexToBuffer } from '@apibara/protocol';
 
-export class Offseter extends Contract {
+const DEPOSIT = hexToBuffer(hash.getSelectorFromName('Deposit'), 32);
+const WITHDRAW = hexToBuffer(hash.getSelectorFromName('Withdraw'), 32);
+const CLAIM = hexToBuffer(hash.getSelectorFromName('Claim'), 32);
+
+export { DEPOSIT, WITHDRAW, CLAIM };
+
+export default class Offseter extends Contract {
 
   constructor(address: string, provider: ProviderInterface) {
     super(address, provider);
@@ -11,7 +18,6 @@ export class Offseter extends Contract {
       'getMinClaimable',
       'getTotalDeposited',
       'getTotalClaimed',
-      'getTotalClaimable',
     ];
   }
 

@@ -1,4 +1,4 @@
-import { Vester } from '../models/starknet/vester';
+import Vester from '../models/starknet/vester';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
@@ -25,7 +25,7 @@ const controller = {
         return await prisma.vester.create({ data });
     },
 
-    async read(where: { id?: number, address?: string }, include?: Prisma.YielderInclude) {
+    async read(where: { id?: number, address?: string }, include?: Prisma.VesterInclude) {
         return await prisma.vester.findUnique({ where, include });
     },
 
@@ -77,6 +77,18 @@ const controller = {
         const model = controller.load(vester.address);
         const amount = await model.getReleasableAmount([request.params.vesting_id]);
         return response.status(200).json({ address: vester.address, vesting_id: request.params.vesting_id, amount });
+    },
+
+    async handleUpgraded(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const implementation = await model.getImplementationHash();
+        const data = { implementation };
+        console.log(`${address} > Sync vester implementation`);
+        await prisma.vester.update({ where, data });
     },
 }
 

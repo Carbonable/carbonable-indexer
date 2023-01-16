@@ -1,4 +1,4 @@
-import { Minter } from '../models/starknet/minter';
+import Minter from '../models/starknet/minter';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
@@ -94,6 +94,54 @@ const controller = {
         const model = controller.load(minter.address);
         const slots = await model.getClaimedSlots([request.params.user]);
         return response.status(200).json({ address: minter.address, user: request.params.user, slots });
+    },
+
+    async handleUpgraded(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const implementation = await model.getImplementationHash();
+        const data = { implementation };
+        console.log(`${address} > Sync minter implementation`);
+        await prisma.minter.update({ where, data });
+    },
+
+    async handlePreSale(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const [preSaleOpen] = await Promise.all([model.isPreSaleOpen()]);
+        const data = { preSaleOpen };
+        console.log(`${address} > Sync minter pre sale`);
+        await prisma.minter.update({ where, data });
+    },
+
+    async handlePublicSale(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const [publicSaleOpen] = await Promise.all([model.isPublicSaleOpen()]);
+        const data = { publicSaleOpen };
+        console.log(`${address} > Sync minter public sale`);
+        await prisma.minter.update({ where, data });
+    },
+
+    async handleSoldOut(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const [soldOut] = await Promise.all([model.isSoldOut()]);
+        const data = { soldOut };
+        console.log(`${address} > Sync minter sold out`);
+        await prisma.minter.update({ where, data });
     },
 }
 

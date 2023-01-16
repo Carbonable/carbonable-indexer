@@ -1,7 +1,7 @@
 import { ProviderInterface, RawCalldata } from "starknet";
-import { Contract } from './contract';
+import Contract from './contract';
 
-export class Payment extends Contract {
+export default class Payment extends Contract {
 
   constructor(address: string, provider: ProviderInterface) {
     super(address, provider);

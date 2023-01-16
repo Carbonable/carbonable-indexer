@@ -1,4 +1,4 @@
-import { Offseter } from '../models/starknet/offseter';
+import Offseter from '../models/starknet/offseter';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
@@ -62,6 +62,42 @@ const controller = {
     async getAll(_request: Request, response: Response, _next: NextFunction) {
         const projects = await prisma.offseter.findMany();
         return response.status(200).json(projects);
+    },
+
+    async handleUpgraded(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const implementation = await model.getImplementationHash();
+        const data = { implementation };
+        console.log(`${address} > Sync offseter implementation`);
+        await prisma.offseter.update({ where, data });
+    },
+
+    async handleDepositOrWithdraw(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const [totalDeposited] = await Promise.all([model.getTotalDeposited()]);
+        const data = { totalDeposited };
+        console.log(`${address} > Sync offseter total deposited`);
+        await prisma.offseter.update({ where, data });
+    },
+
+    async handleClaim(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const [totalClaimed] = await Promise.all([model.getTotalClaimed()]);
+        const data = { totalClaimed };
+        console.log(`${address} > Sync offseter total claimed`);
+        await prisma.offseter.update({ where, data });
     },
 }
 
