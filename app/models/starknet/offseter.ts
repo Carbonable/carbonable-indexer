@@ -1,111 +1,61 @@
-import { ProviderInterface, RawCalldata, number } from "starknet";
+import { ProviderInterface, RawCalldata } from "starknet";
+import { Contract } from './contract';
 
-export class Offseter {
-  private readonly address: string;
-  private readonly provider: ProviderInterface;
+export class Offseter extends Contract {
 
   constructor(address: string, provider: ProviderInterface) {
-    this.address = address;
-    this.provider = provider;
+    super(address, provider);
+    this.properties = [
+      'getImplementationHash',
+      'getCarbonableProjectAddress',
+      'getMinClaimable',
+      'getTotalDeposited',
+      'getTotalClaimed',
+      'getTotalClaimable',
+    ];
   }
 
   async getImplementationHash(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getImplementationHash',
-      calldata,
-    })
-    return number.toHex(number.toBN(result[0]));
+    return await this.fetch('getImplementationHash', this.toHex, calldata);
   }
 
   async getCarbonableProjectAddress(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getCarbonableProjectAddress',
-      calldata,
-    });
-    return number.toHex(number.toBN(result[0]));
+    return await this.fetch('getCarbonableProjectAddress', this.toHex, calldata);
   }
 
   async getMinClaimable(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getMinClaimable',
-      calldata,
-    });
-    return Number(number.toBN(result[0]));
+    return await this.fetch('getMinClaimable', this.toInt, calldata);
   }
 
   async getTotalDeposited(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getTotalDeposited',
-      calldata,
-    });
-    return Number(number.toBN(result[0]));
+    return await this.fetch('getTotalDeposited', this.toInt, calldata);
   }
 
   async getTotalClaimed(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getTotalClaimed',
-      calldata,
-    });
-    return Number(number.toBN(result[0]));
+    return await this.fetch('getTotalClaimed', this.toInt, calldata);
   }
 
   async getTotalClaimable(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getTotalClaimable',
-      calldata,
-    });
-    return Number(number.toBN(result[0]));
+    return await this.fetch('getTotalClaimable', this.toInt, calldata);
   }
 
   async getClaimableOf(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getClaimableOf',
-      calldata,
-    });
-    return Number(number.toBN(result[0]));
+    return await this.fetch('getClaimableOf', this.toInt, calldata);
   }
 
   async getClaimedOf(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getClaimedOf',
-      calldata,
-    });
-    return Number(number.toBN(result[0]));
+    return await this.fetch('getClaimedOf', this.toInt, calldata);
   }
 
   async getRegisteredOwnerOf(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getRegisteredOwnerOf',
-      calldata,
-    });
-    return number.toHex(number.toBN(result[0]));
+    return await this.fetch('getRegisteredOwnerOf', this.toHex, calldata);
   }
 
   async getRegisteredTimeOf(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getRegisteredTimeOf',
-      calldata,
-    });
-    return new Date(Number(number.toBN(result[0])));
+    return await this.fetch('getRegisteredTimeOf', this.toDate, calldata);
   }
 
   async getRegisteredTokensOf(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getRegisteredTokensOf',
-      calldata,
-    });
-    // Slip 0 values which comes from Uint256 high
-    return result.slice(1).map((token) => Number(token)).filter((token) => Boolean(token));
+    return await this.fetch('getRegisteredTokensOf', this.toNNInts, calldata);
   }
 }
