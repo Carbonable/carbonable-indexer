@@ -1,7 +1,12 @@
-import { ProviderInterface, RawCalldata } from "starknet";
-import { Contract } from './contract';
+import { ProviderInterface, RawCalldata, hash } from "starknet";
+import Contract from './contract';
+import { hexToBuffer } from '@apibara/protocol';
 
-export class Project extends Contract {
+const ABSORPTION_UPDATE = hexToBuffer(hash.getSelectorFromName('AbsorptionUpdate'), 32);
+
+export { ABSORPTION_UPDATE };
+
+export default class Project extends Contract {
 
   constructor(address: string, provider: ProviderInterface) {
     super(address, provider);

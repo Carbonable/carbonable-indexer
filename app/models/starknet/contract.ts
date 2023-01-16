@@ -1,6 +1,11 @@
 import { ProviderInterface, RawCalldata, shortString, number, hash } from "starknet";
+import { hexToBuffer } from '@apibara/protocol';
 
-export class Contract {
+const UPGRADED = hexToBuffer(hash.getSelectorFromName('PreSaleOpen'), 32);
+
+export { UPGRADED };
+
+export default class Contract {
     private readonly multicall: string = '0x05754af3760f3356da99aea5c3ec39ccac7783d925a19666ebbeca58ff0087f4';
     private state: string[][] = [];
     protected readonly address: string;

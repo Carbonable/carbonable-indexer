@@ -1,7 +1,15 @@
-import { ProviderInterface, RawCalldata } from "starknet";
-import { Contract } from './contract';
+import { ProviderInterface, RawCalldata, hash } from "starknet";
+import Contract from './contract';
+import { hexToBuffer } from '@apibara/protocol';
 
-export class Yielder extends Contract {
+const SNAPSHOT = hexToBuffer(hash.getSelectorFromName('Snapshot'), 32);
+const USER_SNAPSHOT = hexToBuffer(hash.getSelectorFromName('UserSnapshot'), 32);
+const VESTING = hexToBuffer(hash.getSelectorFromName('Vesting'), 32);
+const USER_VESTING = hexToBuffer(hash.getSelectorFromName('UserVesting'), 32);
+
+export { SNAPSHOT, USER_SNAPSHOT, VESTING, USER_VESTING };
+
+export default class Yielder extends Contract {
 
   constructor(address: string, provider: ProviderInterface) {
     super(address, provider);
@@ -11,7 +19,6 @@ export class Yielder extends Contract {
       'getCarbonableOffseterAddress',
       'getCarbonableVesterAddress',
       'getTotalDeposited',
-      'getTotalAbsorption',
       'getSnapshotedTime',
     ];
   }

@@ -1,4 +1,4 @@
-import { Payment } from '../models/starknet/payment';
+import Payment from '../models/starknet/payment';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 

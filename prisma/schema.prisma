@@ -23,8 +23,6 @@ model Project {
   times          DateTime[]
   absorptions    Float[]
   Minter         Minter[]
-  Token          Token[]
-  Snapshot       Snapshot[]
   Offseter       Offseter[]
   Yielder        Yielder[]
 }
@@ -56,21 +54,11 @@ model Minter {
   paymentId           Int
 }
 
-model Token {
-  id       Int    @id @default(autoincrement())
-  token_id Int
-  uri      String
-  owner    String
-
-  Project   Project @relation(fields: [projectId], references: [id])
-  projectId Int
-}
-
 model Offseter {
   id             Int     @id @default(autoincrement())
   address        String  @unique
   implementation String
-  totalDeposited Int
+  totalDeposited Float
   totalClaimed   Float
   totalClaimable Float
   minClaimable   Float
@@ -79,22 +67,20 @@ model Offseter {
 }
 
 model Snapshot {
-  id                           Int      @id @default(autoincrement())
-  previous_time                DateTime
-  previous_project_absorption  Int
-  previous_offseter_absorption Int
-  previous_yielder_absorption  Int
-  current_project_absorption   Int
-  current_offseter_absorption  Int
-  current_yielder_absorption   Int
-  project_absorption           Int
-  offseter_absorption          Int
-  yielder_absorption           Int
-  time                         DateTime
-  Yielder                      Yielder  @relation(fields: [yielderId], references: [id])
-  yielderId                    Int
-  Project                      Project  @relation(fields: [projectId], references: [id])
-  projectId                    Int
+  id                         Int      @id @default(autoincrement())
+  previousTime               DateTime
+  previousProjectAbsorption  Float
+  previousOffseterAbsorption Float
+  previousYielderAbsorption  Float
+  currentProjectAbsorption   Float
+  currentOffseterAbsorption  Float
+  currentYielderAbsorption   Float
+  projectAbsorption          Float
+  offseterAbsorption         Float
+  yielderAbsorption          Float
+  time                       DateTime
+  Yielder                    Yielder  @relation(fields: [yielderId], references: [id])
+  yielderId                  Int
 }
 
 model Yielder {
@@ -108,18 +94,16 @@ model Yielder {
   vesting         Vesting[]
   Project         Project    @relation(fields: [projectId], references: [id])
   projectId       Int
+  Vester          Vester     @relation(fields: [vesterId], references: [id])
+  vesterId        Int
 }
 
 model Vesting {
-  id         Int      @id @default(autoincrement())
-  vesting_id Int
-  claimable  Int
-  time       DateTime
-  user       String
-  Yielder    Yielder  @relation(fields: [yielderId], references: [id])
-  yielderId  Int
-  Vester     Vester   @relation(fields: [vesterId], references: [id])
-  vesterId   Int
+  id        Int      @id @default(autoincrement())
+  amount    Float
+  time      DateTime
+  Yielder   Yielder  @relation(fields: [yielderId], references: [id])
+  yielderId Int
 }
 
 model Vester {
@@ -128,11 +112,11 @@ model Vester {
   implementation     String
   totalAmount        Float
   withdrawableAmount Float
-  vesting            Vesting[]
+  Yielder            Yielder[]
 }
 
 model Block {
   id     Int    @id @default(autoincrement())
   name   String @unique
-  number Int
+  number Float
 }
