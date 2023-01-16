@@ -130,3 +130,9 @@ model Vester {
   withdrawableAmount Float
   vesting            Vesting[]
 }
+
+model Block {
+  id     Int    @id @default(autoincrement())
+  name   String @unique
+  number Int
+}
