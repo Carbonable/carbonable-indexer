@@ -1,29 +1,20 @@
-import { ProviderInterface, RawCalldata, number } from "starknet";
+import { ProviderInterface, RawCalldata } from "starknet";
+import { Contract } from './contract';
 
-export class Payment {
-  private readonly address: string;
-  private readonly provider: ProviderInterface;
+export class Payment extends Contract {
 
   constructor(address: string, provider: ProviderInterface) {
-    this.address = address;
-    this.provider = provider;
+    super(address, provider);
+    this.properties = [
+      'decimals',
+    ];
   }
 
   async getDecimals(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'decimals',
-      calldata,
-    })
-    return Number(number.toBN(result[0]));
+    return await this.fetch('decimals', this.toInt, calldata);
   }
 
   async getAllowance(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'allowance',
-      calldata,
-    })
-    return Number(number.toBN(result[0]));
+    return await this.fetch('allowance', this.toInt, calldata);
   }
 }

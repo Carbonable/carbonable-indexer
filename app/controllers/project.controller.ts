@@ -13,6 +13,7 @@ const controller = {
 
     async create(address: string) {
         const model = controller.load(address);
+        await model.sync();
 
         const [implementation, name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions] = await Promise.all([
             model.getImplementationHash(),

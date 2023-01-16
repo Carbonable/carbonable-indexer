@@ -39,7 +39,12 @@ const controller = {
 
         let payment = await paymentController.read({ address: paymentAddress });
         if (!payment) {
-            payment = await paymentController.create(paymentAddress);
+            try {
+                payment = await paymentController.create(paymentAddress);
+            } catch (_error) {
+                // Could be a collision since several minters refer to the same payment contract, then just re-read
+                payment = await paymentController.read({ address: paymentAddress });
+            }
         }
 
         const data = { address, implementation, maxSupply, reservedSupply, preSaleOpen, publicSaleOpen, maxBuyPerTx, unitPrice, whitelistMerkleRoot, soldOut, totalValue, whitelist, projectId: project.id, paymentId: payment.id };

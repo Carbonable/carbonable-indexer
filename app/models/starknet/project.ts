@@ -1,155 +1,84 @@
-import { ProviderInterface, RawCalldata, shortString, number } from "starknet";
+import { ProviderInterface, RawCalldata } from "starknet";
+import { Contract } from './contract';
 
-export class Project {
-  private readonly address: string;
-  private readonly provider: ProviderInterface;
+export class Project extends Contract {
 
   constructor(address: string, provider: ProviderInterface) {
-    this.address = address;
-    this.provider = provider;
+    super(address, provider);
+    this.properties = [
+      'getImplementationHash',
+      'totalSupply',
+      'name',
+      'symbol',
+      'contractURI',
+      'owner',
+      'getTonEquivalent',
+      'getTimes',
+      'getAbsorptions',
+    ];
   }
 
   async getImplementationHash(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getImplementationHash',
-      calldata,
-    })
-    return number.toHex(number.toBN(result[0]));
+    return await this.fetch('getImplementationHash', this.toHex, calldata);
   }
 
   async getTotalSupply(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'totalSupply',
-      calldata,
-    })
-    return Number(number.toBN(result[0]));
+    return await this.fetch('totalSupply', this.toInt, calldata);
   }
 
   async getTokenByIndex(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'tokenByIndex',
-      calldata,
-    })
-    return Number(number.toBN(result[0]));
+    return await this.fetch('tokenByIndex', this.toInt, calldata);
   }
 
   async getTokenOfOwnerByIndex(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'tokenByIndex',
-      calldata,
-    })
-    return Number(number.toBN(result[0]));
+    return await this.fetch('tokenOfOwnerByIndex', this.toInt, calldata);
   }
 
   async getName(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'name',
-      calldata,
-    })
-    return shortString.decodeShortString(result[0]);
+    return await this.fetch('name', this.toShortString, calldata);
   }
 
   async getSymbol(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'symbol',
-      calldata,
-    })
-    return shortString.decodeShortString(result[0]);
+    return await this.fetch('symbol', this.toShortString, calldata);
   }
 
   async getBalanceOf(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'balanceOf',
-      calldata,
-    })
-    return Number(number.toBN(result[0]));
+    return await this.fetch('balanceOf', this.toInt, calldata);
   }
 
   async getOwnerOf(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'ownerOf',
-      calldata,
-    })
-    return number.toHex(number.toBN(result[0]));
+    return await this.fetch('ownerOf', this.toHex, calldata);
   }
 
   async getApproved(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getApproved',
-      calldata,
-    })
-    return Boolean(Number(number.toBN(result[0])));
+    return await this.fetch('getApproved', this.toBool, calldata);
   }
 
   async isApprovedForAll(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'isApprovedForAll',
-      calldata,
-    })
-    return Boolean(Number(number.toBN(result[0])));
+    return await this.fetch('isApprovedForAll', this.toBool, calldata);
   }
 
   async getTokenUri(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'tokenURI',
-      calldata,
-    })
-    return result.slice(1).map((char) => shortString.decodeShortString(char)).join('');
+    return await this.fetch('tokenURI', this.toString, calldata);
   }
 
   async getContractUri(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'contractURI',
-      calldata,
-    })
-    return result.slice(1).map((char) => shortString.decodeShortString(char)).join('');
+    return await this.fetch('contractURI', this.toString, calldata);
   }
 
   async getOwner(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'owner',
-      calldata,
-    })
-    return number.toHex(number.toBN(result[0]));
+    return await this.fetch('owner', this.toHex, calldata);
   }
 
   async getTonEquivalent(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getTonEquivalent',
-      calldata,
-    })
-    return Number(number.toBN(result[0]));
+    return await this.fetch('getTonEquivalent', this.toInt, calldata);
   }
 
   async getTimes(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getTimes',
-      calldata,
-    })
-    return result.slice(1).map((time) => new Date(Number(time) * 1000));
+    return await this.fetch('getTimes', this.toDates, calldata);
   }
 
   async getAbsorptions(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getAbsorptions',
-      calldata,
-    })
-    return result.slice(1).map((absorption) => Number(absorption));
+    return await this.fetch('getAbsorptions', this.toInts, calldata);
   }
 }

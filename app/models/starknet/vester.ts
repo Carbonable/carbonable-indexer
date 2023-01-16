@@ -1,74 +1,42 @@
-import { ProviderInterface, RawCalldata, number } from "starknet";
+import { ProviderInterface, RawCalldata } from "starknet";
+import { Contract } from './contract';
 
-export class Vester {
-  private readonly address: string;
-  private readonly provider: ProviderInterface;
+export class Vester extends Contract {
 
   constructor(address: string, provider: ProviderInterface) {
-    this.address = address;
-    this.provider = provider;
+    super(address, provider);
+    this.properties = [
+      'getImplementationHash',
+      'vestings_total_amount',
+      'withdrawable_amount',
+    ];
   }
 
   async getImplementationHash(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'getImplementationHash',
-      calldata,
-    })
-    return number.toHex(number.toBN(result[0]));
+    return await this.fetch('getImplementationHash', this.toHex, calldata);
   }
 
   async getVestingTotalAmount(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'vestings_total_amount',
-      calldata,
-    });
-    return Number(number.toBN(result[0]));
+    return await this.fetch('vestings_total_amount', this.toInt, calldata);
   }
 
   async getVestingCount(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'vesting_count',
-      calldata,
-    });
-    return Number(number.toBN(result[0]));
+    return await this.fetch('vesting_count', this.toInt, calldata);
   }
 
   async getVestingId(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'get_vesting_id',
-      calldata,
-    });
-    return Number(number.toBN(result[0]));
+    return await this.fetch('get_vesting_id', this.toInt, calldata);
   }
 
   async getWithdrawableAmount(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'withdrawable_amount',
-      calldata,
-    });
-    return Number(number.toBN(result[0]));
+    return await this.fetch('withdrawable_amount', this.toInt, calldata);
   }
 
   async getReleasableAmount(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'releasable_amount',
-      calldata,
-    });
-    return Number(number.toBN(result[0]));
+    return await this.fetch('releasable_amount', this.toInt, calldata);
   }
 
   async getReleasableOf(calldata?: RawCalldata) {
-    const { result } = await this.provider.callContract({
-      contractAddress: this.address,
-      entrypoint: 'releasableOf',
-      calldata,
-    });
-    return Number(number.toBN(result[0]));
+    return await this.fetch('releasableOf', this.toInt, calldata);
   }
 }
