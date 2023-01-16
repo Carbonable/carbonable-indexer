@@ -1,7 +1,7 @@
 import { ProviderInterface, RawCalldata, shortString, number, hash } from "starknet";
 import { hexToBuffer } from '@apibara/protocol';
 
-const UPGRADED = hexToBuffer(hash.getSelectorFromName('PreSaleOpen'), 32);
+const UPGRADED = hexToBuffer(hash.getSelectorFromName('Upgraded'), 32);
 
 export { UPGRADED };
 

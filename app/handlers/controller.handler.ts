@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
+import logger from './logger';
 
 export default (controller) => async (request: Request, response: Response, next: NextFunction) => {
     try {
-        console.log('controller handler calling : ', controller.name);
+        logger.request(`${request.originalUrl} (${controller.name})`);
         await controller(request, response, next);
     } catch (err) {
         next(err);

@@ -1,3 +1,5 @@
+import logger from "../handlers/logger";
+
 import Project from '../models/starknet/project';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
@@ -92,7 +94,7 @@ const controller = {
 
         const implementation = await model.getImplementationHash();
         const data = { implementation };
-        console.log(`${address} > Sync project implementation`);
+        logger.project(`Upgraded (${address})`);
         await prisma.project.update({ where, data });
     },
 
@@ -108,7 +110,7 @@ const controller = {
             model.getAbsorptions(),
         ]);
         const data = { tonEquivalent, times, absorptions };
-        console.log(`${address} > Sync project absorptions`);
+        logger.project(`AbsorptionUpdate (${address})`);
         await prisma.project.update({ where, data });
     }
 }

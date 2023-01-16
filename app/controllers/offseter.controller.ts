@@ -1,3 +1,5 @@
+import logger from '../handlers/logger';
+
 import Offseter from '../models/starknet/offseter';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
@@ -72,7 +74,7 @@ const controller = {
 
         const implementation = await model.getImplementationHash();
         const data = { implementation };
-        console.log(`${address} > Sync offseter implementation`);
+        logger.offseter(`Upgraded (${address})`);
         await prisma.offseter.update({ where, data });
     },
 
@@ -84,7 +86,7 @@ const controller = {
 
         const [totalDeposited] = await Promise.all([model.getTotalDeposited()]);
         const data = { totalDeposited };
-        console.log(`${address} > Sync offseter total deposited`);
+        logger.offseter(`Deposit/Withdraw (${address})`);
         await prisma.offseter.update({ where, data });
     },
 
@@ -96,7 +98,7 @@ const controller = {
 
         const [totalClaimed] = await Promise.all([model.getTotalClaimed()]);
         const data = { totalClaimed };
-        console.log(`${address} > Sync offseter total claimed`);
+        logger.offseter(`Claim (${address})`);
         await prisma.offseter.update({ where, data });
     },
 }

@@ -1,3 +1,5 @@
+import logger from "../handlers/logger";
+
 import Minter from '../models/starknet/minter';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
@@ -104,7 +106,7 @@ const controller = {
 
         const implementation = await model.getImplementationHash();
         const data = { implementation };
-        console.log(`${address} > Sync minter implementation`);
+        logger.minter(`Upgraded (${address})`);
         await prisma.minter.update({ where, data });
     },
 
@@ -116,7 +118,7 @@ const controller = {
 
         const [preSaleOpen] = await Promise.all([model.isPreSaleOpen()]);
         const data = { preSaleOpen };
-        console.log(`${address} > Sync minter pre sale`);
+        logger.minter(`PreSaleOpen/Close (${address})`);
         await prisma.minter.update({ where, data });
     },
 
@@ -128,7 +130,7 @@ const controller = {
 
         const [publicSaleOpen] = await Promise.all([model.isPublicSaleOpen()]);
         const data = { publicSaleOpen };
-        console.log(`${address} > Sync minter public sale`);
+        logger.minter(`PublicSaleOpen/Close (${address})`);
         await prisma.minter.update({ where, data });
     },
 
@@ -140,7 +142,7 @@ const controller = {
 
         const [soldOut] = await Promise.all([model.isSoldOut()]);
         const data = { soldOut };
-        console.log(`${address} > Sync minter sold out`);
+        logger.minter(`SoldOut (${address})`);
         await prisma.minter.update({ where, data });
     },
 }

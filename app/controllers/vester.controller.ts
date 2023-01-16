@@ -1,3 +1,5 @@
+import logger from '../handlers/logger';
+
 import Vester from '../models/starknet/vester';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
@@ -87,7 +89,7 @@ const controller = {
 
         const implementation = await model.getImplementationHash();
         const data = { implementation };
-        console.log(`${address} > Sync vester implementation`);
+        logger.vester(`Upgraded (${address})`);
         await prisma.vester.update({ where, data });
     },
 }

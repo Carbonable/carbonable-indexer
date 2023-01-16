@@ -1,6 +1,7 @@
-
 import { proto, hexToBuffer } from "@apibara/protocol";
 import { Block, TransactionReceipt } from "@apibara/starknet";
+
+import logger from "../handlers/logger";
 
 import prisma from '../models/database/client';
 import indexer, { START_BLOCK, INDEXER_NAME } from '../models/indexer/client';
@@ -17,7 +18,6 @@ import offseter from './offseter.controller';
 import yielder from './yielder.controller';
 
 import data from '../models/database/mainnet.data.json';
-import { Prisma } from "@prisma/client";
 
 const main = {
 
@@ -75,7 +75,7 @@ const main = {
             const block = Block.decode(message.data.data.value);
             await main.handleBlock(block);
         } else if (message.invalidate) {
-            console.log(message.invalidate);
+            logger.error(String(message.invalidate));
         }
     },
 
@@ -86,7 +86,7 @@ const main = {
         });
 
         // updated indexed block
-        console.log(block.blockNumber);
+        logger.block(block.blockNumber);
         await prisma.block.update({
             where: { name: INDEXER_NAME },
             data: { number: block.blockNumber }
@@ -103,18 +103,18 @@ const main = {
             if (found) {
                 if (UPGRADED.equals(event.keys[0])) {
                     project.handleUpgraded(found.address);
-                    return;
-                };
-                if (ABSORPTION_UPDATE.equals(event.keys[0])) {
+                } else if (ABSORPTION_UPDATE.equals(event.keys[0])) {
                     project.handleAbsorptionUpdate(found.address);
-                    return;
                 };
+                return;
             };
 
             const minters = await prisma.minter.findMany();
             found = minters.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
             if (found) {
-                if (PRE_SALE_OPEN.equals(event.keys[0]) || PRE_SALE_CLOSE.equals(event.keys[0])) {
+                if (UPGRADED.equals(event.keys[0])) {
+                    minter.handleUpgraded(found.address);
+                } else if (PRE_SALE_OPEN.equals(event.keys[0]) || PRE_SALE_CLOSE.equals(event.keys[0])) {
                     minter.handlePreSale(found.address);
                 } else if (PUBLIC_SALE_OPEN.equals(event.keys[0]) || PUBLIC_SALE_CLOSE.equals(event.keys[0])) {
                     minter.handlePublicSale(found.address);
@@ -124,10 +124,21 @@ const main = {
                 return;
             };
 
+            const vesters = await prisma.vester.findMany();
+            found = vesters.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
+            if (found) {
+                if (UPGRADED.equals(event.keys[0])) {
+                    vester.handleUpgraded(found.address);
+                };
+                return;
+            };
+
             const offseters = await prisma.offseter.findMany();
             found = offseters.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
             if (found) {
-                if (DEPOSIT.equals(event.keys[0]) || WITHDRAW.equals(event.keys[0])) {
+                if (UPGRADED.equals(event.keys[0])) {
+                    offseter.handleUpgraded(found.address);
+                } else if (DEPOSIT.equals(event.keys[0]) || WITHDRAW.equals(event.keys[0])) {
                     offseter.handleDepositOrWithdraw(found.address);
                 } else if (CLAIM.equals(event.keys[0])) {
                     offseter.handleClaim(found.address);
@@ -138,7 +149,9 @@ const main = {
             const yielders = await prisma.yielder.findMany();
             found = yielders.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
             if (found) {
-                if (DEPOSIT.equals(event.keys[0]) || WITHDRAW.equals(event.keys[0])) {
+                if (UPGRADED.equals(event.keys[0])) {
+                    yielder.handleUpgraded(found.address);
+                } else if (DEPOSIT.equals(event.keys[0]) || WITHDRAW.equals(event.keys[0])) {
                     yielder.handleDepositOrWithdraw(found.address);
                 } else if (SNAPSHOT.equals(event.keys[0])) {
                     // Remove first value and convert the rest

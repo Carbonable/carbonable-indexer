@@ -1,3 +1,5 @@
+import logger from '../handlers/logger';
+
 import Yielder from '../models/starknet/yielder';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
@@ -80,7 +82,7 @@ const controller = {
 
         const implementation = await model.getImplementationHash();
         const data = { implementation };
-        console.log(`${address} > Sync yielder implementation`);
+        logger.yielder(`Upgraded (${address})`);
         await prisma.yielder.update({ where, data });
     },
 
@@ -92,7 +94,7 @@ const controller = {
 
         const [totalDeposited] = await Promise.all([model.getTotalDeposited()]);
         const data = { totalDeposited };
-        console.log(`${address} > Sync yielder total deposited`);
+        logger.yielder(`Deposit/Withdraw (${address})`);
         await prisma.offseter.update({ where, data });
     },
 
@@ -100,7 +102,7 @@ const controller = {
         const where = { address };
         const yielder = await controller.read(where);
         args.push(String(yielder.id));
-        console.log(`${yielder.address} > New snapshot`);
+        logger.yielder(`Snapshot (${address})`);
         snapshotController.create(...args);
     },
 
@@ -108,7 +110,7 @@ const controller = {
         const where = { address };
         const yielder = await controller.read(where);
         args.push(String(yielder.id));
-        console.log(`${yielder.address} > New vesting`);
+        logger.yielder(`Vesting (${address})`);
         vestingController.create(...args);
     },
 }
