@@ -98,6 +98,18 @@ const controller = {
         await prisma.project.update({ where, data });
     },
 
+    async handleMint(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const totalSupply = await model.getTotalSupply();
+        const data = { totalSupply };
+        logger.project(`Mint (${address})`);
+        await prisma.project.update({ where, data });
+    },
+
     async handleAbsorptionUpdate(address: string) {
         const where = { address };
 

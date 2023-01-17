@@ -44,7 +44,7 @@ const controller = {
             try {
                 payment = await paymentController.create(paymentAddress);
             } catch (_error) {
-                // Could be a collision since several minters refer to the same payment contract, then just re-read
+                // Could have collided since several minters refer to the same payment contract, then just re-read
                 payment = await paymentController.read({ address: paymentAddress });
             }
         }
@@ -108,6 +108,12 @@ const controller = {
         const data = { implementation };
         logger.minter(`Upgraded (${address})`);
         await prisma.minter.update({ where, data });
+    },
+
+    async handleAirdropOrBuy(address: string) {
+        const model = controller.load(address);
+        const projectAddress = await model.getCarbonableProjectAddress();
+        projectController.handleMint(projectAddress);
     },
 
     async handlePreSale(address: string) {
