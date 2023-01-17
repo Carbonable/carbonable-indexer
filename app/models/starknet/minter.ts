@@ -2,13 +2,15 @@ import { ProviderInterface, RawCalldata, hash } from "starknet";
 import Contract from './contract';
 import { hexToBuffer } from '@apibara/protocol';
 
+const AIRDROP = hexToBuffer(hash.getSelectorFromName('Airdrop'), 32);
+const BUY = hexToBuffer(hash.getSelectorFromName('Buy'), 32);
 const PRE_SALE_OPEN = hexToBuffer(hash.getSelectorFromName('PreSaleOpen'), 32);
 const PRE_SALE_CLOSE = hexToBuffer(hash.getSelectorFromName('PreSaleClose'), 32);
 const PUBLIC_SALE_OPEN = hexToBuffer(hash.getSelectorFromName('PublicSaleOpen'), 32);
 const PUBLIC_SALE_CLOSE = hexToBuffer(hash.getSelectorFromName('PublicSaleClose'), 32);
 const SOLD_OUT = hexToBuffer(hash.getSelectorFromName('SoldOut'), 32);
 
-export { PRE_SALE_OPEN, PRE_SALE_CLOSE, PUBLIC_SALE_OPEN, PUBLIC_SALE_CLOSE, SOLD_OUT };
+export { AIRDROP, BUY, PRE_SALE_OPEN, PRE_SALE_CLOSE, PUBLIC_SALE_OPEN, PUBLIC_SALE_CLOSE, SOLD_OUT };
 
 export default class Minter extends Contract {
 
