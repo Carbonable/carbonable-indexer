@@ -1,3 +1,8 @@
+import { hexToBuffer } from "@apibara/protocol";
+import { Event } from "@apibara/starknet";
+import { UPGRADED } from '../models/starknet/contract';
+import { AIRDROP, BUY, PRE_SALE_OPEN, PRE_SALE_CLOSE, PUBLIC_SALE_OPEN, PUBLIC_SALE_CLOSE, SOLD_OUT } from '../models/starknet/minter';
+
 import logger from "../handlers/logger";
 
 import Minter from '../models/starknet/minter';
@@ -96,6 +101,22 @@ const controller = {
         const model = controller.load(minter.address);
         const slots = await model.getClaimedSlots([request.params.user]);
         return response.status(200).json({ address: minter.address, user: request.params.user, slots });
+    },
+
+    async handleEvent(event: Event) {
+        const minters = await prisma.minter.findMany();
+        const found = minters.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
+        if (found && UPGRADED.equals(event.keys[0])) {
+            controller.handleUpgraded(found.address);
+        } else if (found && (AIRDROP.equals(event.keys[0])) || BUY.equals(event.keys[0])) {
+            controller.handleAirdropOrBuy(found.address);
+        } else if (found && (PRE_SALE_OPEN.equals(event.keys[0]) || PRE_SALE_CLOSE.equals(event.keys[0]))) {
+            controller.handlePreSale(found.address);
+        } else if (found && (PUBLIC_SALE_OPEN.equals(event.keys[0]) || PUBLIC_SALE_CLOSE.equals(event.keys[0]))) {
+            controller.handlePublicSale(found.address);
+        } else if (found && SOLD_OUT.equals(event.keys[0])) {
+            controller.handleSoldOut(found.address);
+        };
     },
 
     async handleUpgraded(address: string) {

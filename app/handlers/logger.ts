@@ -14,36 +14,41 @@ const logger = {
             ("00" + date.getSeconds()).slice(-2);
     },
 
+    memory() {
+        const mega = 1_000_000;
+        return Math.round(process.memoryUsage().rss / mega);
+    },
+
     block(number: number) {
-        log(blackBright(`[${logger.time()}]`), bold(blackBright(`BLOCK #${number}`)));
+        log(blackBright(`[${logger.time()} > ${logger.memory()}Mo]`), bold(blackBright(`BLOCK #${number}`)));
     },
 
     project(message: string) {
-        log(blackBright(`[${logger.time()}]`), bold(yellow(`PROJECT EVENT`)), white(`> ${message}`));
+        log(blackBright(`[${logger.time()} > ${logger.memory()}Mo]`), bold(yellow(`PROJECT EVENT`)), white(`> ${message}`));
     },
 
     minter(message: string) {
-        log(blackBright(`[${logger.time()}]`), bold(magenta(`MINTER EVENT`)), white(`> ${message}`));
+        log(blackBright(`[${logger.time()} > ${logger.memory()}Mo]`), bold(magenta(`MINTER EVENT`)), white(`> ${message}`));
     },
 
     vester(message: string) {
-        log(blackBright(`[${logger.time()}]`), bold(blue(`VESTER EVENT`)), white(`> ${message}`));
+        log(blackBright(`[${logger.time()} > ${logger.memory()}Mo]`), bold(blue(`VESTER EVENT`)), white(`> ${message}`));
     },
 
     offseter(message: string) {
-        log(blackBright(`[${logger.time()}]`), bold(green(`OFFSETER EVENT`)), white(`> ${message}`));
+        log(blackBright(`[${logger.time()} > ${logger.memory()}Mo]`), bold(green(`OFFSETER EVENT`)), white(`> ${message}`));
     },
 
     yielder(message: string) {
-        log(blackBright(`[${logger.time()}]`), bold(cyan(`YIELDER EVENT`)), white(`> ${message}`));
+        log(blackBright(`[${logger.time()} > ${logger.memory()}Mo]`), bold(cyan(`YIELDER EVENT`)), white(`> ${message}`));
     },
 
     request(message: string) {
-        log(blackBright(`[${logger.time()}]`), bold(red(`REQUEST`)), white(`> ${message}`));
+        log(blackBright(`[${logger.time()} > ${logger.memory()}Mo]`), bold(red(`REQUEST`)), white(`> ${message}`));
     },
 
     error(message: string) {
-        log(red(`[${logger.time()}]`), bold(red(`ERROR`)), red(`> ${message}`));
+        log(red(`[${logger.time()} > ${logger.memory()}Mo]`), bold(red(`ERROR`)), red(`> ${message}`));
     },
 }
 

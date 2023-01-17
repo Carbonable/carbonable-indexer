@@ -1,3 +1,9 @@
+import { hexToBuffer, bufferToHex } from "@apibara/protocol";
+import { Event } from "@apibara/starknet";
+import { UPGRADED } from '../models/starknet/contract';
+import { DEPOSIT, WITHDRAW } from '../models/starknet/offseter';
+import { SNAPSHOT, VESTING } from '../models/starknet/yielder';
+
 import logger from '../handlers/logger';
 
 import Yielder from '../models/starknet/yielder';
@@ -74,6 +80,24 @@ const controller = {
         return response.status(200).json(yielders);
     },
 
+    async handleEvent(event: Event) {
+        const yielders = await prisma.yielder.findMany();
+        const found = yielders.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
+        if (found && UPGRADED.equals(event.keys[0])) {
+            controller.handleUpgraded(found.address);
+        } else if (found && (DEPOSIT.equals(event.keys[0]) || WITHDRAW.equals(event.keys[0]))) {
+            controller.handleDepositOrWithdraw(found.address);
+        } else if (found && SNAPSHOT.equals(event.keys[0])) {
+            // Remove first value and convert the rest
+            const args = event.data.slice(1).map((row) => bufferToHex(Buffer.from(row)).toString());
+            controller.handleSnapshot(found.address, args);
+        } else if (found && VESTING.equals(event.keys[0])) {
+            // Remove first value and convert the rest
+            const args = event.data.slice(1).map((row) => bufferToHex(Buffer.from(row)).toString());
+            controller.handleVesting(found.address, args);
+        };
+    },
+
     async handleUpgraded(address: string) {
         const where = { address };
 
@@ -95,23 +119,48 @@ const controller = {
         const [totalDeposited] = await Promise.all([model.getTotalDeposited()]);
         const data = { totalDeposited };
         logger.yielder(`Deposit/Withdraw (${address})`);
-        await prisma.offseter.update({ where, data });
+        await prisma.yielder.update({ where, data });
     },
 
     async handleSnapshot(address: string, args: string[]) {
-        const where = { address };
-        const yielder = await controller.read(where);
-        args.push(String(yielder.id));
+        const yielder = await controller.read({ address });
+        const data = {
+            previousTime: new Date(Number(args[0]) * 1000),
+            previousProjectAbsorption: Number(args[1]),
+            previousOffseterAbsorption: Number(args[2]),
+            previousYielderAbsorption: Number(args[3]),
+            time: new Date(Number(args[4]) * 1000),
+            currentProjectAbsorption: Number(args[5]),
+            currentOffseterAbsorption: Number(args[6]),
+            currentYielderAbsorption: Number(args[7]),
+            projectAbsorption: Number(args[8]),
+            offseterAbsorption: Number(args[9]),
+            yielderAbsorption: Number(args[10]),
+            yielderId: yielder.id,
+        };
+
         logger.yielder(`Snapshot (${address})`);
-        snapshotController.create(...args);
+        const where = { snapshotIdentifier: { time: data.time, yielderId: data.yielderId } };
+        const snapshot = await snapshotController.read(where);
+        if (!snapshot) {
+            snapshotController.create(data);
+        }
     },
 
     async handleVesting(address: string, args: string[]) {
-        const where = { address };
-        const yielder = await controller.read(where);
-        args.push(String(yielder.id));
+        const yielder = await controller.read({ address });
+        const data = {
+            amount: Number(args[0]),
+            time: new Date(Number(args[1]) * 1000),
+            yielderId: yielder.id,
+        };
+
         logger.yielder(`Vesting (${address})`);
-        vestingController.create(...args);
+        const where = { vestingIdentifier: { time: data.time, yielderId: data.yielderId } };
+        const vesting = await vestingController.read(where);
+        if (!vesting) {
+            vestingController.create(data);
+        }
     },
 }
 

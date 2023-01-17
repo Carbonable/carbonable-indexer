@@ -1,3 +1,8 @@
+import { hexToBuffer } from "@apibara/protocol";
+import { Event } from "@apibara/starknet";
+import { UPGRADED } from '../models/starknet/contract';
+import { DEPOSIT, WITHDRAW, CLAIM } from '../models/starknet/offseter';
+
 import logger from '../handlers/logger';
 
 import Offseter from '../models/starknet/offseter';
@@ -64,6 +69,18 @@ const controller = {
     async getAll(_request: Request, response: Response, _next: NextFunction) {
         const projects = await prisma.offseter.findMany();
         return response.status(200).json(projects);
+    },
+
+    async handleEvent(event: Event) {
+        const offseters = await prisma.offseter.findMany();
+        const found = offseters.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
+        if (found && UPGRADED.equals(event.keys[0])) {
+            controller.handleUpgraded(found.address);
+        } else if (found && (DEPOSIT.equals(event.keys[0]) || WITHDRAW.equals(event.keys[0]))) {
+            controller.handleDepositOrWithdraw(found.address);
+        } else if (found && CLAIM.equals(event.keys[0])) {
+            controller.handleClaim(found.address);
+        };
     },
 
     async handleUpgraded(address: string) {
