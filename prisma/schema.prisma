@@ -43,8 +43,8 @@ model Minter {
   preSaleOpen         Boolean
   publicSaleOpen      Boolean
   maxBuyPerTx         Int
-  unitPrice           Int
-  whitelistMerkleRoot Int
+  unitPrice           Float
+  whitelistMerkleRoot String
   soldOut             Boolean
   totalValue          Float
   Whitelist           Json?
@@ -81,6 +81,8 @@ model Snapshot {
   time                       DateTime
   Yielder                    Yielder  @relation(fields: [yielderId], references: [id])
   yielderId                  Int
+
+  @@unique([yielderId, time], name: "snapshotIdentifier")
 }
 
 model Yielder {
@@ -101,9 +103,11 @@ model Yielder {
 model Vesting {
   id        Int      @id @default(autoincrement())
   amount    Float
-  time      DateTime
+  time      DateTime @unique
   Yielder   Yielder  @relation(fields: [yielderId], references: [id])
   yielderId Int
+
+  @@unique([yielderId, time], name: "vestingIdentifier")
 }
 
 model Vester {

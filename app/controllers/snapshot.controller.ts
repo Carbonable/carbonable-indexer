@@ -5,26 +5,24 @@ import { Prisma } from '@prisma/client';
 
 const controller = {
 
-    async create(...args: string[]) {
-
-        const data = {
-            previousTime: new Date(args[0]),
-            previousProjectAbsorption: Number(args[1]),
-            previousOffseterAbsorption: Number(args[2]),
-            previousYielderAbsorption: Number(args[3]),
-            currentProjectAbsorption: Number(args[4]),
-            currentOffseterAbsorption: Number(args[5]),
-            currentYielderAbsorption: Number(args[6]),
-            projectAbsorption: Number(args[7]),
-            offseterAbsorption: Number(args[8]),
-            yielderAbsorption: Number(args[9]),
-            time: new Date(args[10]),
-            yielderId: Number(args[11]),
-        };
+    async create(data: {
+        previousTime: Date,
+        previousProjectAbsorption: number,
+        previousOffseterAbsorption: number,
+        previousYielderAbsorption: number,
+        time: Date,
+        currentProjectAbsorption: number,
+        currentOffseterAbsorption: number,
+        currentYielderAbsorption: number,
+        projectAbsorption: number,
+        offseterAbsorption: number,
+        yielderAbsorption: number,
+        yielderId: number,
+    }) {
         return await prisma.snapshot.create({ data });
     },
 
-    async read(where: { id?: number }, include?: Prisma.SnapshotInclude) {
+    async read(where: { id?: number, snapshotIdentifier?: { time: Date, yielderId: number } }, include?: Prisma.SnapshotInclude) {
         return await prisma.snapshot.findUnique({ where, include });
     },
 

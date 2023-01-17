@@ -1,3 +1,8 @@
+import { hexToBuffer } from "@apibara/protocol";
+import { Event } from "@apibara/starknet";
+import { UPGRADED } from '../models/starknet/contract';
+import { ABSORPTION_UPDATE } from '../models/starknet/project';
+
 import logger from "../handlers/logger";
 
 import Project from '../models/starknet/project';
@@ -84,6 +89,16 @@ const controller = {
         const model = controller.load(project.address);
         const uri = await model.getTokenUri([request.params.token_id, 0]);
         return response.status(200).json({ address: project.address, token_id: request.params.token_id, uri });
+    },
+
+    async handleEvent(event: Event) {
+        const projects = await prisma.project.findMany();
+        const found = projects.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
+        if (found && UPGRADED.equals(event.keys[0])) {
+            controller.handleUpgraded(found.address);
+        } else if (found && ABSORPTION_UPDATE.equals(event.keys[0])) {
+            controller.handleAbsorptionUpdate(found.address);
+        };
     },
 
     async handleUpgraded(address: string) {

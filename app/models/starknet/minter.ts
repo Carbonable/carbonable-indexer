@@ -68,7 +68,7 @@ export default class Minter extends Contract {
   }
 
   async getWhitelistMerkleRoot(calldata?: RawCalldata) {
-    return await this.fetch('getWhitelistMerkleRoot', this.toInt, calldata);
+    return await this.fetch('getWhitelistMerkleRoot', this.toHex, calldata);
   }
 
   async getWhitelistedSlots(calldata?: RawCalldata) {

@@ -5,17 +5,11 @@ import { Prisma } from '@prisma/client';
 
 const controller = {
 
-    async create(...args: string[]) {
-
-        const data = {
-            amount: Number(args[9]),
-            time: new Date(args[10]),
-            yielderId: Number(args[11]),
-        };
+    async create(data: { amount: number, time: Date, yielderId: number }) {
         return await prisma.vesting.create({ data });
     },
 
-    async read(where: { id?: number }, include?: Prisma.VestingInclude) {
+    async read(where: { id?: number, vestingIdentifier?: { time: Date, yielderId: number } }, include?: Prisma.VestingInclude) {
         return await prisma.vesting.findUnique({ where, include });
     },
 

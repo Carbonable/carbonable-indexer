@@ -1,3 +1,8 @@
+import { hexToBuffer } from "@apibara/protocol";
+import { Event } from "@apibara/starknet";
+import { UPGRADED } from '../models/starknet/contract';
+import { ABSORPTION_UPDATE } from '../models/starknet/project';
+
 import logger from '../handlers/logger';
 
 import Vester from '../models/starknet/vester';
@@ -79,6 +84,14 @@ const controller = {
         const model = controller.load(vester.address);
         const amount = await model.getReleasableAmount([request.params.vesting_id]);
         return response.status(200).json({ address: vester.address, vesting_id: request.params.vesting_id, amount });
+    },
+
+    async handleEvent(event: Event) {
+        const vesters = await prisma.vester.findMany();
+        const found = vesters.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
+        if (found && UPGRADED.equals(event.keys[0])) {
+            controller.handleUpgraded(found.address);
+        };
     },
 
     async handleUpgraded(address: string) {
