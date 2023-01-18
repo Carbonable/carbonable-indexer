@@ -1,5 +1,4 @@
-import { hexToBuffer } from "@apibara/protocol";
-import { Event } from "@apibara/starknet";
+import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/starknet'
 import { UPGRADED } from '../models/starknet/contract';
 import { AIRDROP, BUY, PRE_SALE_OPEN, PRE_SALE_CLOSE, PUBLIC_SALE_OPEN, PUBLIC_SALE_CLOSE, SOLD_OUT } from '../models/starknet/minter';
 
@@ -73,20 +72,20 @@ const controller = {
     async getOne(request: Request, response: Response, _next: NextFunction) {
         const where = { id: Number(request.params.id) };
         const include: Prisma.MinterInclude = { Payment: true }
-        const project = await controller.read(where, include);
+        const minter = await controller.read(where, include);
 
-        if (!project) {
-            const message = 'Project not found';
+        if (!minter) {
+            const message = 'Minter not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
 
-        return response.status(200).json(project);
+        return response.status(200).json(minter);
     },
 
     async getAll(_request: Request, response: Response, _next: NextFunction) {
-        const projects = await prisma.minter.findMany({ include: { Payment: true } });
-        return response.status(200).json(projects);
+        const minters = await prisma.minter.findMany({ include: { Payment: true } });
+        return response.status(200).json(minters);
     },
 
     async getWhitelistedSlots(request: Request, response: Response, _next: NextFunction) {
@@ -103,18 +102,28 @@ const controller = {
         return response.status(200).json({ address: minter.address, user: request.params.user, slots });
     },
 
-    async handleEvent(event: Event) {
+    async setFilter(filter: FilterBuilder) {
         const minters = await prisma.minter.findMany();
-        const found = minters.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
-        if (found && UPGRADED.equals(event.keys[0])) {
+        minters.forEach((minter) => {
+            const address = FieldElement.fromBigInt(minter.address);
+            [UPGRADED, AIRDROP, BUY, PRE_SALE_OPEN, PRE_SALE_CLOSE, PUBLIC_SALE_OPEN, PUBLIC_SALE_CLOSE, SOLD_OUT].forEach((key) => {
+                filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
+            })
+        })
+    },
+
+    async handleEvent(event: starknet.IEvent, key: string) {
+        const minters = await prisma.minter.findMany();
+        const found = minters.find(model => model.address === FieldElement.toHex(event.fromAddress));
+        if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
             controller.handleUpgraded(found.address);
-        } else if (found && (AIRDROP.equals(event.keys[0])) || BUY.equals(event.keys[0])) {
+        } else if (found && [FieldElement.toHex(AIRDROP), FieldElement.toHex(BUY)].includes(key)) {
             controller.handleAirdropOrBuy(found.address);
-        } else if (found && (PRE_SALE_OPEN.equals(event.keys[0]) || PRE_SALE_CLOSE.equals(event.keys[0]))) {
+        } else if (found && [FieldElement.toHex(PRE_SALE_OPEN), FieldElement.toHex(PRE_SALE_CLOSE)].includes(key)) {
             controller.handlePreSale(found.address);
-        } else if (found && (PUBLIC_SALE_OPEN.equals(event.keys[0]) || PUBLIC_SALE_CLOSE.equals(event.keys[0]))) {
+        } else if (found && [FieldElement.toHex(PUBLIC_SALE_OPEN), FieldElement.toHex(PUBLIC_SALE_CLOSE)].includes(key)) {
             controller.handlePublicSale(found.address);
-        } else if (found && SOLD_OUT.equals(event.keys[0])) {
+        } else if (found && [FieldElement.toHex(SOLD_OUT)].includes(key)) {
             controller.handleSoldOut(found.address);
         };
     },

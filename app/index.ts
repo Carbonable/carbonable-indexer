@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import * as dotenv from 'dotenv'
+
+dotenv.config();
 
 import router from './routers';
 import controller from './controllers/main.controller';
@@ -13,8 +16,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(router);
 
-app.listen(PORT, () => {
-    controller.init();
+app.listen(PORT, async () => {
+    await controller.init();
     controller.run();
     console.log(`\x1b[1;33m\u26a1Running server on : http://localhost:${PORT}/ \u26a1\x1b[0m`);
 });

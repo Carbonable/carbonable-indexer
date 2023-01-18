@@ -13,7 +13,7 @@ export default class Vester extends Contract {
   }
 
   async getImplementationHash(calldata?: RawCalldata) {
-    return await this.fetch('getImplementationHash', this.toHex, calldata);
+    return await this.fetch('getImplementationHash', this.toAddress, calldata);
   }
 
   async getVestingTotalAmount(calldata?: RawCalldata) {

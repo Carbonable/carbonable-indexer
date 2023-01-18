@@ -1,10 +1,10 @@
 import { ProviderInterface, RawCalldata, hash } from "starknet";
 import Contract from './contract';
-import { hexToBuffer } from '@apibara/protocol';
+import { FieldElement } from '@apibara/starknet'
 
-const DEPOSIT = hexToBuffer(hash.getSelectorFromName('Deposit'), 32);
-const WITHDRAW = hexToBuffer(hash.getSelectorFromName('Withdraw'), 32);
-const CLAIM = hexToBuffer(hash.getSelectorFromName('Claim'), 32);
+const DEPOSIT = FieldElement.fromBigInt(hash.getSelectorFromName('Deposit'));
+const WITHDRAW = FieldElement.fromBigInt(hash.getSelectorFromName('Withdraw'));
+const CLAIM = FieldElement.fromBigInt(hash.getSelectorFromName('Claim'));
 
 export { DEPOSIT, WITHDRAW, CLAIM };
 
@@ -22,11 +22,11 @@ export default class Offseter extends Contract {
   }
 
   async getImplementationHash(calldata?: RawCalldata) {
-    return await this.fetch('getImplementationHash', this.toHex, calldata);
+    return await this.fetch('getImplementationHash', this.toAddress, calldata);
   }
 
   async getCarbonableProjectAddress(calldata?: RawCalldata) {
-    return await this.fetch('getCarbonableProjectAddress', this.toHex, calldata);
+    return await this.fetch('getCarbonableProjectAddress', this.toAddress, calldata);
   }
 
   async getMinClaimable(calldata?: RawCalldata) {
@@ -54,7 +54,7 @@ export default class Offseter extends Contract {
   }
 
   async getRegisteredOwnerOf(calldata?: RawCalldata) {
-    return await this.fetch('getRegisteredOwnerOf', this.toHex, calldata);
+    return await this.fetch('getRegisteredOwnerOf', this.toAddress, calldata);
   }
 
   async getRegisteredTimeOf(calldata?: RawCalldata) {
