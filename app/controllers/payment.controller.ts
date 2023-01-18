@@ -14,11 +14,12 @@ const controller = {
     async create(address: string) {
         const model = controller.load(address);
 
-        const [decimals] = await Promise.all([
+        const [abi, decimals] = await Promise.all([
+            model.getAbi(),
             model.getDecimals(),
         ]);
 
-        const data = { address, decimals };
+        const data = { address, abi, decimals };
         return await prisma.payment.create({ data });
     },
 

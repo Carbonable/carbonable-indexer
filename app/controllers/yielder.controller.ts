@@ -15,7 +15,9 @@ import snapshotController from './snapshot.controller'
 import vestingController from './vesting.controller'
 
 import { Request, Response, NextFunction } from 'express';
-import { Prisma } from '@prisma/client';
+import { Minter, Prisma } from '@prisma/client';
+
+const YEAR_SECONDS = 365.25 * 24 * 3600;
 
 const controller = {
 
@@ -26,7 +28,8 @@ const controller = {
     async create(address: string) {
         const model = controller.load(address);
 
-        const [implementation, totalDeposited, totalAbsorption, snapshotedTime, projectAddress, vesterAddress] = await Promise.all([
+        const [abi, implementation, totalDeposited, totalAbsorption, snapshotedTime, projectAddress, vesterAddress] = await Promise.all([
+            model.getProxyAbi(),
             model.getImplementationHash(),
             model.getTotalDeposited(),
             model.getTotalAbsorption(),
@@ -45,7 +48,7 @@ const controller = {
             vester = await vesterController.create(vesterAddress);
         }
 
-        const data = { address, implementation, totalDeposited, totalAbsorption, snapshotedTime, projectId: project.id, vesterId: vester.id };
+        const data = { address, abi, implementation, totalDeposited, totalAbsorption, snapshotedTime, projectId: project.id, vesterId: vester.id };
         return await prisma.yielder.create({ data });
     },
 
@@ -79,6 +82,19 @@ const controller = {
         return response.status(200).json(yielders);
     },
 
+    async getApr(request: Request, response: Response, _next: NextFunction) {
+        const where = { id: Number(request.params.id) };
+        const include = { vesting: true, snapshot: true, Project: { include: { Minter: true } } };
+        const yielder = await controller.read(where, include);
+        const vesting = yielder.vesting[yielder.vesting.length - 1];
+        const snapshots = yielder.snapshot.filter((snapshot) => snapshot.time < vesting.time);
+        const snapshot = snapshots[snapshots.length - 1];
+        const total = yielder.Project['Minter'].reduce((total: number, minter: Minter) => total + minter.totalValue, 0);
+        const dt = snapshot.time.getTime() - snapshot.previousTime.getTime();
+        const apr = 100 * vesting.amount * YEAR_SECONDS / dt / total;
+        return response.status(200).json({ address: yielder.address, apr });
+    },
+
     async setFilter(filter: FilterBuilder) {
         const yielders = await prisma.yielder.findMany();
         const events = [UPGRADED, DEPOSIT, WITHDRAW, SNAPSHOT, VESTING];
@@ -94,17 +110,17 @@ const controller = {
         const yielders = await prisma.yielder.findMany();
         const found = yielders.find(model => model.address === FieldElement.toHex(event.fromAddress));
         if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
-            controller.handleUpgraded(found.address);
+            await controller.handleUpgraded(found.address);
         } else if (found && [FieldElement.toHex(DEPOSIT), FieldElement.toHex(WITHDRAW)].includes(key)) {
-            controller.handleDepositOrWithdraw(found.address);
+            await controller.handleDepositOrWithdraw(found.address);
         } else if (found && [FieldElement.toHex(SNAPSHOT)].includes(key)) {
             // Remove first value and convert the rest
             const args = event.data.slice(1).map((row) => FieldElement.toHex(row));
-            controller.handleSnapshot(found.address, args);
+            await controller.handleSnapshot(found.address, args);
         } else if (found && [FieldElement.toHex(VESTING)].includes(key)) {
             // Remove first value and convert the rest
             const args = event.data.slice(1).map((row) => FieldElement.toHex(row));
-            controller.handleVesting(found.address, args);
+            await controller.handleVesting(found.address, args);
         };
     },
 
@@ -114,8 +130,9 @@ const controller = {
         const model = controller.load(address);
         await model.sync();
 
+        const abi = await model.getProxyAbi();
         const implementation = await model.getImplementationHash();
-        const data = { implementation };
+        const data = { abi, implementation };
         logger.yielder(`Upgraded (${address})`);
         await prisma.yielder.update({ where, data });
     },
@@ -133,9 +150,11 @@ const controller = {
     },
 
     async handleSnapshot(address: string, args: string[]) {
-        const yielder = await controller.read({ address });
+        const yielder = await controller.read({ address }, { Project: true });
+        const project = await projectController.read({ id: yielder.projectId });
+        const previousTime = Number(args[0]) ? new Date(Number(args[0]) * 1000) : project.times[0];
         const data = {
-            previousTime: new Date(Number(args[0]) * 1000),
+            previousTime,
             previousProjectAbsorption: Number(args[1]),
             previousOffseterAbsorption: Number(args[2]),
             previousYielderAbsorption: Number(args[3]),

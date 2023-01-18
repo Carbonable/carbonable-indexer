@@ -20,13 +20,14 @@ const controller = {
     async create(address: string) {
         const model = controller.load(address);
 
-        const [implementation, totalAmount, withdrawableAmount] = await Promise.all([
+        const [abi, implementation, totalAmount, withdrawableAmount] = await Promise.all([
+            model.getProxyAbi(),
             model.getImplementationHash(),
             model.getVestingTotalAmount(),
             model.getWithdrawableAmount(),
         ]);
 
-        const data = { address, implementation, totalAmount, withdrawableAmount };
+        const data = { address, abi, implementation, totalAmount, withdrawableAmount };
         return await prisma.vester.create({ data });
     },
 
@@ -98,7 +99,7 @@ const controller = {
         const vesters = await prisma.vester.findMany();
         const found = vesters.find(model => model.address === FieldElement.toHex(event.fromAddress));
         if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
-            controller.handleUpgraded(found.address);
+            await controller.handleUpgraded(found.address);
         };
     },
 
@@ -108,8 +109,9 @@ const controller = {
         const model = controller.load(address);
         await model.sync();
 
+        const abi = await model.getProxyAbi();
         const implementation = await model.getImplementationHash();
-        const data = { implementation };
+        const data = { abi, implementation };
         logger.vester(`Upgraded (${address})`);
         await prisma.vester.update({ where, data });
     },

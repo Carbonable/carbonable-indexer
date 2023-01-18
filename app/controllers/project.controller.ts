@@ -20,7 +20,8 @@ const controller = {
         const model = controller.load(address);
         await model.sync();
 
-        const [implementation, name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions] = await Promise.all([
+        const [abi, implementation, name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions] = await Promise.all([
+            model.getProxyAbi(),
             model.getImplementationHash(),
             model.getName(),
             model.getSymbol(),
@@ -32,7 +33,7 @@ const controller = {
             model.getAbsorptions(),
         ]);
 
-        const data = { address, implementation, name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions };
+        const data = { address, abi, implementation, name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions };
         return await prisma.project.create({ data });
     },
 
@@ -105,9 +106,9 @@ const controller = {
         const projects = await prisma.project.findMany();
         const found = projects.find(model => model.address === FieldElement.toHex(event.fromAddress));
         if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
-            controller.handleUpgraded(found.address);
+            await controller.handleUpgraded(found.address);
         } else if (found && [FieldElement.toHex(ABSORPTION_UPDATE)].includes(key)) {
-            controller.handleAbsorptionUpdate(found.address);
+            await controller.handleAbsorptionUpdate(found.address);
         };
     },
 
@@ -117,8 +118,9 @@ const controller = {
         const model = controller.load(address);
         await model.sync();
 
+        const abi = await model.getProxyAbi();
         const implementation = await model.getImplementationHash();
-        const data = { implementation };
+        const data = { abi, implementation };
         logger.project(`Upgraded (${address})`);
         await prisma.project.update({ where, data });
     },

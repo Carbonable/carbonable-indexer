@@ -61,6 +61,18 @@ export default class Contract {
         return this.parse(result.slice(2));
     }
 
+    async getAbi() {
+        const classHash = await this.provider.getClassHashAt(this.address);
+        const contractClass = await this.provider.getClassByHash(classHash);
+        return contractClass.abi;
+    }
+
+    async getProxyAbi() {
+        const result = await this.query(this.address, 'getImplementationHash');
+        const contractClass = await this.provider.getClassByHash(result[0]);
+        return contractClass.abi;
+    }
+
     toInt(result: string[]) {
         return Number(number.toBN(result[0]));
     }
