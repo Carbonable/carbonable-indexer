@@ -22,7 +22,8 @@ const controller = {
     async create(address: string) {
         const model = controller.load(address);
 
-        const [implementation, totalDeposited, totalClaimed, totalClaimable, minClaimable, projectAddress] = await Promise.all([
+        const [abi, implementation, totalDeposited, totalClaimed, totalClaimable, minClaimable, projectAddress] = await Promise.all([
+            model.getProxyAbi(),
             model.getImplementationHash(),
             model.getMinClaimable(),
             model.getTotalDeposited(),
@@ -36,7 +37,7 @@ const controller = {
             project = await projectController.create(projectAddress);
         }
 
-        const data = { address, implementation, totalDeposited, totalClaimed, totalClaimable, minClaimable, projectId: project.id };
+        const data = { address, abi, implementation, totalDeposited, totalClaimed, totalClaimable, minClaimable, projectId: project.id };
         return await prisma.offseter.create({ data });
     },
 
@@ -85,11 +86,11 @@ const controller = {
         const offseters = await prisma.offseter.findMany();
         const found = offseters.find(model => model.address === FieldElement.toHex(event.fromAddress));
         if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
-            controller.handleUpgraded(found.address);
+            await controller.handleUpgraded(found.address);
         } else if (found && [FieldElement.toHex(DEPOSIT), FieldElement.toHex(WITHDRAW)].includes(key)) {
-            controller.handleDepositOrWithdraw(found.address);
+            await controller.handleDepositOrWithdraw(found.address);
         } else if (found && [FieldElement.toHex(CLAIM)].includes(key)) {
-            controller.handleClaim(found.address);
+            await controller.handleClaim(found.address);
         };
     },
 

@@ -13,6 +13,7 @@ datasource db {
 model Project {
   id             Int        @id @default(autoincrement())
   address        String     @unique
+  abi            Json
   implementation String
   name           String
   symbol         String
@@ -30,6 +31,7 @@ model Project {
 model Payment {
   id       Int      @id @default(autoincrement())
   address  String   @unique
+  abi      Json
   decimals Int
   Minter   Minter[]
 }
@@ -37,6 +39,7 @@ model Payment {
 model Minter {
   id                  Int     @id @default(autoincrement())
   address             String  @unique
+  abi                 Json
   implementation      String
   maxSupply           Int
   reservedSupply      Int
@@ -57,6 +60,7 @@ model Minter {
 model Offseter {
   id             Int     @id @default(autoincrement())
   address        String  @unique
+  abi            Json
   implementation String
   totalDeposited Float
   totalClaimed   Float
@@ -88,6 +92,7 @@ model Snapshot {
 model Yielder {
   id              Int        @id @default(autoincrement())
   address         String     @unique
+  abi             Json
   implementation  String
   totalDeposited  Float
   totalAbsorption Float
@@ -113,6 +118,7 @@ model Vesting {
 model Vester {
   id                 Int       @id @default(autoincrement())
   address            String    @unique
+  abi                Json
   implementation     String
   totalAmount        Float
   withdrawableAmount Float

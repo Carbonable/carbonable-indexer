@@ -79,11 +79,31 @@ export default class Project extends Contract {
     return await this.fetch('getTonEquivalent', this.toInt, calldata);
   }
 
-  async getTimes(calldata?: RawCalldata) {
-    return await this.fetch('getTimes', this.toDates, calldata);
+  async getCurrentAbsorption(calldata?: RawCalldata) {
+    return await this.fetch('getCurrentAbsorption', this.toInt, calldata);
+  }
+
+  async getFinalAbsorption(calldata?: RawCalldata) {
+    return await this.fetch('getFinalAbsorption', this.toInt, calldata);
+  }
+
+  async getAbsorption(calldata?: RawCalldata) {
+    return await this.fetch('getAbsorption', this.toInt, calldata);
   }
 
   async getAbsorptions(calldata?: RawCalldata) {
     return await this.fetch('getAbsorptions', this.toInts, calldata);
+  }
+
+  async getStartTime(calldata?: RawCalldata) {
+    return await this.fetch('getStartTime', this.toDate, calldata);
+  }
+
+  async getFinalTime(calldata?: RawCalldata) {
+    return await this.fetch('getFinalTime', this.toDate, calldata);
+  }
+
+  async getTimes(calldata?: RawCalldata) {
+    return await this.fetch('getTimes', this.toDates, calldata);
   }
 }

@@ -56,7 +56,7 @@ const main = {
         indexer.configure({
             filter: filter.encode(),
             batchSize: 1,
-            finality: v1alpha2.DataFinality.DATA_STATUS_FINALIZED,
+            finality: v1alpha2.DataFinality.DATA_STATUS_ACCEPTED,
         })
 
         for await (const message of indexer) {
@@ -68,7 +68,7 @@ const main = {
     },
 
     async handleBatch(batch: Uint8Array[]) {
-        for await (const item of batch) {
+        for (const item of batch) {
             const block = starknet.Block.decode(item);
             await main.handleBlock(block);
         };
@@ -86,7 +86,7 @@ const main = {
         }
 
         // updated indexed block
-        const blockNumber = Number(block.header?.blockNumber.toString() || '1');
+        const blockNumber = Number(block.header?.blockNumber.toString());
         logger.block(blockNumber);
     },
 }

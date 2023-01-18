@@ -23,7 +23,8 @@ const controller = {
     async create(address: string, whitelist?: object) {
         const model = controller.load(address);
 
-        const [implementation, maxSupply, reservedSupply, preSaleOpen, publicSaleOpen, maxBuyPerTx, unitPrice, whitelistMerkleRoot, soldOut, totalValue, projectAddress, paymentAddress] = await Promise.all([
+        const [abi, implementation, maxSupply, reservedSupply, preSaleOpen, publicSaleOpen, maxBuyPerTx, unitPrice, whitelistMerkleRoot, soldOut, totalValue, projectAddress, paymentAddress] = await Promise.all([
+            model.getProxyAbi(),
             model.getImplementationHash(),
             model.getMaxSupply(),
             model.getReservedSupply(),
@@ -53,7 +54,7 @@ const controller = {
             }
         }
 
-        const data = { address, implementation, maxSupply, reservedSupply, preSaleOpen, publicSaleOpen, maxBuyPerTx, unitPrice, whitelistMerkleRoot, soldOut, totalValue, whitelist, projectId: project.id, paymentId: payment.id };
+        const data = { address, abi, implementation, maxSupply, reservedSupply, preSaleOpen, publicSaleOpen, maxBuyPerTx, unitPrice, whitelistMerkleRoot, soldOut, totalValue, whitelist, projectId: project.id, paymentId: payment.id };
         return await prisma.minter.create({ data });
     },
 
@@ -116,15 +117,15 @@ const controller = {
         const minters = await prisma.minter.findMany();
         const found = minters.find(model => model.address === FieldElement.toHex(event.fromAddress));
         if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
-            controller.handleUpgraded(found.address);
+            await controller.handleUpgraded(found.address);
         } else if (found && [FieldElement.toHex(AIRDROP), FieldElement.toHex(BUY)].includes(key)) {
-            controller.handleAirdropOrBuy(found.address);
+            await controller.handleAirdropOrBuy(found.address);
         } else if (found && [FieldElement.toHex(PRE_SALE_OPEN), FieldElement.toHex(PRE_SALE_CLOSE)].includes(key)) {
-            controller.handlePreSale(found.address);
+            await controller.handlePreSale(found.address);
         } else if (found && [FieldElement.toHex(PUBLIC_SALE_OPEN), FieldElement.toHex(PUBLIC_SALE_CLOSE)].includes(key)) {
-            controller.handlePublicSale(found.address);
+            await controller.handlePublicSale(found.address);
         } else if (found && [FieldElement.toHex(SOLD_OUT)].includes(key)) {
-            controller.handleSoldOut(found.address);
+            await controller.handleSoldOut(found.address);
         };
     },
 
@@ -134,8 +135,9 @@ const controller = {
         const model = controller.load(address);
         await model.sync();
 
+        const abi = await model.getProxyAbi();
         const implementation = await model.getImplementationHash();
-        const data = { implementation };
+        const data = { abi, implementation };
         logger.minter(`Upgraded (${address})`);
         await prisma.minter.update({ where, data });
     },
