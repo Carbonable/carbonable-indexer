@@ -1,5 +1,4 @@
-import { hexToBuffer } from "@apibara/protocol";
-import { Event } from "@apibara/starknet";
+import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/starknet'
 import { UPGRADED } from '../models/starknet/contract';
 import { ABSORPTION_UPDATE } from '../models/starknet/project';
 
@@ -91,12 +90,23 @@ const controller = {
         return response.status(200).json({ address: project.address, token_id: request.params.token_id, uri });
     },
 
-    async handleEvent(event: Event) {
+    async setFilter(filter: FilterBuilder) {
         const projects = await prisma.project.findMany();
-        const found = projects.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
-        if (found && UPGRADED.equals(event.keys[0])) {
+        const events = [UPGRADED, ABSORPTION_UPDATE];
+        projects.forEach((project) => {
+            const address = FieldElement.fromBigInt(project.address);
+            events.forEach((key) => {
+                filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
+            })
+        })
+    },
+
+    async handleEvent(event: starknet.IEvent, key: string) {
+        const projects = await prisma.project.findMany();
+        const found = projects.find(model => model.address === FieldElement.toHex(event.fromAddress));
+        if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
             controller.handleUpgraded(found.address);
-        } else if (found && ABSORPTION_UPDATE.equals(event.keys[0])) {
+        } else if (found && [FieldElement.toHex(ABSORPTION_UPDATE)].includes(key)) {
             controller.handleAbsorptionUpdate(found.address);
         };
     },

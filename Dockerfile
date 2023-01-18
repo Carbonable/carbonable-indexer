@@ -13,6 +13,14 @@ RUN volta install node@${NODE_VERSION}
 RUN mkdir /app
 WORKDIR /app
 
+ENV APIBARA_MAINNET mainnet.starknet.a5a.ch:443
+ENV APIBARA_TESTNET goerli.starknet.a5a.ch:443
+ENV APIBARA_TESTNET2 goerli-2.starknet.a5a.ch:443
+
+ENV STARKNET_MAINNET https://starknet-mainnet.infura.io/v3/f46a67c22ae24d98a6dde83028e735c0
+ENV STARKNET_TESTNET https://starknet-goerli.infura.io/v3/f46a67c22ae24d98a6dde83028e735c0
+ENV STARKNET_TESTNET2 https://starknet-goerli2.infura.io/v3/f46a67c22ae24d98a6dde83028e735c0
+
 # NPM will not install any package listed in "devDependencies" when NODE_ENV is set to "production",
 # to install all modules: "npm install --production=false".
 # Ref: https://docs.npmjs.com/cli/v9/commands/npm-install#description

@@ -1,14 +1,14 @@
 import { ProviderInterface, RawCalldata, hash } from "starknet";
 import Contract from './contract';
-import { hexToBuffer } from '@apibara/protocol';
+import { FieldElement } from '@apibara/starknet'
 
-const AIRDROP = hexToBuffer(hash.getSelectorFromName('Airdrop'), 32);
-const BUY = hexToBuffer(hash.getSelectorFromName('Buy'), 32);
-const PRE_SALE_OPEN = hexToBuffer(hash.getSelectorFromName('PreSaleOpen'), 32);
-const PRE_SALE_CLOSE = hexToBuffer(hash.getSelectorFromName('PreSaleClose'), 32);
-const PUBLIC_SALE_OPEN = hexToBuffer(hash.getSelectorFromName('PublicSaleOpen'), 32);
-const PUBLIC_SALE_CLOSE = hexToBuffer(hash.getSelectorFromName('PublicSaleClose'), 32);
-const SOLD_OUT = hexToBuffer(hash.getSelectorFromName('SoldOut'), 32);
+const AIRDROP = FieldElement.fromBigInt(hash.getSelectorFromName('Airdrop'));
+const BUY = FieldElement.fromBigInt(hash.getSelectorFromName('Buy'));
+const PRE_SALE_OPEN = FieldElement.fromBigInt(hash.getSelectorFromName('PreSaleOpen'));
+const PRE_SALE_CLOSE = FieldElement.fromBigInt(hash.getSelectorFromName('PreSaleClose'));
+const PUBLIC_SALE_OPEN = FieldElement.fromBigInt(hash.getSelectorFromName('PublicSaleOpen'));
+const PUBLIC_SALE_CLOSE = FieldElement.fromBigInt(hash.getSelectorFromName('PublicSaleClose'));
+const SOLD_OUT = FieldElement.fromBigInt(hash.getSelectorFromName('SoldOut'));
 
 export { AIRDROP, BUY, PRE_SALE_OPEN, PRE_SALE_CLOSE, PUBLIC_SALE_OPEN, PUBLIC_SALE_CLOSE, SOLD_OUT };
 
@@ -32,15 +32,15 @@ export default class Minter extends Contract {
   }
 
   async getImplementationHash(calldata?: RawCalldata) {
-    return await this.fetch('getImplementationHash', this.toHex, calldata);
+    return await this.fetch('getImplementationHash', this.toAddress, calldata);
   }
 
   async getCarbonableProjectAddress(calldata?: RawCalldata) {
-    return await this.fetch('getCarbonableProjectAddress', this.toHex, calldata);
+    return await this.fetch('getCarbonableProjectAddress', this.toAddress, calldata);
   }
 
   async getPaymentTokenAddress(calldata?: RawCalldata) {
-    return await this.fetch('getPaymentTokenAddress', this.toHex, calldata);
+    return await this.fetch('getPaymentTokenAddress', this.toAddress, calldata);
   }
 
   async isPreSaleOpen(calldata?: RawCalldata) {

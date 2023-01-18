@@ -1,8 +1,8 @@
 import { ProviderInterface, RawCalldata, hash } from "starknet";
 import Contract from './contract';
-import { hexToBuffer } from '@apibara/protocol';
+import { FieldElement } from '@apibara/starknet'
 
-const ABSORPTION_UPDATE = hexToBuffer(hash.getSelectorFromName('AbsorptionUpdate'), 32);
+const ABSORPTION_UPDATE = FieldElement.fromBigInt(hash.getSelectorFromName('AbsorptionUpdate'));
 
 export { ABSORPTION_UPDATE };
 
@@ -24,7 +24,7 @@ export default class Project extends Contract {
   }
 
   async getImplementationHash(calldata?: RawCalldata) {
-    return await this.fetch('getImplementationHash', this.toHex, calldata);
+    return await this.fetch('getImplementationHash', this.toAddress, calldata);
   }
 
   async getTotalSupply(calldata?: RawCalldata) {
@@ -52,7 +52,7 @@ export default class Project extends Contract {
   }
 
   async getOwnerOf(calldata?: RawCalldata) {
-    return await this.fetch('ownerOf', this.toHex, calldata);
+    return await this.fetch('ownerOf', this.toAddress, calldata);
   }
 
   async getApproved(calldata?: RawCalldata) {
@@ -72,7 +72,7 @@ export default class Project extends Contract {
   }
 
   async getOwner(calldata?: RawCalldata) {
-    return await this.fetch('owner', this.toHex, calldata);
+    return await this.fetch('owner', this.toAddress, calldata);
   }
 
   async getTonEquivalent(calldata?: RawCalldata) {

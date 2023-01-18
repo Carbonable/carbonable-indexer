@@ -1,7 +1,5 @@
-import { hexToBuffer } from "@apibara/protocol";
-import { Event } from "@apibara/starknet";
+import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/starknet'
 import { UPGRADED } from '../models/starknet/contract';
-import { ABSORPTION_UPDATE } from '../models/starknet/project';
 
 import logger from '../handlers/logger';
 
@@ -58,8 +56,8 @@ const controller = {
     },
 
     async getAll(_request: Request, response: Response, _next: NextFunction) {
-        const projects = await prisma.vester.findMany();
-        return response.status(200).json(projects);
+        const vesters = await prisma.vester.findMany();
+        return response.status(200).json(vesters);
     },
 
     async getVestingCount(request: Request, response: Response, _next: NextFunction) {
@@ -86,10 +84,20 @@ const controller = {
         return response.status(200).json({ address: vester.address, vesting_id: request.params.vesting_id, amount });
     },
 
-    async handleEvent(event: Event) {
+    async setFilter(filter: FilterBuilder) {
         const vesters = await prisma.vester.findMany();
-        const found = vesters.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
-        if (found && UPGRADED.equals(event.keys[0])) {
+        vesters.forEach((vester) => {
+            const address = FieldElement.fromBigInt(vester.address);
+            [UPGRADED].forEach((key) => {
+                filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
+            })
+        })
+    },
+
+    async handleEvent(event: starknet.IEvent, key: string) {
+        const vesters = await prisma.vester.findMany();
+        const found = vesters.find(model => model.address === FieldElement.toHex(event.fromAddress));
+        if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
             controller.handleUpgraded(found.address);
         };
     },

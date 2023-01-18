@@ -118,9 +118,3 @@ model Vester {
   withdrawableAmount Float
   Yielder            Yielder[]
 }
-
-model Block {
-  id     Int    @id @default(autoincrement())
-  name   String @unique
-  number Float
-}

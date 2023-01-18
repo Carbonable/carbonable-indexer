@@ -1,5 +1,4 @@
-import { hexToBuffer, bufferToHex } from "@apibara/protocol";
-import { Event } from "@apibara/starknet";
+import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/starknet'
 import { UPGRADED } from '../models/starknet/contract';
 import { DEPOSIT, WITHDRAW } from '../models/starknet/offseter';
 import { SNAPSHOT, VESTING } from '../models/starknet/yielder';
@@ -80,20 +79,31 @@ const controller = {
         return response.status(200).json(yielders);
     },
 
-    async handleEvent(event: Event) {
+    async setFilter(filter: FilterBuilder) {
         const yielders = await prisma.yielder.findMany();
-        const found = yielders.find(model => hexToBuffer(model.address, 32).equals(event.fromAddress));
-        if (found && UPGRADED.equals(event.keys[0])) {
+        const events = [UPGRADED, DEPOSIT, WITHDRAW, SNAPSHOT, VESTING];
+        yielders.forEach((yielder) => {
+            const address = FieldElement.fromBigInt(yielder.address);
+            events.forEach((key) => {
+                filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
+            })
+        })
+    },
+
+    async handleEvent(event: starknet.IEvent, key: string) {
+        const yielders = await prisma.yielder.findMany();
+        const found = yielders.find(model => model.address === FieldElement.toHex(event.fromAddress));
+        if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
             controller.handleUpgraded(found.address);
-        } else if (found && (DEPOSIT.equals(event.keys[0]) || WITHDRAW.equals(event.keys[0]))) {
+        } else if (found && [FieldElement.toHex(DEPOSIT), FieldElement.toHex(WITHDRAW)].includes(key)) {
             controller.handleDepositOrWithdraw(found.address);
-        } else if (found && SNAPSHOT.equals(event.keys[0])) {
+        } else if (found && [FieldElement.toHex(SNAPSHOT)].includes(key)) {
             // Remove first value and convert the rest
-            const args = event.data.slice(1).map((row) => bufferToHex(Buffer.from(row)).toString());
+            const args = event.data.slice(1).map((row) => FieldElement.toHex(row));
             controller.handleSnapshot(found.address, args);
-        } else if (found && VESTING.equals(event.keys[0])) {
+        } else if (found && [FieldElement.toHex(VESTING)].includes(key)) {
             // Remove first value and convert the rest
-            const args = event.data.slice(1).map((row) => bufferToHex(Buffer.from(row)).toString());
+            const args = event.data.slice(1).map((row) => FieldElement.toHex(row));
             controller.handleVesting(found.address, args);
         };
     },

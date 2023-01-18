@@ -1,11 +1,11 @@
 import { ProviderInterface, RawCalldata, hash } from "starknet";
 import Contract from './contract';
-import { hexToBuffer } from '@apibara/protocol';
+import { FieldElement } from '@apibara/starknet'
 
-const SNAPSHOT = hexToBuffer(hash.getSelectorFromName('Snapshot'), 32);
-const USER_SNAPSHOT = hexToBuffer(hash.getSelectorFromName('UserSnapshot'), 32);
-const VESTING = hexToBuffer(hash.getSelectorFromName('Vesting'), 32);
-const USER_VESTING = hexToBuffer(hash.getSelectorFromName('UserVesting'), 32);
+const SNAPSHOT = FieldElement.fromBigInt(hash.getSelectorFromName('Snapshot'));
+const USER_SNAPSHOT = FieldElement.fromBigInt(hash.getSelectorFromName('UserSnapshot'));
+const VESTING = FieldElement.fromBigInt(hash.getSelectorFromName('Vesting'));
+const USER_VESTING = FieldElement.fromBigInt(hash.getSelectorFromName('UserVesting'));
 
 export { SNAPSHOT, USER_SNAPSHOT, VESTING, USER_VESTING };
 
@@ -24,19 +24,19 @@ export default class Yielder extends Contract {
   }
 
   async getImplementationHash(calldata?: RawCalldata) {
-    return await this.fetch('getImplementationHash', this.toHex, calldata);
+    return await this.fetch('getImplementationHash', this.toAddress, calldata);
   }
 
   async getCarbonableProjectAddress(calldata?: RawCalldata) {
-    return await this.fetch('getCarbonableProjectAddress', this.toHex, calldata);
+    return await this.fetch('getCarbonableProjectAddress', this.toAddress, calldata);
   }
 
   async getCarbonableOffseterAddress(calldata?: RawCalldata) {
-    return await this.fetch('getCarbonableOffseterAddress', this.toHex, calldata);
+    return await this.fetch('getCarbonableOffseterAddress', this.toAddress, calldata);
   }
 
   async getCarbonableVesterAddress(calldata?: RawCalldata) {
-    return await this.fetch('getCarbonableVesterAddress', this.toHex, calldata);
+    return await this.fetch('getCarbonableVesterAddress', this.toAddress, calldata);
   }
 
   async getTotalDeposited(calldata?: RawCalldata) {
@@ -52,7 +52,7 @@ export default class Yielder extends Contract {
   }
 
   async getRegisteredOwnerOf(calldata?: RawCalldata) {
-    return await this.fetch('getRegisteredOwnerOf', this.toHex, calldata);
+    return await this.fetch('getRegisteredOwnerOf', this.toAddress, calldata);
   }
 
   async getRegisteredTimeOf(calldata?: RawCalldata) {

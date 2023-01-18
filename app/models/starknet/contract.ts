@@ -1,7 +1,8 @@
 import { ProviderInterface, RawCalldata, shortString, number, hash } from "starknet";
-import { hexToBuffer } from '@apibara/protocol';
+import { FieldElement } from '@apibara/starknet'
+import logger from "../../handlers/logger";
 
-const UPGRADED = hexToBuffer(hash.getSelectorFromName('Upgraded'), 32);
+const UPGRADED = FieldElement.fromBigInt(hash.getSelectorFromName('Upgraded'));
 
 export { UPGRADED };
 
@@ -22,8 +23,12 @@ export default class Contract {
     }
 
     async query(contractAddress: string, entrypoint: string, calldata?: RawCalldata) {
-        const { result } = await this.provider.callContract({ contractAddress, entrypoint, calldata });
-        return result;
+        try {
+            const { result } = await this.provider.callContract({ contractAddress, entrypoint, calldata });
+            return result;
+        } catch (error) {
+            logger.error(error.message);
+        }
     }
 
     async fetch(selector: string, parser: Function, calldata?: RawCalldata) {
@@ -70,6 +75,10 @@ export default class Contract {
 
     toHex(result: string[]) {
         return number.toHex(number.toBN(result[0]));
+    }
+
+    toAddress(result: string[]) {
+        return `0x${number.toBN(result[0]).toString(16).padStart(64, '0')}`;
     }
 
     toBool(result: string[]) {
