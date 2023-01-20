@@ -1,3 +1,5 @@
+import ipfs from '../models/ipfs/client';
+
 import prisma from '../models/database/client';
 
 import { Request, Response, NextFunction } from 'express';
@@ -5,8 +7,9 @@ import { Prisma } from '@prisma/client';
 
 const controller = {
 
-    async create(data: { uri: string, data: object }) {
-        return await prisma.uri.create({ data });
+    async create(uri: string) {
+        const data = await ipfs.load(uri);
+        return await prisma.uri.create({ data: { uri, data } });
     },
 
     async read(where: { id?: number, uri?: string }, include?: Prisma.UriInclude) {
@@ -26,7 +29,7 @@ const controller = {
         const uri = await controller.read(where);
 
         if (!uri) {
-            const message = 'Uri not found';
+            const message = 'uri not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }

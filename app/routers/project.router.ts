@@ -16,4 +16,7 @@ router.route('/:id/owner/:token_id').get(handler(controller.getOwnerOf));
 router.route('/:id/uri/:token_id').get(handler(controller.getTokenUri));
 router.route('/:id/transfers').get(handler(controller.getTransfers));
 
+router.route('/:address').post(handler(controller.add));
+router.route('/:address').delete(handler(controller.remove));
+
 export default router;

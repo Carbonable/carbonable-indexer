@@ -26,7 +26,7 @@ const controller = {
         const implementation = await controller.read(where);
 
         if (!implementation) {
-            const message = 'Implementation not found';
+            const message = 'implementation not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }

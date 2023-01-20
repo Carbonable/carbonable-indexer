@@ -35,7 +35,6 @@ model Project {
   name             String
   symbol           String
   totalSupply      Int
-  contractUri      Json
   owner            String
   tonEquivalent    Float
   times            DateTime[]
@@ -107,7 +106,7 @@ model Snapshot {
   offseterAbsorption         Float
   yielderAbsorption          Float
   time                       DateTime
-  Yielder                    Yielder  @relation(fields: [yielderId], references: [id])
+  Yielder                    Yielder  @relation(fields: [yielderId], references: [id], onDelete: Cascade)
   yielderId                  Int
 
   @@unique([yielderId, time], name: "snapshotIdentifier")
@@ -133,7 +132,7 @@ model Vesting {
   id        Int      @id @default(autoincrement())
   amount    Float
   time      DateTime @unique
-  Yielder   Yielder  @relation(fields: [yielderId], references: [id])
+  Yielder   Yielder  @relation(fields: [yielderId], references: [id], onDelete: Cascade)
   yielderId Int
 
   @@unique([yielderId, time], name: "vestingIdentifier")

@@ -26,7 +26,7 @@ const controller = {
         const transfer = await controller.read(where);
 
         if (!transfer) {
-            const message = 'Transfer not found';
+            const message = 'transfer not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }

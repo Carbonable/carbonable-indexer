@@ -39,7 +39,7 @@ const controller = {
         const snapshot = await controller.read(where);
 
         if (!snapshot) {
-            const message = 'Snapshot not found';
+            const message = 'snapshot not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }

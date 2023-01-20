@@ -69,11 +69,11 @@ export default class Project extends Contract {
   }
 
   async getTokenUri(calldata?: RawCalldata) {
-    return await this.fetch('tokenURI', this.toJson, calldata);
+    return await this.fetch('tokenURI', this.toString, calldata);
   }
 
   async getContractUri(calldata?: RawCalldata) {
-    return await this.fetch('contractURI', this.toJson, calldata);
+    return await this.fetch('contractURI', this.toString, calldata);
   }
 
   async getOwner(calldata?: RawCalldata) {

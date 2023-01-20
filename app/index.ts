@@ -18,7 +18,7 @@ app.use(router);
 
 app.listen(PORT, async () => {
     await controller.init();
-    // controller.run();
+    controller.run();
     console.log(`\x1b[1;33m\u26a1Running server on : http://localhost:${PORT}/ \u26a1\x1b[0m`);
 });
 
