@@ -1,15 +1,16 @@
 import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/starknet'
-import { UPGRADED } from '../models/starknet/contract';
-import { ABSORPTION_UPDATE } from '../models/starknet/project';
 
 import logger from "../handlers/logger";
 
-import Project from '../models/starknet/project';
+import Project, { EVENTS } from '../models/starknet/project';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
+import transferController from './transfer.controller';
+import implementationController from './implementation.controller';
+
 import { Request, Response, NextFunction } from 'express';
-import { Prisma } from '@prisma/client';
+import { Prisma, Project as PrismaProject } from '@prisma/client';
 
 const controller = {
     load(address: string) {
@@ -20,8 +21,7 @@ const controller = {
         const model = controller.load(address);
         await model.sync();
 
-        const [abi, implementation, name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions] = await Promise.all([
-            model.getProxyAbi(),
+        const [implementationAddress, name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions, setup] = await Promise.all([
             model.getImplementationHash(),
             model.getName(),
             model.getSymbol(),
@@ -31,9 +31,16 @@ const controller = {
             model.getTonEquivalent(),
             model.getTimes(),
             model.getAbsorptions(),
+            model.isSetup(),
         ]);
 
-        const data = { address, abi, implementation, name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions };
+        let implementation = await implementationController.read({ address: implementationAddress });
+        if (!implementation) {
+            const abi = await model.getProxyAbi();
+            implementation = await implementationController.create({ address: implementationAddress, abi });
+        }
+
+        const data = { address, name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions, setup, implementationId: implementation.id };
         return await prisma.project.create({ data });
     },
 
@@ -67,9 +74,122 @@ const controller = {
         return response.status(200).json(projects);
     },
 
+    async getAbi(request: Request, response: Response, _next: NextFunction) {
+        const where = { id: Number(request.params.id) };
+        const include = { Implementation: true };
+        const project = await controller.read(where, include);
+
+        if (!project) {
+            const message = 'Project not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        const implementation = await implementationController.read({ id: project.implementationId });
+        return response.status(200).json(implementation);
+    },
+
+    async getTokenByIndex(request: Request, response: Response, _next: NextFunction) {
+        const where = { id: Number(request.params.id) };
+        const project = await controller.read(where);
+
+        if (!project) {
+            const message = 'Project not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        const index = Number(request.params.index);
+
+        if (index >= project.totalSupply) {
+            const message = 'Index exceeds the token supply';
+            const code = 400;
+            return response.status(code).json({ message, code });
+        }
+
+        const model = controller.load(project.address);
+        const tokenId = await model.getTokenByIndex([request.params.index, 0]);
+        const owner = await model.getOwnerOf([tokenId, 0]);
+        const uri = await model.getTokenUri([tokenId, 0]);
+        return response.status(200).json({ address: project.address, owner, tokenId, uri });
+    },
+
+    async getTokens(request: Request, response: Response, _next: NextFunction) {
+        const where = { id: Number(request.params.id) };
+        const project = await controller.read(where);
+
+        if (!project) {
+            const message = 'Project not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        const indexes = Array.from(Array(project.totalSupply).keys());
+        const model = controller.load(project.address);
+        const tokens = await Promise.all(indexes.map(async (index) => {
+            const tokenId = await model.getTokenByIndex([String(index), 0]);
+            const owner = await model.getOwnerOf([tokenId, 0]);
+            const uri = await model.getTokenUri([tokenId, 0]);
+            return { owner, tokenId, uri };
+        }));
+
+        return response.status(200).json({ address: project.address, tokens });
+    },
+
+    async getTokenByIndexOf(request: Request, response: Response, _next: NextFunction) {
+        const where = { id: Number(request.params.id) };
+        const project = await controller.read(where);
+
+        if (!project) {
+            const message = 'Project not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        const model = controller.load(project.address);
+        const balance = await model.getBalanceOf([request.params.user]);
+        const index = Number(request.params.index);
+
+        if (index >= balance) {
+            const message = 'Index exceeds the user balance';
+            const code = 400;
+            return response.status(code).json({ message, code });
+        }
+
+        const tokenId = await model.getTokenOfOwnerByIndex([request.params.user, request.params.index, 0]);
+        return response.status(200).json({ address: project.address, user: request.params.user, tokenId });
+    },
+
+    async getTokensOf(request: Request, response: Response, _next: NextFunction) {
+        const where = { id: Number(request.params.id) };
+        const project = await controller.read(where);
+
+        if (!project) {
+            const message = 'Project not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        const model = controller.load(project.address);
+        const balance = await model.getBalanceOf([request.params.user]);
+        const indexes = Array.from(Array(balance).keys());
+        const tokenIds = await Promise.all(indexes.map(async (index) => {
+            return await model.getTokenOfOwnerByIndex([request.params.user, String(index), 0]);
+        }));
+
+        return response.status(200).json({ address: project.address, user: request.params.user, tokenIds });
+    },
+
     async getBalanceOf(request: Request, response: Response, _next: NextFunction) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
+
+        if (!project) {
+            const message = 'Project not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
         const model = controller.load(project.address);
         const balance = await model.getBalanceOf([request.params.user]);
         return response.status(200).json({ address: project.address, user: request.params.user, balance });
@@ -78,6 +198,13 @@ const controller = {
     async getOwnerOf(request: Request, response: Response, _next: NextFunction) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
+
+        if (!project) {
+            const message = 'Project not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
         const model = controller.load(project.address);
         const owner = await model.getOwnerOf([request.params.token_id, 0]);
         return response.status(200).json({ address: project.address, token_id: request.params.token_id, owner });
@@ -86,29 +213,51 @@ const controller = {
     async getTokenUri(request: Request, response: Response, _next: NextFunction) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
+
+        if (!project) {
+            const message = 'Project not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
         const model = controller.load(project.address);
         const uri = await model.getTokenUri([request.params.token_id, 0]);
         return response.status(200).json({ address: project.address, token_id: request.params.token_id, uri });
     },
 
+    async getTransfers(request: Request, response: Response, _next: NextFunction) {
+        const where = { id: Number(request.params.id) };
+        const include = { Transfer: true };
+        const project = await controller.read(where, include);
+
+        if (!project) {
+            const message = 'Project not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        return response.status(200).json(project.Transfer);
+    },
+
     async setFilter(filter: FilterBuilder) {
         const projects = await prisma.project.findMany();
-        const events = [UPGRADED, ABSORPTION_UPDATE];
         projects.forEach((project) => {
             const address = FieldElement.fromBigInt(project.address);
-            events.forEach((key) => {
+            Object.values(EVENTS).forEach((key) => {
                 filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
             })
         })
     },
 
-    async handleEvent(event: starknet.IEvent, key: string) {
+    async handleEvent(block: starknet.Block, transaction: starknet.ITransaction, event: starknet.IEvent, key: string) {
         const projects = await prisma.project.findMany();
         const found = projects.find(model => model.address === FieldElement.toHex(event.fromAddress));
-        if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
+        if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
             await controller.handleUpgraded(found.address);
-        } else if (found && [FieldElement.toHex(ABSORPTION_UPDATE)].includes(key)) {
+        } else if (found && [FieldElement.toHex(EVENTS.ABSORPTION_UPDATE)].includes(key)) {
             await controller.handleAbsorptionUpdate(found.address);
+        } else if (found && [FieldElement.toHex(EVENTS.TRANSFER)].includes(key)) {
+            await controller.handleTransfer(found, block, transaction, event);
         };
     },
 
@@ -118,9 +267,14 @@ const controller = {
         const model = controller.load(address);
         await model.sync();
 
-        const abi = await model.getProxyAbi();
-        const implementation = await model.getImplementationHash();
-        const data = { abi, implementation };
+        const implementationAddress = await model.getImplementationHash();
+        let implementation = await implementationController.read({ address: implementationAddress });
+        if (!implementation) {
+            const abi = await model.getProxyAbi();
+            implementation = await implementationController.create({ address: implementationAddress, abi });
+        }
+
+        const data = { implementationId: implementation.id };
         logger.project(`Upgraded (${address})`);
         await prisma.project.update({ where, data });
     },
@@ -137,18 +291,38 @@ const controller = {
         await prisma.project.update({ where, data });
     },
 
+    async handleTransfer(project: PrismaProject, block: starknet.Block, transaction: starknet.ITransaction, event: starknet.IEvent) {
+        const transferIdentifier = {
+            hash: FieldElement.toHex(transaction.meta.hash),
+            from: FieldElement.toHex(event.data[0]),
+            to: FieldElement.toHex(event.data[1]),
+            tokenId: Number(FieldElement.toBigInt(event.data[2])),
+            projectId: project.id,
+        }
+        const transfer = await transferController.read({ transferIdentifier })
+        if (!transfer) {
+            const data = {
+                ...transferIdentifier,
+                time: new Date(Number(block.header.timestamp.seconds.toString()) * 1000)
+            };
+            await transferController.create(data);
+        }
+        logger.project(`Transfer (${project.address})`);
+    },
+
     async handleAbsorptionUpdate(address: string) {
         const where = { address };
 
         const model = controller.load(address);
         await model.sync();
 
-        const [tonEquivalent, times, absorptions] = await Promise.all([
+        const [tonEquivalent, times, absorptions, setup] = await Promise.all([
             model.getTonEquivalent(),
             model.getTimes(),
             model.getAbsorptions(),
+            model.isSetup(),
         ]);
-        const data = { tonEquivalent, times, absorptions };
+        const data = { tonEquivalent, times, absorptions, setup };
         logger.project(`AbsorptionUpdate (${address})`);
         await prisma.project.update({ where, data });
     }

@@ -1,14 +1,13 @@
 import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/starknet'
-import { UPGRADED } from '../models/starknet/contract';
-import { DEPOSIT, WITHDRAW, CLAIM } from '../models/starknet/offseter';
 
 import logger from '../handlers/logger';
 
-import Offseter from '../models/starknet/offseter';
+import Offseter, { EVENTS } from '../models/starknet/offseter';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
 import projectController from './project.controller';
+import implementationController from './implementation.controller';
 
 import { Request, Response, NextFunction } from 'express';
 import { Prisma } from '@prisma/client';
@@ -22,8 +21,7 @@ const controller = {
     async create(address: string) {
         const model = controller.load(address);
 
-        const [abi, implementation, totalDeposited, totalClaimed, totalClaimable, minClaimable, projectAddress] = await Promise.all([
-            model.getProxyAbi(),
+        const [implementationAddress, totalDeposited, totalClaimed, totalClaimable, minClaimable, projectAddress] = await Promise.all([
             model.getImplementationHash(),
             model.getMinClaimable(),
             model.getTotalDeposited(),
@@ -32,12 +30,18 @@ const controller = {
             model.getCarbonableProjectAddress(),
         ]);
 
+        let implementation = await implementationController.read({ address: implementationAddress });
+        if (!implementation) {
+            const abi = await model.getProxyAbi();
+            implementation = await implementationController.create({ address: implementationAddress, abi });
+        }
+
         let project = await projectController.read({ address: projectAddress });
         if (!project) {
             project = await projectController.create(projectAddress);
         }
 
-        const data = { address, abi, implementation, totalDeposited, totalClaimed, totalClaimable, minClaimable, projectId: project.id };
+        const data = { address, totalDeposited, totalClaimed, totalClaimable, minClaimable, projectId: project.id, implementationId: implementation.id };
         return await prisma.offseter.create({ data });
     },
 
@@ -71,12 +75,26 @@ const controller = {
         return response.status(200).json(offseters);
     },
 
+    async getAbi(request: Request, response: Response, _next: NextFunction) {
+        const where = { id: Number(request.params.id) };
+        const include = { Implementation: true };
+        const offseter = await controller.read(where, include);
+
+        if (!offseter) {
+            const message = 'Offseter not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        const implementation = await implementationController.read({ id: offseter.implementationId });
+        return response.status(200).json(implementation);
+    },
+
     async setFilter(filter: FilterBuilder) {
         const offseters = await prisma.offseter.findMany();
-        const events = [UPGRADED, DEPOSIT, WITHDRAW, CLAIM];
         offseters.forEach((offseter) => {
             const address = FieldElement.fromBigInt(offseter.address);
-            events.forEach((key) => {
+            Object.values(EVENTS).forEach((key) => {
                 filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
             })
         })
@@ -85,11 +103,11 @@ const controller = {
     async handleEvent(event: starknet.IEvent, key: string) {
         const offseters = await prisma.offseter.findMany();
         const found = offseters.find(model => model.address === FieldElement.toHex(event.fromAddress));
-        if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
+        if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
             await controller.handleUpgraded(found.address);
-        } else if (found && [FieldElement.toHex(DEPOSIT), FieldElement.toHex(WITHDRAW)].includes(key)) {
+        } else if (found && [FieldElement.toHex(EVENTS.DEPOSIT), FieldElement.toHex(EVENTS.WITHDRAW)].includes(key)) {
             await controller.handleDepositOrWithdraw(found.address);
-        } else if (found && [FieldElement.toHex(CLAIM)].includes(key)) {
+        } else if (found && [FieldElement.toHex(EVENTS.CLAIM)].includes(key)) {
             await controller.handleClaim(found.address);
         };
     },
@@ -100,8 +118,14 @@ const controller = {
         const model = controller.load(address);
         await model.sync();
 
-        const implementation = await model.getImplementationHash();
-        const data = { implementation };
+        const implementationAddress = await model.getImplementationHash();
+        let implementation = await implementationController.read({ address: implementationAddress });
+        if (!implementation) {
+            const abi = await model.getProxyAbi();
+            implementation = await implementationController.create({ address: implementationAddress, abi });
+        }
+
+        const data = { implementationId: implementation.id };
         logger.offseter(`Upgraded (${address})`);
         await prisma.offseter.update({ where, data });
     },

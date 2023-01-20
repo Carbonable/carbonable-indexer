@@ -1,7 +1,10 @@
+import axios, { AxiosResponse } from 'axios';
+
 import { ProviderInterface, RawCalldata, shortString, number, hash } from "starknet";
 import { FieldElement } from '@apibara/starknet'
 import logger from "../../handlers/logger";
 
+const GATEWAY = 'https://carbonable.infura-ipfs.io/ipfs/';
 const UPGRADED = FieldElement.fromBigInt(hash.getSelectorFromName('Upgraded'));
 
 export { UPGRADED };
@@ -33,7 +36,7 @@ export default class Contract {
 
     async fetch(selector: string, parser: Function, calldata?: RawCalldata) {
         const result = this.state[this.properties.indexOf(selector)] || await this.query(this.address, selector, calldata);
-        return parser(result);
+        return await parser(result);
     }
 
     parse(responses: string[]): string[][] {
@@ -111,5 +114,11 @@ export default class Contract {
 
     toDates(result: string[]) {
         return result.slice(1).map((value) => new Date(Number(value) * 1000));
+    }
+
+    async toJson(result: string[]) {
+        const ipfs = result.slice(1).map((char) => shortString.decodeShortString(char)).join('');
+        const response = await axios.get(GATEWAY + ipfs.replace('ipfs://', ''));
+        return response.data;
     }
 }

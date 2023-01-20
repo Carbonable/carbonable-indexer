@@ -1,10 +1,14 @@
 import { ProviderInterface, RawCalldata, hash } from "starknet";
-import Contract from './contract';
+import Contract, { UPGRADED } from './contract';
 import { FieldElement } from '@apibara/starknet'
 
-const ABSORPTION_UPDATE = FieldElement.fromBigInt(hash.getSelectorFromName('AbsorptionUpdate'));
+const EVENTS = {
+  UPGRADED,
+  ABSORPTION_UPDATE: FieldElement.fromBigInt(hash.getSelectorFromName('AbsorptionUpdate')),
+  TRANSFER: FieldElement.fromBigInt(hash.getSelectorFromName('Transfer')),
+}
 
-export { ABSORPTION_UPDATE };
+export { EVENTS };
 
 export default class Project extends Contract {
 
@@ -20,6 +24,7 @@ export default class Project extends Contract {
       'getTonEquivalent',
       'getTimes',
       'getAbsorptions',
+      'isSetup',
     ];
   }
 
@@ -64,11 +69,11 @@ export default class Project extends Contract {
   }
 
   async getTokenUri(calldata?: RawCalldata) {
-    return await this.fetch('tokenURI', this.toString, calldata);
+    return await this.fetch('tokenURI', this.toJson, calldata);
   }
 
   async getContractUri(calldata?: RawCalldata) {
-    return await this.fetch('contractURI', this.toString, calldata);
+    return await this.fetch('contractURI', this.toJson, calldata);
   }
 
   async getOwner(calldata?: RawCalldata) {
@@ -105,5 +110,9 @@ export default class Project extends Contract {
 
   async getTimes(calldata?: RawCalldata) {
     return await this.fetch('getTimes', this.toDates, calldata);
+  }
+
+  async isSetup(calldata?: RawCalldata) {
+    return await this.fetch('isSetup', this.toBool, calldata);
   }
 }

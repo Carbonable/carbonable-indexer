@@ -45,7 +45,7 @@ const main = {
 
     async run() {
         // Configure stream
-        const filter = Filter.create().withHeader({ weak: false });
+        const filter = Filter.create().withHeader({ weak: true });
 
         await project.setFilter(filter);
         await minter.setFilter(filter);
@@ -62,7 +62,7 @@ const main = {
         for await (const message of indexer) {
             const batch = message.data?.data;
             if (batch) {
-                main.handleBatch(batch);
+                await main.handleBatch(batch);
             }
         }
     },
@@ -76,9 +76,9 @@ const main = {
 
     async handleBlock(block: starknet.Block) {
         // Loop over txs
-        for await (const { event } of block.events) {
+        for await (const { transaction, event } of block.events) {
             const key = FieldElement.toHex(event.keys[0]);
-            project.handleEvent(event, key);
+            project.handleEvent(block, transaction, event, key);
             minter.handleEvent(event, key);
             vester.handleEvent(event, key);
             offseter.handleEvent(event, key);

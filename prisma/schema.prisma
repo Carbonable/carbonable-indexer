@@ -10,37 +10,59 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Implementation {
+  id       Int        @id @default(autoincrement())
+  address  String     @unique
+  abi      Json
+  Project  Project[]
+  Minter   Minter[]
+  Vester   Vester[]
+  Offseter Offseter[]
+  Yielder  Yielder[]
+  Payment  Payment[]
+}
+
+model Uri {
+  id      Int       @id @default(autoincrement())
+  uri     String    @unique
+  data    Json
+  Project Project[]
+}
+
 model Project {
-  id             Int        @id @default(autoincrement())
-  address        String     @unique
-  abi            Json
-  implementation String
-  name           String
-  symbol         String
-  totalSupply    Int
-  contractUri    String
-  owner          String
-  tonEquivalent  Float
-  times          DateTime[]
-  absorptions    Float[]
-  Minter         Minter[]
-  Offseter       Offseter[]
-  Yielder        Yielder[]
+  id               Int             @id @default(autoincrement())
+  address          String          @unique
+  name             String
+  symbol           String
+  totalSupply      Int
+  contractUri      Json
+  owner            String
+  tonEquivalent    Float
+  times            DateTime[]
+  absorptions      Float[]
+  setup            Boolean
+  Minter           Minter[]
+  Offseter         Offseter[]
+  Yielder          Yielder[]
+  Transfer         Transfer[]
+  Implementation   Implementation? @relation(fields: [implementationId], references: [id])
+  implementationId Int?
+  Uri              Uri?            @relation(fields: [uriId], references: [id])
+  uriId            Int?
 }
 
 model Payment {
-  id       Int      @id @default(autoincrement())
-  address  String   @unique
-  abi      Json
-  decimals Int
-  Minter   Minter[]
+  id               Int             @id @default(autoincrement())
+  address          String          @unique
+  decimals         Int
+  Minter           Minter[]
+  Implementation   Implementation? @relation(fields: [implementationId], references: [id])
+  implementationId Int?
 }
 
 model Minter {
-  id                  Int     @id @default(autoincrement())
-  address             String  @unique
-  abi                 Json
-  implementation      String
+  id                  Int             @id @default(autoincrement())
+  address             String          @unique
   maxSupply           Int
   reservedSupply      Int
   preSaleOpen         Boolean
@@ -51,23 +73,25 @@ model Minter {
   soldOut             Boolean
   totalValue          Float
   Whitelist           Json?
-  Project             Project @relation(fields: [projectId], references: [id])
+  Project             Project         @relation(fields: [projectId], references: [id])
   projectId           Int
-  Payment             Payment @relation(fields: [paymentId], references: [id])
+  Payment             Payment         @relation(fields: [paymentId], references: [id])
   paymentId           Int
+  Implementation      Implementation? @relation(fields: [implementationId], references: [id])
+  implementationId    Int?
 }
 
 model Offseter {
-  id             Int     @id @default(autoincrement())
-  address        String  @unique
-  abi            Json
-  implementation String
-  totalDeposited Float
-  totalClaimed   Float
-  totalClaimable Float
-  minClaimable   Float
-  Project        Project @relation(fields: [projectId], references: [id])
-  projectId      Int
+  id               Int             @id @default(autoincrement())
+  address          String          @unique
+  totalDeposited   Float
+  totalClaimed     Float
+  totalClaimable   Float
+  minClaimable     Float
+  Project          Project         @relation(fields: [projectId], references: [id])
+  projectId        Int
+  Implementation   Implementation? @relation(fields: [implementationId], references: [id])
+  implementationId Int?
 }
 
 model Snapshot {
@@ -90,19 +114,19 @@ model Snapshot {
 }
 
 model Yielder {
-  id              Int        @id @default(autoincrement())
-  address         String     @unique
-  abi             Json
-  implementation  String
-  totalDeposited  Float
-  totalAbsorption Float
-  snapshotedTime  DateTime
-  snapshot        Snapshot[]
-  vesting         Vesting[]
-  Project         Project    @relation(fields: [projectId], references: [id])
-  projectId       Int
-  Vester          Vester     @relation(fields: [vesterId], references: [id])
-  vesterId        Int
+  id               Int             @id @default(autoincrement())
+  address          String          @unique
+  totalDeposited   Float
+  totalAbsorption  Float
+  snapshotedTime   DateTime
+  snapshot         Snapshot[]
+  vesting          Vesting[]
+  Project          Project         @relation(fields: [projectId], references: [id])
+  projectId        Int
+  Vester           Vester          @relation(fields: [vesterId], references: [id])
+  vesterId         Int
+  Implementation   Implementation? @relation(fields: [implementationId], references: [id])
+  implementationId Int?
 }
 
 model Vesting {
@@ -116,11 +140,24 @@ model Vesting {
 }
 
 model Vester {
-  id                 Int       @id @default(autoincrement())
-  address            String    @unique
-  abi                Json
-  implementation     String
+  id                 Int             @id @default(autoincrement())
+  address            String          @unique
   totalAmount        Float
   withdrawableAmount Float
   Yielder            Yielder[]
+  Implementation     Implementation? @relation(fields: [implementationId], references: [id])
+  implementationId   Int?
+}
+
+model Transfer {
+  id        Int      @id @default(autoincrement())
+  hash      String
+  from      String
+  to        String
+  tokenId   Float
+  time      DateTime
+  Project   Project  @relation(fields: [projectId], references: [id])
+  projectId Int
+
+  @@unique([projectId, hash, from, to, tokenId], name: "transferIdentifier")
 }

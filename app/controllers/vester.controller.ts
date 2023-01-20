@@ -7,6 +7,8 @@ import Vester from '../models/starknet/vester';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
+import implementationController from './implementation.controller';
+
 import { Request, Response, NextFunction } from 'express';
 import { Prisma } from '@prisma/client';
 
@@ -20,14 +22,19 @@ const controller = {
     async create(address: string) {
         const model = controller.load(address);
 
-        const [abi, implementation, totalAmount, withdrawableAmount] = await Promise.all([
-            model.getProxyAbi(),
+        const [implementationAddress, totalAmount, withdrawableAmount] = await Promise.all([
             model.getImplementationHash(),
             model.getVestingTotalAmount(),
             model.getWithdrawableAmount(),
         ]);
 
-        const data = { address, abi, implementation, totalAmount, withdrawableAmount };
+        let implementation = await implementationController.read({ address: implementationAddress });
+        if (!implementation) {
+            const abi = await model.getProxyAbi();
+            implementation = await implementationController.create({ address: implementationAddress, abi });
+        }
+
+        const data = { address, totalAmount, withdrawableAmount, implementationId: implementation.id };
         return await prisma.vester.create({ data });
     },
 
@@ -59,6 +66,21 @@ const controller = {
     async getAll(_request: Request, response: Response, _next: NextFunction) {
         const vesters = await prisma.vester.findMany();
         return response.status(200).json(vesters);
+    },
+
+    async getAbi(request: Request, response: Response, _next: NextFunction) {
+        const where = { id: Number(request.params.id) };
+        const include = { Implementation: true };
+        const vester = await controller.read(where, include);
+
+        if (!vester) {
+            const message = 'Vester not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        const implementation = await implementationController.read({ id: vester.implementationId });
+        return response.status(200).json(implementation);
     },
 
     async getVestingCount(request: Request, response: Response, _next: NextFunction) {
@@ -109,9 +131,14 @@ const controller = {
         const model = controller.load(address);
         await model.sync();
 
-        const abi = await model.getProxyAbi();
-        const implementation = await model.getImplementationHash();
-        const data = { abi, implementation };
+        const implementationAddress = await model.getImplementationHash();
+        let implementation = await implementationController.read({ address: implementationAddress });
+        if (!implementation) {
+            const abi = await model.getProxyAbi();
+            implementation = await implementationController.create({ address: implementationAddress, abi });
+        }
+
+        const data = { implementationId: implementation.id };
         logger.vester(`Upgraded (${address})`);
         await prisma.vester.update({ where, data });
     },

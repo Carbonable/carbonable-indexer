@@ -1,13 +1,17 @@
 import { ProviderInterface, RawCalldata, hash } from "starknet";
-import Contract from './contract';
+import Contract, { UPGRADED } from './contract';
+import { EVENTS as OFFSETER_EVENTS } from './offseter';
 import { FieldElement } from '@apibara/starknet'
 
-const SNAPSHOT = FieldElement.fromBigInt(hash.getSelectorFromName('Snapshot'));
-const USER_SNAPSHOT = FieldElement.fromBigInt(hash.getSelectorFromName('UserSnapshot'));
-const VESTING = FieldElement.fromBigInt(hash.getSelectorFromName('Vesting'));
-const USER_VESTING = FieldElement.fromBigInt(hash.getSelectorFromName('UserVesting'));
+const EVENTS = {
+  UPGRADED,
+  SNAPSHOT: FieldElement.fromBigInt(hash.getSelectorFromName('Snapshot')),
+  VESTING: FieldElement.fromBigInt(hash.getSelectorFromName('Vesting')),
+  DEPOSIT: OFFSETER_EVENTS.DEPOSIT,
+  WITHDRAW: OFFSETER_EVENTS.WITHDRAW,
+}
 
-export { SNAPSHOT, USER_SNAPSHOT, VESTING, USER_VESTING };
+export { EVENTS };
 
 export default class Yielder extends Contract {
 
