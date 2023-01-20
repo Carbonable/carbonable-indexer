@@ -144,6 +144,25 @@ const controller = {
         const where = { id: Number(request.params.id) };
         const include = { vesting: true, snapshot: true, Project: { include: { Minter: true } } };
         const yielder = await controller.read(where, include);
+
+        if (!yielder) {
+            const message = 'yielder not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        if (!yielder.snapshot.length) {
+            const message = 'yielder snapshots not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        if (!yielder.vesting.length) {
+            const message = 'yielder vestings not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
         const vesting = yielder.vesting[yielder.vesting.length - 1];
         const snapshots = yielder.snapshot.filter((snapshot) => snapshot.time < vesting.time);
         const snapshot = snapshots[snapshots.length - 1];
