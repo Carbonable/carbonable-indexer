@@ -68,12 +68,51 @@ const controller = {
         return await prisma.yielder.delete({ where });
     },
 
+    async add(request: Request, response: Response, _next: NextFunction) {
+        const where = { address: request.params.address };
+        const yielder = await controller.read(where);
+
+        if (yielder) {
+            const message = 'yielder already exists';
+            const code = 409;
+            return response.status(code).json({ message, code });
+        }
+
+        try {
+            const yielder = await controller.create(request.params.address);
+            return response.status(201).json(yielder);
+        } catch (error) {
+            const code = 500;
+            return response.status(code).json({ message: error.message, code });
+        }
+    },
+
+    async remove(request: Request, response: Response, _next: NextFunction) {
+        const where = { address: request.params.address };
+        const yielder = await controller.read(where);
+
+        if (!yielder) {
+            const message = 'yielder not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        try {
+            await controller.delete({ id: yielder.id });
+            const code = 200;
+            return response.status(code).json({ code });
+        } catch (error) {
+            const code = 500;
+            return response.status(code).json({ message: error.message, code });
+        }
+    },
+
     async getOne(request: Request, response: Response, _next: NextFunction) {
         const where = { id: Number(request.params.id) };
         const yielder = await controller.read(where);
 
         if (!yielder) {
-            const message = 'Yielder not found';
+            const message = 'yielder not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
@@ -92,7 +131,7 @@ const controller = {
         const yielder = await controller.read(where, include);
 
         if (!yielder) {
-            const message = 'Yielder not found';
+            const message = 'yielder not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }

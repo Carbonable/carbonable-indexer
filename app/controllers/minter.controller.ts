@@ -74,13 +74,52 @@ const controller = {
         return await prisma.minter.delete({ where });
     },
 
+    async add(request: Request, response: Response, _next: NextFunction) {
+        const where = { address: request.params.address };
+        const minter = await controller.read(where);
+
+        if (minter) {
+            const message = 'minter already exists';
+            const code = 409;
+            return response.status(code).json({ message, code });
+        }
+
+        try {
+            const minter = await controller.create(request.params.address);
+            return response.status(201).json(minter);
+        } catch (error) {
+            const code = 500;
+            return response.status(code).json({ message: error.message, code });
+        }
+    },
+
+    async remove(request: Request, response: Response, _next: NextFunction) {
+        const where = { address: request.params.address };
+        const minter = await controller.read(where);
+
+        if (!minter) {
+            const message = 'minter not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        try {
+            await controller.delete({ id: minter.id });
+            const code = 200;
+            return response.status(code).json({ code });
+        } catch (error) {
+            const code = 500;
+            return response.status(code).json({ message: error.message, code });
+        }
+    },
+
     async getOne(request: Request, response: Response, _next: NextFunction) {
         const where = { id: Number(request.params.id) };
         const include: Prisma.MinterInclude = { Payment: true }
         const minter = await controller.read(where, include);
 
         if (!minter) {
-            const message = 'Minter not found';
+            const message = 'minter not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
@@ -99,7 +138,7 @@ const controller = {
         const minter = await controller.read(where, include);
 
         if (!minter) {
-            const message = 'Minter not found';
+            const message = 'minter not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }

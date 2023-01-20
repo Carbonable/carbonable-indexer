@@ -47,7 +47,7 @@ const controller = {
         const project = await controller.read(where);
 
         if (!project) {
-            const message = 'Payment not found';
+            const message = 'payment not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
@@ -66,7 +66,7 @@ const controller = {
         const payment = await controller.read(where, include);
 
         if (!payment) {
-            const message = 'Payment not found';
+            const message = 'payment not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }

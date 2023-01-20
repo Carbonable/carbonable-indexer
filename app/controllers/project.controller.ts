@@ -8,6 +8,7 @@ import prisma from '../models/database/client';
 
 import transferController from './transfer.controller';
 import implementationController from './implementation.controller';
+import uriController from './uri.controller';
 
 import { Request, Response, NextFunction } from 'express';
 import { Prisma, Project as PrismaProject } from '@prisma/client';
@@ -40,7 +41,12 @@ const controller = {
             implementation = await implementationController.create({ address: implementationAddress, abi });
         }
 
-        const data = { address, name, symbol, totalSupply, contractUri, owner, tonEquivalent, times, absorptions, setup, implementationId: implementation.id };
+        let uri = await uriController.read({ uri: contractUri });
+        if (!uri) {
+            uri = await uriController.create(contractUri);
+        }
+
+        const data = { address, name, symbol, totalSupply, owner, tonEquivalent, times, absorptions, setup, implementationId: implementation.id, uriId: uri.id };
         return await prisma.project.create({ data });
     },
 
@@ -56,12 +62,51 @@ const controller = {
         return await prisma.project.delete({ where });
     },
 
+    async add(request: Request, response: Response, _next: NextFunction) {
+        const where = { address: request.params.address };
+        const project = await controller.read(where);
+
+        if (project) {
+            const message = 'project already exists';
+            const code = 409;
+            return response.status(code).json({ message, code });
+        }
+
+        try {
+            const project = await controller.create(request.params.address);
+            return response.status(201).json(project);
+        } catch (error) {
+            const code = 500;
+            return response.status(code).json({ message: error.message, code });
+        }
+    },
+
+    async remove(request: Request, response: Response, _next: NextFunction) {
+        const where = { address: request.params.address };
+        const project = await controller.read(where);
+
+        if (!project) {
+            const message = 'project not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        try {
+            await controller.delete({ id: project.id });
+            const code = 200;
+            return response.status(code).json({ code });
+        } catch (error) {
+            const code = 500;
+            return response.status(code).json({ message: error.message, code });
+        }
+    },
+
     async getOne(request: Request, response: Response, _next: NextFunction) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
 
         if (!project) {
-            const message = 'Project not found';
+            const message = 'project not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
@@ -80,7 +125,7 @@ const controller = {
         const project = await controller.read(where, include);
 
         if (!project) {
-            const message = 'Project not found';
+            const message = 'project not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
@@ -94,7 +139,7 @@ const controller = {
         const project = await controller.read(where);
 
         if (!project) {
-            const message = 'Project not found';
+            const message = 'project not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
@@ -111,7 +156,12 @@ const controller = {
         const tokenId = await model.getTokenByIndex([request.params.index, 0]);
         const owner = await model.getOwnerOf([tokenId, 0]);
         const uri = await model.getTokenUri([tokenId, 0]);
-        return response.status(200).json({ address: project.address, owner, tokenId, uri });
+
+        let tokenUri = await uriController.read({ uri });
+        if (!tokenUri) {
+            tokenUri = await uriController.create(uri);
+        }
+        return response.status(200).json({ address: project.address, owner, tokenId, uri: tokenUri });
     },
 
     async getTokens(request: Request, response: Response, _next: NextFunction) {
@@ -119,7 +169,7 @@ const controller = {
         const project = await controller.read(where);
 
         if (!project) {
-            const message = 'Project not found';
+            const message = 'project not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
@@ -130,7 +180,17 @@ const controller = {
             const tokenId = await model.getTokenByIndex([String(index), 0]);
             const owner = await model.getOwnerOf([tokenId, 0]);
             const uri = await model.getTokenUri([tokenId, 0]);
-            return { owner, tokenId, uri };
+
+            let tokenUri = await uriController.read({ uri });
+            if (!tokenUri) {
+                try {
+                    tokenUri = await uriController.create(uri);
+                } catch (_error) {
+                    tokenUri = await uriController.read({ uri });
+                }
+            }
+
+            return { owner, tokenId, uri: tokenUri };
         }));
 
         return response.status(200).json({ address: project.address, tokens });
@@ -141,7 +201,7 @@ const controller = {
         const project = await controller.read(where);
 
         if (!project) {
-            const message = 'Project not found';
+            const message = 'project not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
@@ -165,7 +225,7 @@ const controller = {
         const project = await controller.read(where);
 
         if (!project) {
-            const message = 'Project not found';
+            const message = 'project not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
@@ -185,7 +245,7 @@ const controller = {
         const project = await controller.read(where);
 
         if (!project) {
-            const message = 'Project not found';
+            const message = 'project not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
@@ -200,7 +260,7 @@ const controller = {
         const project = await controller.read(where);
 
         if (!project) {
-            const message = 'Project not found';
+            const message = 'project not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
@@ -215,13 +275,18 @@ const controller = {
         const project = await controller.read(where);
 
         if (!project) {
-            const message = 'Project not found';
+            const message = 'project not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
 
         const model = controller.load(project.address);
         const uri = await model.getTokenUri([request.params.token_id, 0]);
+        let tokenUri = await uriController.read({ uri });
+        if (!tokenUri) {
+            tokenUri = await uriController.create(uri);
+        }
+
         return response.status(200).json({ address: project.address, token_id: request.params.token_id, uri });
     },
 
@@ -231,7 +296,7 @@ const controller = {
         const project = await controller.read(where, include);
 
         if (!project) {
-            const message = 'Project not found';
+            const message = 'project not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }

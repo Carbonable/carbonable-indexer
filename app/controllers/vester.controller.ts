@@ -50,6 +50,44 @@ const controller = {
         return await prisma.vester.delete({ where });
     },
 
+    async add(request: Request, response: Response, _next: NextFunction) {
+        const where = { address: request.params.address };
+        const vester = await controller.read(where);
+
+        if (vester) {
+            const message = 'vester already exists';
+            const code = 409;
+            return response.status(code).json({ message, code });
+        }
+
+        try {
+            const vester = await controller.create(request.params.address);
+            return response.status(201).json(vester);
+        } catch (error) {
+            const code = 500;
+            return response.status(code).json({ message: error.message, code });
+        }
+    },
+
+    async remove(request: Request, response: Response, _next: NextFunction) {
+        const where = { address: request.params.address };
+        const vester = await controller.read(where);
+
+        if (!vester) {
+            const message = 'vester not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        try {
+            await controller.delete({ id: vester.id });
+            const code = 200;
+            return response.status(code).json({ code });
+        } catch (error) {
+            const code = 500;
+            return response.status(code).json({ message: error.message, code });
+        }
+    },
     async getOne(request: Request, response: Response, _next: NextFunction) {
         const where = { id: Number(request.params.id) };
         const vester = await controller.read(where);
@@ -74,7 +112,7 @@ const controller = {
         const vester = await controller.read(where, include);
 
         if (!vester) {
-            const message = 'Vester not found';
+            const message = 'vester not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }

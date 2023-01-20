@@ -21,7 +21,7 @@ const controller = {
     async create(address: string) {
         const model = controller.load(address);
 
-        const [implementationAddress, totalDeposited, totalClaimed, totalClaimable, minClaimable, projectAddress] = await Promise.all([
+        const [implementationAddress, minClaimable, totalDeposited, totalClaimed, totalClaimable, projectAddress] = await Promise.all([
             model.getImplementationHash(),
             model.getMinClaimable(),
             model.getTotalDeposited(),
@@ -57,12 +57,51 @@ const controller = {
         return await prisma.offseter.delete({ where });
     },
 
+    async add(request: Request, response: Response, _next: NextFunction) {
+        const where = { address: request.params.address };
+        const offseter = await controller.read(where);
+
+        if (offseter) {
+            const message = 'offseter already exists';
+            const code = 409;
+            return response.status(code).json({ message, code });
+        }
+
+        try {
+            const offseter = await controller.create(request.params.address);
+            return response.status(201).json(offseter);
+        } catch (error) {
+            const code = 500;
+            return response.status(code).json({ message: error.message, code });
+        }
+    },
+
+    async remove(request: Request, response: Response, _next: NextFunction) {
+        const where = { address: request.params.address };
+        const offseter = await controller.read(where);
+
+        if (!offseter) {
+            const message = 'offseter not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        try {
+            await controller.delete({ id: offseter.id });
+            const code = 200;
+            return response.status(code).json({ code });
+        } catch (error) {
+            const code = 500;
+            return response.status(code).json({ message: error.message, code });
+        }
+    },
+
     async getOne(request: Request, response: Response, _next: NextFunction) {
         const where = { id: Number(request.params.id) };
         const offseter = await controller.read(where);
 
         if (!offseter) {
-            const message = 'Offseter not found';
+            const message = 'offseter not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
@@ -81,7 +120,7 @@ const controller = {
         const offseter = await controller.read(where, include);
 
         if (!offseter) {
-            const message = 'Offseter not found';
+            const message = 'offseter not found';
             const code = 404;
             return response.status(code).json({ message, code });
         }
