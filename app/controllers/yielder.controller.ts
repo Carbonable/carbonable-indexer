@@ -1,15 +1,14 @@
 import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/starknet'
 import { UPGRADED } from '../models/starknet/contract';
-import { DEPOSIT, WITHDRAW } from '../models/starknet/offseter';
-import { SNAPSHOT, VESTING } from '../models/starknet/yielder';
 
 import logger from '../handlers/logger';
 
-import Yielder from '../models/starknet/yielder';
+import Yielder, { EVENTS } from '../models/starknet/yielder';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
 import projectController from './project.controller';
+import implementationController from './implementation.controller';
 import vesterController from './vester.controller';
 import snapshotController from './snapshot.controller'
 import vestingController from './vesting.controller'
@@ -28,8 +27,7 @@ const controller = {
     async create(address: string) {
         const model = controller.load(address);
 
-        const [abi, implementation, totalDeposited, totalAbsorption, snapshotedTime, projectAddress, vesterAddress] = await Promise.all([
-            model.getProxyAbi(),
+        const [implementationAddress, totalDeposited, totalAbsorption, snapshotedTime, projectAddress, vesterAddress] = await Promise.all([
             model.getImplementationHash(),
             model.getTotalDeposited(),
             model.getTotalAbsorption(),
@@ -37,6 +35,12 @@ const controller = {
             model.getCarbonableProjectAddress(),
             model.getCarbonableVesterAddress(),
         ]);
+
+        let implementation = await implementationController.read({ address: implementationAddress });
+        if (!implementation) {
+            const abi = await model.getProxyAbi();
+            implementation = await implementationController.create({ address: implementationAddress, abi });
+        }
 
         let project = await projectController.read({ address: projectAddress });
         if (!project) {
@@ -48,7 +52,7 @@ const controller = {
             vester = await vesterController.create(vesterAddress);
         }
 
-        const data = { address, abi, implementation, totalDeposited, totalAbsorption, snapshotedTime, projectId: project.id, vesterId: vester.id };
+        const data = { address, totalDeposited, totalAbsorption, snapshotedTime, projectId: project.id, vesterId: vester.id, implementationId: implementation.id };
         return await prisma.yielder.create({ data });
     },
 
@@ -82,6 +86,21 @@ const controller = {
         return response.status(200).json(yielders);
     },
 
+    async getAbi(request: Request, response: Response, _next: NextFunction) {
+        const where = { id: Number(request.params.id) };
+        const include = { Implementation: true };
+        const yielder = await controller.read(where, include);
+
+        if (!yielder) {
+            const message = 'Yielder not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        const implementation = await implementationController.read({ id: yielder.implementationId });
+        return response.status(200).json(implementation);
+    },
+
     async getApr(request: Request, response: Response, _next: NextFunction) {
         const where = { id: Number(request.params.id) };
         const include = { vesting: true, snapshot: true, Project: { include: { Minter: true } } };
@@ -97,10 +116,9 @@ const controller = {
 
     async setFilter(filter: FilterBuilder) {
         const yielders = await prisma.yielder.findMany();
-        const events = [UPGRADED, DEPOSIT, WITHDRAW, SNAPSHOT, VESTING];
         yielders.forEach((yielder) => {
             const address = FieldElement.fromBigInt(yielder.address);
-            events.forEach((key) => {
+            Object.values(EVENTS).forEach((key) => {
                 filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
             })
         })
@@ -109,15 +127,15 @@ const controller = {
     async handleEvent(event: starknet.IEvent, key: string) {
         const yielders = await prisma.yielder.findMany();
         const found = yielders.find(model => model.address === FieldElement.toHex(event.fromAddress));
-        if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
+        if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
             await controller.handleUpgraded(found.address);
-        } else if (found && [FieldElement.toHex(DEPOSIT), FieldElement.toHex(WITHDRAW)].includes(key)) {
+        } else if (found && [FieldElement.toHex(EVENTS.DEPOSIT), FieldElement.toHex(EVENTS.WITHDRAW)].includes(key)) {
             await controller.handleDepositOrWithdraw(found.address);
-        } else if (found && [FieldElement.toHex(SNAPSHOT)].includes(key)) {
+        } else if (found && [FieldElement.toHex(EVENTS.SNAPSHOT)].includes(key)) {
             // Remove first value and convert the rest
             const args = event.data.slice(1).map((row) => FieldElement.toHex(row));
             await controller.handleSnapshot(found.address, args);
-        } else if (found && [FieldElement.toHex(VESTING)].includes(key)) {
+        } else if (found && [FieldElement.toHex(EVENTS.VESTING)].includes(key)) {
             // Remove first value and convert the rest
             const args = event.data.slice(1).map((row) => FieldElement.toHex(row));
             await controller.handleVesting(found.address, args);
@@ -130,9 +148,14 @@ const controller = {
         const model = controller.load(address);
         await model.sync();
 
-        const abi = await model.getProxyAbi();
-        const implementation = await model.getImplementationHash();
-        const data = { abi, implementation };
+        const implementationAddress = await model.getImplementationHash();
+        let implementation = await implementationController.read({ address: implementationAddress });
+        if (!implementation) {
+            const abi = await model.getProxyAbi();
+            implementation = await implementationController.create({ address: implementationAddress, abi });
+        }
+
+        const data = { implementationId: implementation.id };
         logger.yielder(`Upgraded (${address})`);
         await prisma.yielder.update({ where, data });
     },

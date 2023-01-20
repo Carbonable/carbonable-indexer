@@ -2,6 +2,8 @@ import Payment from '../models/starknet/payment';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
+import implementationController from './implementation.controller';
+
 import { Request, Response, NextFunction } from 'express';
 import { Prisma } from '@prisma/client';
 
@@ -14,12 +16,17 @@ const controller = {
     async create(address: string) {
         const model = controller.load(address);
 
-        const [abi, decimals] = await Promise.all([
-            model.getAbi(),
+        const [decimals] = await Promise.all([
             model.getDecimals(),
         ]);
 
-        const data = { address, abi, decimals };
+        let implementation = await implementationController.read({ address });
+        if (!implementation) {
+            const abi = await model.getAbi();
+            implementation = await implementationController.create({ address, abi });
+        }
+
+        const data = { address, decimals, implementationId: implementation.id };
         return await prisma.payment.create({ data });
     },
 
@@ -51,6 +58,21 @@ const controller = {
     async getAll(_request: Request, response: Response, _next: NextFunction) {
         const projects = await prisma.payment.findMany();
         return response.status(200).json(projects);
+    },
+
+    async getAbi(request: Request, response: Response, _next: NextFunction) {
+        const where = { id: Number(request.params.id) };
+        const include = { Implementation: true };
+        const payment = await controller.read(where, include);
+
+        if (!payment) {
+            const message = 'Payment not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        const implementation = await implementationController.read({ id: payment.implementationId });
+        return response.status(200).json(implementation);
     },
 
     async getAllowance(request: Request, response: Response, _next: NextFunction) {

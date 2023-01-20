@@ -1,12 +1,15 @@
 import { ProviderInterface, RawCalldata, hash } from "starknet";
-import Contract from './contract';
+import Contract, { UPGRADED } from './contract';
 import { FieldElement } from '@apibara/starknet'
 
-const DEPOSIT = FieldElement.fromBigInt(hash.getSelectorFromName('Deposit'));
-const WITHDRAW = FieldElement.fromBigInt(hash.getSelectorFromName('Withdraw'));
-const CLAIM = FieldElement.fromBigInt(hash.getSelectorFromName('Claim'));
+const EVENTS = {
+  UPGRADED,
+  DEPOSIT: FieldElement.fromBigInt(hash.getSelectorFromName('Deposit')),
+  WITHDRAW: FieldElement.fromBigInt(hash.getSelectorFromName('Withdraw')),
+  CLAIM: FieldElement.fromBigInt(hash.getSelectorFromName('Claim')),
+}
 
-export { DEPOSIT, WITHDRAW, CLAIM };
+export { EVENTS };
 
 export default class Offseter extends Contract {
 

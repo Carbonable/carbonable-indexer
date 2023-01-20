@@ -1,16 +1,19 @@
 import { ProviderInterface, RawCalldata, hash } from "starknet";
-import Contract from './contract';
+import Contract, { UPGRADED } from './contract';
 import { FieldElement } from '@apibara/starknet'
 
-const AIRDROP = FieldElement.fromBigInt(hash.getSelectorFromName('Airdrop'));
-const BUY = FieldElement.fromBigInt(hash.getSelectorFromName('Buy'));
-const PRE_SALE_OPEN = FieldElement.fromBigInt(hash.getSelectorFromName('PreSaleOpen'));
-const PRE_SALE_CLOSE = FieldElement.fromBigInt(hash.getSelectorFromName('PreSaleClose'));
-const PUBLIC_SALE_OPEN = FieldElement.fromBigInt(hash.getSelectorFromName('PublicSaleOpen'));
-const PUBLIC_SALE_CLOSE = FieldElement.fromBigInt(hash.getSelectorFromName('PublicSaleClose'));
-const SOLD_OUT = FieldElement.fromBigInt(hash.getSelectorFromName('SoldOut'));
+const EVENTS = {
+  UPGRADED,
+  AIRDROP: FieldElement.fromBigInt(hash.getSelectorFromName('Airdrop')),
+  BUY: FieldElement.fromBigInt(hash.getSelectorFromName('Buy')),
+  PRE_SALE_OPEN: FieldElement.fromBigInt(hash.getSelectorFromName('PreSaleOpen')),
+  PRE_SALE_CLOSE: FieldElement.fromBigInt(hash.getSelectorFromName('PreSaleClose')),
+  PUBLIC_SALE_OPEN: FieldElement.fromBigInt(hash.getSelectorFromName('PublicSaleOpen')),
+  PUBLIC_SALE_CLOSE: FieldElement.fromBigInt(hash.getSelectorFromName('PublicSaleClose')),
+  SOLD_OUT: FieldElement.fromBigInt(hash.getSelectorFromName('SoldOut')),
+}
 
-export { AIRDROP, BUY, PRE_SALE_OPEN, PRE_SALE_CLOSE, PUBLIC_SALE_OPEN, PUBLIC_SALE_CLOSE, SOLD_OUT };
+export { EVENTS };
 
 export default class Minter extends Contract {
 

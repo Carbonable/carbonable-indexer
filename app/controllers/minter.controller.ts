@@ -1,14 +1,13 @@
 import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/starknet'
-import { UPGRADED } from '../models/starknet/contract';
-import { AIRDROP, BUY, PRE_SALE_OPEN, PRE_SALE_CLOSE, PUBLIC_SALE_OPEN, PUBLIC_SALE_CLOSE, SOLD_OUT } from '../models/starknet/minter';
 
 import logger from "../handlers/logger";
 
-import Minter from '../models/starknet/minter';
+import Minter, { EVENTS } from '../models/starknet/minter';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
 import projectController from './project.controller';
+import implementationController from './implementation.controller';
 import paymentController from './payment.controller';
 
 import { Request, Response, NextFunction } from 'express';
@@ -23,8 +22,7 @@ const controller = {
     async create(address: string, whitelist?: object) {
         const model = controller.load(address);
 
-        const [abi, implementation, maxSupply, reservedSupply, preSaleOpen, publicSaleOpen, maxBuyPerTx, unitPrice, whitelistMerkleRoot, soldOut, totalValue, projectAddress, paymentAddress] = await Promise.all([
-            model.getProxyAbi(),
+        const [implementationAddress, maxSupply, reservedSupply, preSaleOpen, publicSaleOpen, maxBuyPerTx, unitPrice, whitelistMerkleRoot, soldOut, totalValue, projectAddress, paymentAddress] = await Promise.all([
             model.getImplementationHash(),
             model.getMaxSupply(),
             model.getReservedSupply(),
@@ -38,6 +36,12 @@ const controller = {
             model.getCarbonableProjectAddress(),
             model.getPaymentTokenAddress(),
         ]);
+
+        let implementation = await implementationController.read({ address: implementationAddress });
+        if (!implementation) {
+            const abi = await model.getProxyAbi();
+            implementation = await implementationController.create({ address: implementationAddress, abi });
+        }
 
         let project = await projectController.read({ address: projectAddress });
         if (!project) {
@@ -54,7 +58,7 @@ const controller = {
             }
         }
 
-        const data = { address, abi, implementation, maxSupply, reservedSupply, preSaleOpen, publicSaleOpen, maxBuyPerTx, unitPrice, whitelistMerkleRoot, soldOut, totalValue, whitelist, projectId: project.id, paymentId: payment.id };
+        const data = { address, maxSupply, reservedSupply, preSaleOpen, publicSaleOpen, maxBuyPerTx, unitPrice, whitelistMerkleRoot, soldOut, totalValue, whitelist, projectId: project.id, paymentId: payment.id, implementationId: implementation.id };
         return await prisma.minter.create({ data });
     },
 
@@ -89,6 +93,21 @@ const controller = {
         return response.status(200).json(minters);
     },
 
+    async getAbi(request: Request, response: Response, _next: NextFunction) {
+        const where = { id: Number(request.params.id) };
+        const include = { Implementation: true };
+        const minter = await controller.read(where, include);
+
+        if (!minter) {
+            const message = 'Minter not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        const implementation = await implementationController.read({ id: minter.implementationId });
+        return response.status(200).json(implementation);
+    },
+
     async getWhitelistedSlots(request: Request, response: Response, _next: NextFunction) {
         const minter = await controller.read({ id: Number(request.params.id) });
         const model = controller.load(minter.address);
@@ -107,7 +126,7 @@ const controller = {
         const minters = await prisma.minter.findMany();
         minters.forEach((minter) => {
             const address = FieldElement.fromBigInt(minter.address);
-            [UPGRADED, AIRDROP, BUY, PRE_SALE_OPEN, PRE_SALE_CLOSE, PUBLIC_SALE_OPEN, PUBLIC_SALE_CLOSE, SOLD_OUT].forEach((key) => {
+            Object.values(EVENTS).forEach((key) => {
                 filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
             })
         })
@@ -116,15 +135,15 @@ const controller = {
     async handleEvent(event: starknet.IEvent, key: string) {
         const minters = await prisma.minter.findMany();
         const found = minters.find(model => model.address === FieldElement.toHex(event.fromAddress));
-        if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
+        if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
             await controller.handleUpgraded(found.address);
-        } else if (found && [FieldElement.toHex(AIRDROP), FieldElement.toHex(BUY)].includes(key)) {
+        } else if (found && [FieldElement.toHex(EVENTS.AIRDROP), FieldElement.toHex(EVENTS.BUY)].includes(key)) {
             await controller.handleAirdropOrBuy(found.address);
-        } else if (found && [FieldElement.toHex(PRE_SALE_OPEN), FieldElement.toHex(PRE_SALE_CLOSE)].includes(key)) {
+        } else if (found && [FieldElement.toHex(EVENTS.PRE_SALE_OPEN), FieldElement.toHex(EVENTS.PRE_SALE_CLOSE)].includes(key)) {
             await controller.handlePreSale(found.address);
-        } else if (found && [FieldElement.toHex(PUBLIC_SALE_OPEN), FieldElement.toHex(PUBLIC_SALE_CLOSE)].includes(key)) {
+        } else if (found && [FieldElement.toHex(EVENTS.PUBLIC_SALE_OPEN), FieldElement.toHex(EVENTS.PUBLIC_SALE_CLOSE)].includes(key)) {
             await controller.handlePublicSale(found.address);
-        } else if (found && [FieldElement.toHex(SOLD_OUT)].includes(key)) {
+        } else if (found && [FieldElement.toHex(EVENTS.SOLD_OUT)].includes(key)) {
             await controller.handleSoldOut(found.address);
         };
     },
@@ -135,12 +154,18 @@ const controller = {
         const model = controller.load(address);
         await model.sync();
 
-        const abi = await model.getProxyAbi();
-        const implementation = await model.getImplementationHash();
-        const data = { abi, implementation };
+        const implementationAddress = await model.getImplementationHash();
+        let implementation = await implementationController.read({ address: implementationAddress });
+        if (!implementation) {
+            const abi = await model.getProxyAbi();
+            implementation = await implementationController.create({ address: implementationAddress, abi });
+        }
+
+        const data = { implementationId: implementation.id };
         logger.minter(`Upgraded (${address})`);
         await prisma.minter.update({ where, data });
     },
+
 
     async handleAirdropOrBuy(address: string) {
         const model = controller.load(address);
