@@ -2,13 +2,17 @@ import { ProviderInterface, RawCalldata, hash } from "starknet";
 import Contract, { UPGRADED } from './contract';
 import { FieldElement } from '@apibara/starknet'
 
-const EVENTS = {
+export const EVENTS = {
   UPGRADED,
   ABSORPTION_UPDATE: FieldElement.fromBigInt(hash.getSelectorFromName('AbsorptionUpdate')),
   TRANSFER: FieldElement.fromBigInt(hash.getSelectorFromName('Transfer')),
-}
+};
 
-export { EVENTS };
+export const TXS = {
+  UPGRADE: FieldElement.fromBigInt(hash.getSelectorFromName('upgrade')),
+  // SET_URI: FieldElement.fromBigInt(hash.getSelectorFromName('setURI')),
+  // TRANSFER_OWNERSHIP: FieldElement.fromBigInt(hash.getSelectorFromName('transferOwnership')),
+};
 
 export default class Project extends Contract {
 

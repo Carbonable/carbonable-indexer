@@ -2,7 +2,7 @@ import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/star
 
 import logger from "../handlers/logger";
 
-import Project, { EVENTS } from '../models/starknet/project';
+import Project, { EVENTS, TXS } from '../models/starknet/project';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
@@ -311,6 +311,9 @@ const controller = {
             Object.values(EVENTS).forEach((key) => {
                 filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
             })
+            // Object.values(TXS).forEach((key) => {
+            //     filter.addTransaction((tx) => tx.invokeV0().withEntryPointSelector(key));
+            // })
         })
     },
 
@@ -324,6 +327,18 @@ const controller = {
         } else if (found && [FieldElement.toHex(EVENTS.TRANSFER)].includes(key)) {
             await controller.handleTransfer(found, block, transaction, event);
         };
+    },
+
+    async handleTransaction(block: starknet.Block, transaction: starknet.ITransaction, entrypoint: string) {
+        const projects = await prisma.project.findMany();
+        const found = projects.find(model => model.address === FieldElement.toHex(transaction.invokeV0.contractAddress));
+        // if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
+        //     await controller.handleUpgraded(found.address);
+        // } else if (found && [FieldElement.toHex(EVENTS.ABSORPTION_UPDATE)].includes(key)) {
+        //     await controller.handleAbsorptionUpdate(found.address);
+        // } else if (found && [FieldElement.toHex(EVENTS.TRANSFER)].includes(key)) {
+        //     await controller.handleTransfer(found, block, transaction, event);
+        // };
     },
 
     async handleUpgraded(address: string) {
