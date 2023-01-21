@@ -1,9 +1,8 @@
 import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/starknet'
-import { UPGRADED } from '../models/starknet/contract';
 
 import logger from '../handlers/logger';
 
-import Vester from '../models/starknet/vester';
+import Vester, { EVENTS, ENTRIES } from '../models/starknet/vester';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
@@ -149,17 +148,26 @@ const controller = {
         const vesters = await prisma.vester.findMany();
         vesters.forEach((vester) => {
             const address = FieldElement.fromBigInt(vester.address);
-            [UPGRADED].forEach((key) => {
+            Object.values(EVENTS).forEach((key) => {
                 filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
             })
+            filter.withStateUpdate((su) => su.addStorageDiff((st) => st.withContractAddress(address)))
         })
     },
 
     async handleEvent(event: starknet.IEvent, key: string) {
         const vesters = await prisma.vester.findMany();
         const found = vesters.find(model => model.address === FieldElement.toHex(event.fromAddress));
-        if (found && [FieldElement.toHex(UPGRADED)].includes(key)) {
+        if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
             await controller.handleUpgraded(found.address);
+        };
+    },
+
+    async handleEntry(contractAddress: string, entry: starknet.IStorageEntry) {
+        const vesters = await prisma.vester.findMany();
+        const found = vesters.find(model => model.address === contractAddress);
+        if (found && [ENTRIES.TOTAL_AMOUNT].includes(FieldElement.toBigInt(entry.key))) {
+            await controller.handleTotalAmount(found.address);
         };
     },
 
@@ -178,6 +186,19 @@ const controller = {
 
         const data = { implementationId: implementation.id };
         logger.vester(`Upgraded (${address})`);
+        await prisma.vester.update({ where, data });
+    },
+
+    async handleTotalAmount(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const totalAmount = await model.getVestingTotalAmount();
+
+        const data = { totalAmount };
+        logger.vester(`TotalAmount (${address})`);
         await prisma.vester.update({ where, data });
     },
 }

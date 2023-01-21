@@ -2,7 +2,7 @@ import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/star
 
 import logger from '../handlers/logger';
 
-import Offseter, { EVENTS } from '../models/starknet/offseter';
+import Offseter, { EVENTS, ENTRIES } from '../models/starknet/offseter';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
@@ -136,6 +136,7 @@ const controller = {
             Object.values(EVENTS).forEach((key) => {
                 filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
             })
+            filter.withStateUpdate((su) => su.addStorageDiff((st) => st.withContractAddress(address)))
         })
     },
 
@@ -148,6 +149,14 @@ const controller = {
             await controller.handleDepositOrWithdraw(found.address);
         } else if (found && [FieldElement.toHex(EVENTS.CLAIM)].includes(key)) {
             await controller.handleClaim(found.address);
+        };
+    },
+
+    async handleEntry(contractAddress: string, entry: starknet.IStorageEntry) {
+        const offseters = await prisma.offseter.findMany();
+        const found = offseters.find(model => model.address === contractAddress);
+        if (found && [ENTRIES.MIN_CLAIMABLE].includes(FieldElement.toBigInt(entry.key))) {
+            await controller.handleMinClaimable(found.address);
         };
     },
 
@@ -190,6 +199,18 @@ const controller = {
         const [totalClaimed] = await Promise.all([model.getTotalClaimed()]);
         const data = { totalClaimed };
         logger.offseter(`Claim (${address})`);
+        await prisma.offseter.update({ where, data });
+    },
+
+    async handleMinClaimable(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const [minClaimable] = await Promise.all([model.getMinClaimable()]);
+        const data = { minClaimable };
+        logger.offseter(`MinClaimable (${address})`);
         await prisma.offseter.update({ where, data });
     },
 }

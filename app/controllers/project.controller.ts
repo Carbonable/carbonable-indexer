@@ -2,7 +2,7 @@ import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/star
 
 import logger from "../handlers/logger";
 
-import Project, { EVENTS, TXS } from '../models/starknet/project';
+import Project, { EVENTS, ENTRIES } from '../models/starknet/project';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
@@ -311,9 +311,7 @@ const controller = {
             Object.values(EVENTS).forEach((key) => {
                 filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
             })
-            // Object.values(TXS).forEach((key) => {
-            //     filter.addTransaction((tx) => tx.invokeV0().withEntryPointSelector(key));
-            // })
+            filter.withStateUpdate((su) => su.addStorageDiff((st) => st.withContractAddress(address)))
         })
     },
 
@@ -329,16 +327,12 @@ const controller = {
         };
     },
 
-    async handleTransaction(block: starknet.Block, transaction: starknet.ITransaction, entrypoint: string) {
+    async handleEntry(contractAddress: string, entry: starknet.IStorageEntry) {
         const projects = await prisma.project.findMany();
-        const found = projects.find(model => model.address === FieldElement.toHex(transaction.invokeV0.contractAddress));
-        // if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
-        //     await controller.handleUpgraded(found.address);
-        // } else if (found && [FieldElement.toHex(EVENTS.ABSORPTION_UPDATE)].includes(key)) {
-        //     await controller.handleAbsorptionUpdate(found.address);
-        // } else if (found && [FieldElement.toHex(EVENTS.TRANSFER)].includes(key)) {
-        //     await controller.handleTransfer(found, block, transaction, event);
-        // };
+        const found = projects.find(model => model.address === contractAddress);
+        if (found && [ENTRIES.METADATA].includes(FieldElement.toBigInt(entry.key))) {
+            await controller.handleMetadataUpdate(found.address);
+        };
     },
 
     async handleUpgraded(address: string) {
@@ -404,6 +398,26 @@ const controller = {
         ]);
         const data = { tonEquivalent, times, absorptions, setup };
         logger.project(`AbsorptionUpdate (${address})`);
+        await prisma.project.update({ where, data });
+    },
+
+    async handleMetadataUpdate(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const [contractUri] = await Promise.all([
+            model.getContractUri(),
+        ]);
+
+        let uri = await uriController.read({ uri: contractUri });
+        if (!uri) {
+            uri = await uriController.create(contractUri);
+        }
+
+        const data = { uriId: uri.id };
+        logger.project(`MetadataUpdate (${address})`);
         await prisma.project.update({ where, data });
     }
 }

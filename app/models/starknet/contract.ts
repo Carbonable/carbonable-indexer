@@ -2,9 +2,21 @@ import { ProviderInterface, RawCalldata, shortString, number, hash } from "stark
 import { FieldElement } from '@apibara/starknet'
 import logger from "../../handlers/logger";
 
-const UPGRADED = FieldElement.fromBigInt(hash.getSelectorFromName('Upgraded'));
+export const UPGRADED = FieldElement.fromBigInt(hash.getSelectorFromName('Upgraded'));
 
-export { UPGRADED };
+const ADDR_BOUND = 2n ** 251n - 256n;
+
+export function computeStorage(name: string, args: bigint[]): bigint {
+    let acc = hash.getSelectorFromName(name)
+    for (let arg of args) {
+        acc = hash.pedersen([acc, '0x' + arg.toString(16)])
+    }
+    let res = BigInt(acc)
+    while (res > ADDR_BOUND) {
+        res -= ADDR_BOUND
+    }
+    return res
+}
 
 export default class Contract {
     private readonly multicall: string = '0x05754af3760f3356da99aea5c3ec39ccac7783d925a19666ebbeca58ff0087f4';

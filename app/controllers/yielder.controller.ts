@@ -1,9 +1,8 @@
 import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/starknet'
-import { UPGRADED } from '../models/starknet/contract';
 
 import logger from '../handlers/logger';
 
-import Yielder, { EVENTS } from '../models/starknet/yielder';
+import Yielder, { EVENTS, ENTRIES } from '../models/starknet/yielder';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
@@ -179,6 +178,7 @@ const controller = {
             Object.values(EVENTS).forEach((key) => {
                 filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
             })
+            filter.withStateUpdate((su) => su.addStorageDiff((st) => st.withContractAddress(address)))
         })
     },
 
@@ -197,6 +197,14 @@ const controller = {
             // Remove first value and convert the rest
             const args = event.data.slice(1).map((row) => FieldElement.toHex(row));
             await controller.handleVesting(found.address, args);
+        };
+    },
+
+    async handleEntry(contractAddress: string, entry: starknet.IStorageEntry) {
+        const yielders = await prisma.yielder.findMany();
+        const found = yielders.find(model => model.address === contractAddress);
+        if (found && [ENTRIES.SNAPSHOTED_TIME].includes(FieldElement.toBigInt(entry.key))) {
+            await controller.handleSnapshotedTime(found.address);
         };
     },
 
@@ -271,6 +279,18 @@ const controller = {
         if (!vesting) {
             vestingController.create(data);
         }
+    },
+
+    async handleSnapshotedTime(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const [snapshotedTime] = await Promise.all([model.getSnapshotedTime()]);
+        const data = { snapshotedTime };
+        logger.yielder(`SnapshotedTime (${address})`);
+        await prisma.yielder.update({ where, data });
     },
 }
 

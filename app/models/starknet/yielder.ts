@@ -1,9 +1,9 @@
 import { ProviderInterface, RawCalldata, hash } from "starknet";
-import Contract, { UPGRADED } from './contract';
+import Contract, { UPGRADED, computeStorage } from './contract';
 import { EVENTS as OFFSETER_EVENTS } from './offseter';
 import { FieldElement } from '@apibara/starknet'
 
-const EVENTS = {
+export const EVENTS = {
   UPGRADED,
   SNAPSHOT: FieldElement.fromBigInt(hash.getSelectorFromName('Snapshot')),
   VESTING: FieldElement.fromBigInt(hash.getSelectorFromName('Vesting')),
@@ -11,7 +11,9 @@ const EVENTS = {
   WITHDRAW: OFFSETER_EVENTS.WITHDRAW,
 }
 
-export { EVENTS };
+export const ENTRIES = {
+  SNAPSHOTED_TIME: computeStorage('CarbonableYielder_snapshoted_time_', []),
+}
 
 export default class Yielder extends Contract {
 

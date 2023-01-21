@@ -1,15 +1,17 @@
 import { ProviderInterface, RawCalldata, hash } from "starknet";
-import Contract, { UPGRADED } from './contract';
+import Contract, { UPGRADED, computeStorage } from './contract';
 import { FieldElement } from '@apibara/starknet'
 
-const EVENTS = {
+export const EVENTS = {
   UPGRADED,
   DEPOSIT: FieldElement.fromBigInt(hash.getSelectorFromName('Deposit')),
   WITHDRAW: FieldElement.fromBigInt(hash.getSelectorFromName('Withdraw')),
   CLAIM: FieldElement.fromBigInt(hash.getSelectorFromName('Claim')),
 }
 
-export { EVENTS };
+export const ENTRIES = {
+  MIN_CLAIMABLE: computeStorage('CarbonableOffseter_min_claimable_', []),
+}
 
 export default class Offseter extends Contract {
 

@@ -1,5 +1,13 @@
 import { ProviderInterface, RawCalldata } from "starknet";
-import Contract from './contract';
+import Contract, { UPGRADED, computeStorage } from './contract';
+
+export const EVENTS = {
+  UPGRADED,
+}
+
+export const ENTRIES = {
+  TOTAL_AMOUNT: computeStorage('vestings_total_amount_', []),
+}
 
 export default class Vester extends Contract {
 

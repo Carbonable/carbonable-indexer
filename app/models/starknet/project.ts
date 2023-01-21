@@ -1,5 +1,5 @@
-import { ProviderInterface, RawCalldata, hash } from "starknet";
-import Contract, { UPGRADED } from './contract';
+import { ProviderInterface, RawCalldata, hash, shortString, number } from "starknet";
+import Contract, { UPGRADED, computeStorage } from './contract';
 import { FieldElement } from '@apibara/starknet'
 
 export const EVENTS = {
@@ -8,11 +8,9 @@ export const EVENTS = {
   TRANSFER: FieldElement.fromBigInt(hash.getSelectorFromName('Transfer')),
 };
 
-export const TXS = {
-  UPGRADE: FieldElement.fromBigInt(hash.getSelectorFromName('upgrade')),
-  // SET_URI: FieldElement.fromBigInt(hash.getSelectorFromName('setURI')),
-  // TRANSFER_OWNERSHIP: FieldElement.fromBigInt(hash.getSelectorFromName('transferOwnership')),
-};
+export const ENTRIES = {
+  METADATA: computeStorage('strings_data', [BigInt(shortString.encodeShortString('uri')), BigInt(0)]),
+}
 
 export default class Project extends Contract {
 

@@ -2,7 +2,7 @@ import { FieldElement, FilterBuilder, v1alpha2 as starknet } from '@apibara/star
 
 import logger from "../handlers/logger";
 
-import Minter, { EVENTS } from '../models/starknet/minter';
+import Minter, { EVENTS, ENTRIES } from '../models/starknet/minter';
 import provider from '../models/starknet/client';
 import prisma from '../models/database/client';
 
@@ -168,6 +168,7 @@ const controller = {
             Object.values(EVENTS).forEach((key) => {
                 filter.addEvent((event) => event.withFromAddress(address).withKeys([key]));
             })
+            filter.withStateUpdate((su) => su.addStorageDiff((st) => st.withContractAddress(address)))
         })
     },
 
@@ -184,6 +185,20 @@ const controller = {
             await controller.handlePublicSale(found.address);
         } else if (found && [FieldElement.toHex(EVENTS.SOLD_OUT)].includes(key)) {
             await controller.handleSoldOut(found.address);
+        };
+    },
+
+    async handleEntry(contractAddress: string, entry: starknet.IStorageEntry) {
+        const minters = await prisma.minter.findMany();
+        const found = minters.find(model => model.address === contractAddress);
+        if (found && [ENTRIES.MAX_BUY].includes(FieldElement.toBigInt(entry.key))) {
+            await controller.handleMaxBuy(found.address);
+        } else if (found && [ENTRIES.UNIT_PRICE].includes(FieldElement.toBigInt(entry.key))) {
+            await controller.handleUnitPrice(found.address);
+        } else if (found && [ENTRIES.RESERVED_SUPPLY].includes(FieldElement.toBigInt(entry.key))) {
+            await controller.handleReservedSupply(found.address);
+        } else if (found && [ENTRIES.MERKLE_ROOT].includes(FieldElement.toBigInt(entry.key))) {
+            await controller.handleMerkleRoot(found.address);
         };
     },
 
@@ -245,6 +260,54 @@ const controller = {
         const [soldOut] = await Promise.all([model.isSoldOut()]);
         const data = { soldOut };
         logger.minter(`SoldOut (${address})`);
+        await prisma.minter.update({ where, data });
+    },
+
+    async handleMaxBuy(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const [maxBuyPerTx] = await Promise.all([model.getMaxBuyPerTx()]);
+        const data = { maxBuyPerTx };
+        logger.minter(`MaxBuyUpdate (${address})`);
+        await prisma.minter.update({ where, data });
+    },
+
+    async handleUnitPrice(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const [unitPrice] = await Promise.all([model.getUnitPrice()]);
+        const data = { unitPrice };
+        logger.minter(`UnitPriceUpdate (${address})`);
+        await prisma.minter.update({ where, data });
+    },
+
+    async handleReservedSupply(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const [reservedSupply] = await Promise.all([model.getReservedSupply()]);
+        const data = { reservedSupply };
+        logger.minter(`ReservedSupplyUpdate (${address})`);
+        await prisma.minter.update({ where, data });
+    },
+
+    async handleMerkleRoot(address: string) {
+        const where = { address };
+
+        const model = controller.load(address);
+        await model.sync();
+
+        const [whitelistMerkleRoot] = await Promise.all([model.getWhitelistMerkleRoot()]);
+        const data = { whitelistMerkleRoot };
+        logger.minter(`WhitelistMerkleRootUpdate (${address})`);
         await prisma.minter.update({ where, data });
     },
 }

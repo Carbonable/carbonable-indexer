@@ -1,8 +1,8 @@
 import { ProviderInterface, RawCalldata, hash } from "starknet";
-import Contract, { UPGRADED } from './contract';
+import Contract, { UPGRADED, computeStorage } from './contract';
 import { FieldElement } from '@apibara/starknet'
 
-const EVENTS = {
+export const EVENTS = {
   UPGRADED,
   AIRDROP: FieldElement.fromBigInt(hash.getSelectorFromName('Airdrop')),
   BUY: FieldElement.fromBigInt(hash.getSelectorFromName('Buy')),
@@ -13,7 +13,12 @@ const EVENTS = {
   SOLD_OUT: FieldElement.fromBigInt(hash.getSelectorFromName('SoldOut')),
 }
 
-export { EVENTS };
+export const ENTRIES = {
+  MAX_BUY: computeStorage('CarbonableMinter_max_buy_per_tx_', []),
+  UNIT_PRICE: computeStorage('CarbonableMinter_unit_price_', []),
+  RESERVED_SUPPLY: computeStorage('CarbonableMinter_reserved_supply_for_mint_', []),
+  MERKLE_ROOT: computeStorage('CarbonableMinter_whitelist_merkle_root_', []),
+}
 
 export default class Minter extends Contract {
 
