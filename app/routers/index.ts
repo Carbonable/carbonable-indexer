@@ -1,5 +1,6 @@
 
 import { Router } from 'express';
+import admin from './admin.router';
 import project from './project.router';
 import minter from './minter.router';
 import payment from './payment.router';
@@ -13,6 +14,7 @@ import { Request, Response } from 'express';
 
 const router = Router();
 
+router.use('/admin', admin);
 router.use('/projects', project);
 router.use('/minters', minter);
 router.use('/payments', payment);
