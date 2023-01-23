@@ -4,7 +4,33 @@ import handler from '../handlers/controller.handler';
 
 const router = Router();
 
+/**
+ * @swagger
+ * /projects:
+ *   get:
+ *     summary: Return projects
+ *     description: Return all projects found in the the database without filter.
+ *     tags:
+ *       - projects
+*/
 router.route('/').get(handler(controller.getAll));
+
+/**
+ * @swagger
+ * /projects/{id}:
+ *   get:
+ *     summary: Return one project
+ *     description: Return the project corresponding to the specified id.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Project database identifier
+ *     tags:
+ *       - projects
+*/
 router.route('/:id').get(handler(controller.getOne));
 router.route('/:id/abi').get(handler(controller.getAbi));
 router.route('/:id/tokens/:user').get(handler(controller.getTokensOf));
