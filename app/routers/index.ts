@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import admin from './admin.router';
 import docs from './docs.router';
+import badge from './badge.router';
 import project from './project.router';
 import minter from './minter.router';
 import payment from './payment.router';
@@ -18,6 +19,7 @@ const router = Router();
 
 router.use('/admin', admin);
 router.use('/docs', docs);
+router.use('/badges', badge);
 router.use('/projects', project);
 router.use('/minters', minter);
 router.use('/payments', payment);

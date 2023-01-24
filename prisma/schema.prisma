@@ -20,6 +20,7 @@ model Implementation {
   Offseter Offseter[]
   Yielder  Yielder[]
   Payment  Payment[]
+  Badge    Badge[]
 }
 
 model Uri {
@@ -27,6 +28,7 @@ model Uri {
   uri     String    @unique
   data    Json
   Project Project[]
+  Badge   Badge[]
 }
 
 model Project {
@@ -161,4 +163,15 @@ model Transfer {
   projectId Int
 
   @@unique([projectId, hash, from, to, tokenId], name: "transferIdentifier")
+}
+
+model Badge {
+  id               Int             @id @default(autoincrement())
+  address          String          @unique
+  name             String
+  owner            String
+  Implementation   Implementation? @relation(fields: [implementationId], references: [id])
+  implementationId Int?
+  Uri              Uri?            @relation(fields: [uriId], references: [id])
+  uriId            Int?
 }

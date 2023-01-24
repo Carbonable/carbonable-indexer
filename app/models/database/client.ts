@@ -9,7 +9,7 @@ import mainnet from './mainnet.data.json';
 import testnet from './testnet.data.json';
 import testnet2 from './testnet2.data.json';
 
-let data: { project: string; minter: string; vester: string; offseter: string; yielder: string; }[];
+let data: { badge?: string, project?: string; minter?: string; vester?: string; offseter?: string; yielder?: string; }[];
 switch (env.NETWORK) {
     case 'testnet':
         data = testnet;
