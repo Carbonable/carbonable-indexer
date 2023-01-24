@@ -55,6 +55,7 @@ const main = {
     ) {
         const filter = Filter.create().withHeader({ weak: true });
 
+        await badge.setFilter(filter);
         await project.setFilter(filter);
         await minter.setFilter(filter);
         await vester.setFilter(filter);
@@ -114,6 +115,7 @@ const main = {
             }
             const key = FieldElement.toHex(event.keys[0]);
             await Promise.all([
+                badge.handleEvent(block, transaction, event, key),
                 project.handleEvent(block, transaction, event, key),
                 minter.handleEvent(event, key),
                 vester.handleEvent(event, key),
@@ -133,6 +135,7 @@ const main = {
                     continue
                 }
                 await Promise.all([
+                    badge.handleEntry(contractAddress, entry),
                     project.handleEntry(contractAddress, entry),
                     minter.handleEntry(contractAddress, entry),
                     vester.handleEntry(contractAddress, entry),

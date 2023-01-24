@@ -165,13 +165,27 @@ model Transfer {
   @@unique([projectId, hash, from, to, tokenId], name: "transferIdentifier")
 }
 
+model TransferSingle {
+  id      Int      @id @default(autoincrement())
+  hash    String
+  from    String
+  to      String
+  tokenId Float
+  time    DateTime
+  Badge   Badge    @relation(fields: [badgeId], references: [id])
+  badgeId Int
+
+  @@unique([badgeId, hash, from, to, tokenId], name: "transferSingleIdentifier")
+}
+
 model Badge {
-  id               Int             @id @default(autoincrement())
-  address          String          @unique
+  id               Int              @id @default(autoincrement())
+  address          String           @unique
   name             String
   owner            String
-  Implementation   Implementation? @relation(fields: [implementationId], references: [id])
+  Implementation   Implementation?  @relation(fields: [implementationId], references: [id])
   implementationId Int?
-  Uri              Uri?            @relation(fields: [uriId], references: [id])
+  Uri              Uri?             @relation(fields: [uriId], references: [id])
   uriId            Int?
+  TransferSingle   TransferSingle[]
 }

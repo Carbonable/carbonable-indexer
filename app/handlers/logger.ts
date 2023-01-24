@@ -1,4 +1,4 @@
-import { blackBright, yellow, magenta, blue, green, red, cyan, bold, white } from 'colorette';
+import { blackBright, yellow, magenta, blue, green, red, cyan, bold, white, magentaBright } from 'colorette';
 
 const log = console.log;
 
@@ -21,6 +21,10 @@ const logger = {
 
     block(number: number) {
         log(blackBright(`[${logger.time()} > ${logger.memory()}Mo]`), bold(blackBright(`BLOCK #${number}`)));
+    },
+
+    badge(message: string) {
+        log(blackBright(`[${logger.time()} > ${logger.memory()}Mo]`), bold(magentaBright(`BADGE EVENT`)), white(`> ${message}`));
     },
 
     project(message: string) {
