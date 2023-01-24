@@ -29,8 +29,12 @@ const controller = {
 
         let implementation = await implementationController.read({ address: implementationAddress });
         if (!implementation) {
-            const abi = await model.getProxyAbi();
-            implementation = await implementationController.create({ address: implementationAddress, abi });
+            try {
+                const abi = await model.getProxyAbi();
+                implementation = await implementationController.create({ address: implementationAddress, abi });
+            } catch (_error) {
+                implementation = await implementationController.read({ address: implementationAddress });
+            }
         }
 
         const data = { address, totalAmount, withdrawableAmount, implementationId: implementation.id };

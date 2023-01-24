@@ -10,7 +10,10 @@ const router = Router();
  *     summary: Restart the blockchain stream
  *     description: Update the config of the apibara indexer by setting the block cursor to the first block.
  *     tags:
- *       - admin
+ *       - Admin
+ *     responses:
+ *       '200':
+ *         description: Stream restarted
 */
 router.route('/restart').post(handler(controller.restart));
 

@@ -37,8 +37,12 @@ const controller = {
 
         let implementation = await implementationController.read({ address: implementationAddress });
         if (!implementation) {
-            const abi = await model.getProxyAbi();
-            implementation = await implementationController.create({ address: implementationAddress, abi });
+            try {
+                const abi = await model.getProxyAbi();
+                implementation = await implementationController.create({ address: implementationAddress, abi });
+            } catch (_error) {
+                implementation = await implementationController.read({ address: implementationAddress });
+            }
         }
 
         let uri = await uriController.read({ uri: contractUri });
@@ -211,7 +215,7 @@ const controller = {
         const index = Number(request.params.index);
 
         if (index >= balance) {
-            const message = 'Index exceeds the user balance';
+            const message = 'index exceeds the user balance';
             const code = 400;
             return response.status(code).json({ message, code });
         }

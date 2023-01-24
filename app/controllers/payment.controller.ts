@@ -16,7 +16,9 @@ const controller = {
     async create(address: string) {
         const model = controller.load(address);
 
-        const [decimals] = await Promise.all([
+        const [name, symbol, decimals] = await Promise.all([
+            model.getName(),
+            model.getSymbol(),
             model.getDecimals(),
         ]);
 
@@ -26,7 +28,7 @@ const controller = {
             implementation = await implementationController.create({ address, abi });
         }
 
-        const data = { address, decimals, implementationId: implementation.id };
+        const data = { address, name, symbol, decimals, implementationId: implementation.id };
         return await prisma.payment.create({ data });
     },
 

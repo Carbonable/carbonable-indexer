@@ -53,6 +53,8 @@ model Project {
 model Payment {
   id               Int             @id @default(autoincrement())
   address          String          @unique
+  name             String
+  symbol           String
   decimals         Int
   Minter           Minter[]
   Implementation   Implementation? @relation(fields: [implementationId], references: [id])

@@ -11,7 +11,10 @@ const router = Router();
  *     summary: Return minters
  *     description: Return all minters found in the the database without filter.
  *     tags:
- *       - minters
+ *       - Minters
+ *     responses:
+ *       '200':
+ *         description: Minters
 */
 router.route('/').get(handler(controller.getAll));
 
@@ -19,8 +22,8 @@ router.route('/').get(handler(controller.getAll));
  * @swagger
  * /minters/{id}:
  *   get:
- *     summary: Return one project
- *     description: Return the project corresponding to the specified id.
+ *     summary: Return minter
+ *     description: Return the minter corresponding to the specified id.
  *     parameters:
  *       - in: path
  *         name: id
@@ -29,7 +32,12 @@ router.route('/').get(handler(controller.getAll));
  *         required: true
  *         description: Project database identifier
  *     tags:
- *       - minters
+ *       - Minters
+ *     responses:
+ *       '200':
+ *         description: Minter found
+ *       '404':
+ *         description: Minter not found
 */
 router.route('/:id').get(handler(controller.getOne));
 router.route('/:id/abi').get(handler(controller.getAbi));
