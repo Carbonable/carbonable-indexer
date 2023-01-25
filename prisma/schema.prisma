@@ -75,7 +75,7 @@ model Minter {
   whitelistMerkleRoot String
   soldOut             Boolean
   totalValue          Float
-  Whitelist           Json?
+  whitelist           Json?
   Project             Project         @relation(fields: [projectId], references: [id])
   projectId           Int
   Payment             Payment         @relation(fields: [paymentId], references: [id])

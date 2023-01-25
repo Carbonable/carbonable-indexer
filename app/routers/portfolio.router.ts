@@ -21,7 +21,7 @@ const router = Router();
  *       - Portfolio
  *     responses:
  *       '200':
- *         description: Portefolio found
+ *         description: Portefolio computed
 */
 router.route('/:user').get(handler(controller.getOne));
 

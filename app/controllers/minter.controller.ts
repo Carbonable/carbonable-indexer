@@ -10,7 +10,7 @@ import projectController from './project.controller';
 import implementationController from './implementation.controller';
 import paymentController from './payment.controller';
 
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 
 const controller = {
@@ -78,7 +78,7 @@ const controller = {
         return await prisma.minter.delete({ where });
     },
 
-    async add(request: Request, response: Response, _next: NextFunction) {
+    async add(request: Request, response: Response) {
         const where = { address: request.params.address };
         const minter = await controller.read(where);
 
@@ -97,7 +97,7 @@ const controller = {
         }
     },
 
-    async remove(request: Request, response: Response, _next: NextFunction) {
+    async remove(request: Request, response: Response) {
         const where = { address: request.params.address };
         const minter = await controller.read(where);
 
@@ -117,7 +117,7 @@ const controller = {
         }
     },
 
-    async getOne(request: Request, response: Response, _next: NextFunction) {
+    async getOne(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const include: Prisma.MinterInclude = { Payment: true }
         const minter = await controller.read(where, include);
@@ -131,12 +131,12 @@ const controller = {
         return response.status(200).json(minter);
     },
 
-    async getAll(_request: Request, response: Response, _next: NextFunction) {
+    async getAll(_request: Request, response: Response) {
         const minters = await prisma.minter.findMany({ include: { Payment: true } });
         return response.status(200).json(minters);
     },
 
-    async getAbi(request: Request, response: Response, _next: NextFunction) {
+    async getAbi(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const include = { Implementation: true };
         const minter = await controller.read(where, include);
@@ -151,14 +151,60 @@ const controller = {
         return response.status(200).json(implementation);
     },
 
-    async getWhitelistedSlots(request: Request, response: Response, _next: NextFunction) {
+    async getWhitelist(request: Request, response: Response) {
         const minter = await controller.read({ id: Number(request.params.id) });
-        const model = controller.load(minter.address);
-        const balance = await model.getWhitelistedSlots([]);
-        return response.status(200).json({ address: minter.address, user: request.params.user, balance });
+        if (!minter) {
+            const message = 'minter not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+        return response.status(200).json(minter.whitelist);
     },
 
-    async getClaimedSlots(request: Request, response: Response, _next: NextFunction) {
+    async setWhitelist(request: Request, response: Response) {
+        const where = { id: Number(request.params.id) };
+        const minter = await controller.read(where);
+        if (!minter) {
+            const message = 'minter not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+        const whitelist = request.body;
+        if (!whitelist) {
+            const message = 'whitelist input is missing';
+            const code = 422;
+            return response.status(code).json({ message, code });
+        }
+        const data = { whitelist };
+        const updated = await prisma.minter.update({ where, data });
+        return response.status(200).json(updated.whitelist);
+    },
+
+    async getWhitelistedSlots(request: Request, response: Response) {
+        const minter = await controller.read({ id: Number(request.params.id) });
+        if (!minter) {
+            const message = 'minter not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        if (!minter.whitelist) {
+            const message = 'minter whitelist not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        const whitelist = minter.whitelist['leaves'].find((item: { address: string }) => item.address === request.params.user);
+        if (!whitelist) {
+            const message = 'user not found in whitelist';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        return response.status(200).json(whitelist);
+    },
+
+    async getClaimedSlots(request: Request, response: Response) {
         const minter = await controller.read({ id: Number(request.params.id) });
         const model = controller.load(minter.address);
         const slots = await model.getClaimedSlots([request.params.user]);

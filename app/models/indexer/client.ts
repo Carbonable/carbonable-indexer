@@ -1,5 +1,17 @@
-import { StreamClient } from "@apibara/protocol";
+import { StreamClient, OnReconnectResult } from "@apibara/protocol";
+import { StatusObject } from '@grpc/grpc-js'
 import { env } from 'process';
+
+const defaultOnReconnect = async (
+    err: StatusObject,
+    retryCount: number
+): Promise<OnReconnectResult> => {
+    if (err.code != 14) {
+        return { reconnect: false };
+    }
+    await new Promise((resolve) => setTimeout(resolve, retryCount * 1000))
+    return { reconnect: retryCount < 5 };
+};
 
 let url: string;
 switch (env.NETWORK) {
@@ -14,6 +26,6 @@ switch (env.NETWORK) {
 }
 
 const clientOptions = { 'grpc.max_receive_message_length': 128 * 1_048_576 } // 128 MiB
-const client = new StreamClient({ url, clientOptions });
+const client = new StreamClient({ url, clientOptions, onReconnect: defaultOnReconnect });
 
 export default client;
