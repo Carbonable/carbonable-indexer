@@ -10,7 +10,7 @@ import transferController from './transfer.controller';
 import implementationController from './implementation.controller';
 import uriController from './uri.controller';
 
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { Prisma, Project as PrismaProject } from '@prisma/client';
 
 const controller = {
@@ -66,7 +66,7 @@ const controller = {
         return await prisma.project.delete({ where });
     },
 
-    async add(request: Request, response: Response, _next: NextFunction) {
+    async add(request: Request, response: Response) {
         const where = { address: request.params.address };
         const project = await controller.read(where);
 
@@ -85,7 +85,7 @@ const controller = {
         }
     },
 
-    async remove(request: Request, response: Response, _next: NextFunction) {
+    async remove(request: Request, response: Response) {
         const where = { address: request.params.address };
         const project = await controller.read(where);
 
@@ -105,7 +105,7 @@ const controller = {
         }
     },
 
-    async getOne(request: Request, response: Response, _next: NextFunction) {
+    async getOne(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
 
@@ -118,12 +118,12 @@ const controller = {
         return response.status(200).json(project);
     },
 
-    async getAll(_request: Request, response: Response, _next: NextFunction) {
+    async getAll(_request: Request, response: Response) {
         const projects = await prisma.project.findMany();
         return response.status(200).json(projects);
     },
 
-    async getAbi(request: Request, response: Response, _next: NextFunction) {
+    async getAbi(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const include = { Implementation: true };
         const project = await controller.read(where, include);
@@ -138,7 +138,7 @@ const controller = {
         return response.status(200).json(implementation);
     },
 
-    async getTokenByIndex(request: Request, response: Response, _next: NextFunction) {
+    async getTokenByIndex(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
 
@@ -168,7 +168,7 @@ const controller = {
         return response.status(200).json({ address: project.address, owner, tokenId, uri: tokenUri });
     },
 
-    async getTokens(request: Request, response: Response, _next: NextFunction) {
+    async getTokens(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
 
@@ -200,7 +200,7 @@ const controller = {
         return response.status(200).json({ address: project.address, tokens });
     },
 
-    async getTokenByIndexOf(request: Request, response: Response, _next: NextFunction) {
+    async getTokenByIndexOf(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
 
@@ -224,7 +224,7 @@ const controller = {
         return response.status(200).json({ address: project.address, user: request.params.user, tokenId });
     },
 
-    async getTokensOf(request: Request, response: Response, _next: NextFunction) {
+    async getTokensOf(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
 
@@ -244,7 +244,7 @@ const controller = {
         return response.status(200).json({ address: project.address, user: request.params.user, tokenIds });
     },
 
-    async getBalanceOf(request: Request, response: Response, _next: NextFunction) {
+    async getBalanceOf(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
 
@@ -259,7 +259,7 @@ const controller = {
         return response.status(200).json({ address: project.address, user: request.params.user, balance });
     },
 
-    async getOwnerOf(request: Request, response: Response, _next: NextFunction) {
+    async getOwnerOf(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
 
@@ -274,7 +274,7 @@ const controller = {
         return response.status(200).json({ address: project.address, token_id: request.params.token_id, owner });
     },
 
-    async getTokenUri(request: Request, response: Response, _next: NextFunction) {
+    async getTokenUri(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
 
@@ -294,7 +294,7 @@ const controller = {
         return response.status(200).json({ address: project.address, token_id: request.params.token_id, uri });
     },
 
-    async getTransfers(request: Request, response: Response, _next: NextFunction) {
+    async getTransfers(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const include = { Transfer: true };
         const project = await controller.read(where, include);

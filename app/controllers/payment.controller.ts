@@ -4,7 +4,7 @@ import prisma from '../models/database/client';
 
 import implementationController from './implementation.controller';
 
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 
 const controller = {
@@ -44,7 +44,7 @@ const controller = {
         return await prisma.payment.delete({ where });
     },
 
-    async getOne(request: Request, response: Response, _next: NextFunction) {
+    async getOne(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
 
@@ -57,12 +57,12 @@ const controller = {
         return response.status(200).json(project);
     },
 
-    async getAll(_request: Request, response: Response, _next: NextFunction) {
+    async getAll(_request: Request, response: Response) {
         const projects = await prisma.payment.findMany();
         return response.status(200).json(projects);
     },
 
-    async getAbi(request: Request, response: Response, _next: NextFunction) {
+    async getAbi(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const include = { Implementation: true };
         const payment = await controller.read(where, include);
@@ -77,7 +77,7 @@ const controller = {
         return response.status(200).json(implementation);
     },
 
-    async getAllowance(request: Request, response: Response, _next: NextFunction) {
+    async getAllowance(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const project = await controller.read(where);
         const model = controller.load(project.address);

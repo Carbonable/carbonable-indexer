@@ -12,7 +12,7 @@ import vesterController from './vester.controller';
 import snapshotController from './snapshot.controller'
 import vestingController from './vesting.controller'
 
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { Minter, Prisma } from '@prisma/client';
 
 const YEAR_SECONDS = 365.25 * 24 * 3600;
@@ -71,7 +71,7 @@ const controller = {
         return await prisma.yielder.delete({ where });
     },
 
-    async add(request: Request, response: Response, _next: NextFunction) {
+    async add(request: Request, response: Response) {
         const where = { address: request.params.address };
         const yielder = await controller.read(where);
 
@@ -90,7 +90,7 @@ const controller = {
         }
     },
 
-    async remove(request: Request, response: Response, _next: NextFunction) {
+    async remove(request: Request, response: Response) {
         const where = { address: request.params.address };
         const yielder = await controller.read(where);
 
@@ -110,7 +110,7 @@ const controller = {
         }
     },
 
-    async getOne(request: Request, response: Response, _next: NextFunction) {
+    async getOne(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const yielder = await controller.read(where);
 
@@ -123,12 +123,12 @@ const controller = {
         return response.status(200).json(yielder);
     },
 
-    async getAll(_request: Request, response: Response, _next: NextFunction) {
+    async getAll(_request: Request, response: Response) {
         const yielders = await prisma.yielder.findMany();
         return response.status(200).json(yielders);
     },
 
-    async getAbi(request: Request, response: Response, _next: NextFunction) {
+    async getAbi(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const include = { Implementation: true };
         const yielder = await controller.read(where, include);
@@ -143,7 +143,7 @@ const controller = {
         return response.status(200).json(implementation);
     },
 
-    async getApr(request: Request, response: Response, _next: NextFunction) {
+    async getApr(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const include = { vesting: true, snapshot: true, Project: { include: { Minter: true } } };
         const yielder = await controller.read(where, include);

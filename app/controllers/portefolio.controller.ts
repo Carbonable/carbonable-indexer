@@ -3,11 +3,11 @@ import badgeController from './badge.controller';
 import projectController from './project.controller';
 import uriController from './uri.controller';
 
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 
 const controller = {
 
-    async getOne(request: Request, response: Response, _next: NextFunction) {
+    async getOne(request: Request, response: Response) {
         const user = request.params.user;
 
         // Projects analysis

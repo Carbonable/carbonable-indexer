@@ -8,7 +8,7 @@ import prisma from '../models/database/client';
 
 import implementationController from './implementation.controller';
 
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 
 
@@ -53,7 +53,7 @@ const controller = {
         return await prisma.vester.delete({ where });
     },
 
-    async add(request: Request, response: Response, _next: NextFunction) {
+    async add(request: Request, response: Response) {
         const where = { address: request.params.address };
         const vester = await controller.read(where);
 
@@ -72,7 +72,7 @@ const controller = {
         }
     },
 
-    async remove(request: Request, response: Response, _next: NextFunction) {
+    async remove(request: Request, response: Response) {
         const where = { address: request.params.address };
         const vester = await controller.read(where);
 
@@ -91,7 +91,7 @@ const controller = {
             return response.status(code).json({ message: error.message, code });
         }
     },
-    async getOne(request: Request, response: Response, _next: NextFunction) {
+    async getOne(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const vester = await controller.read(where);
 
@@ -104,12 +104,12 @@ const controller = {
         return response.status(200).json(vester);
     },
 
-    async getAll(_request: Request, response: Response, _next: NextFunction) {
+    async getAll(_request: Request, response: Response) {
         const vesters = await prisma.vester.findMany();
         return response.status(200).json(vesters);
     },
 
-    async getAbi(request: Request, response: Response, _next: NextFunction) {
+    async getAbi(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const include = { Implementation: true };
         const vester = await controller.read(where, include);
@@ -124,7 +124,7 @@ const controller = {
         return response.status(200).json(implementation);
     },
 
-    async getVestingCount(request: Request, response: Response, _next: NextFunction) {
+    async getVestingCount(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const vester = await controller.read(where);
         const model = controller.load(vester.address);
@@ -132,7 +132,7 @@ const controller = {
         return response.status(200).json({ address: vester.address, token_id: request.params.token_id, count });
     },
 
-    async getVestingId(request: Request, response: Response, _next: NextFunction) {
+    async getVestingId(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const vester = await controller.read(where);
         const model = controller.load(vester.address);
@@ -140,7 +140,7 @@ const controller = {
         return response.status(200).json({ address: vester.address, user: request.params.user, id });
     },
 
-    async getReleasableAmount(request: Request, response: Response, _next: NextFunction) {
+    async getReleasableAmount(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const vester = await controller.read(where);
         const model = controller.load(vester.address);

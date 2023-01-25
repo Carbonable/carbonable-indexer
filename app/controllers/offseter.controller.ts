@@ -9,7 +9,7 @@ import prisma from '../models/database/client';
 import projectController from './project.controller';
 import implementationController from './implementation.controller';
 
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 
 const controller = {
@@ -61,7 +61,7 @@ const controller = {
         return await prisma.offseter.delete({ where });
     },
 
-    async add(request: Request, response: Response, _next: NextFunction) {
+    async add(request: Request, response: Response) {
         const where = { address: request.params.address };
         const offseter = await controller.read(where);
 
@@ -80,7 +80,7 @@ const controller = {
         }
     },
 
-    async remove(request: Request, response: Response, _next: NextFunction) {
+    async remove(request: Request, response: Response) {
         const where = { address: request.params.address };
         const offseter = await controller.read(where);
 
@@ -100,7 +100,7 @@ const controller = {
         }
     },
 
-    async getOne(request: Request, response: Response, _next: NextFunction) {
+    async getOne(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const offseter = await controller.read(where);
 
@@ -113,12 +113,12 @@ const controller = {
         return response.status(200).json(offseter);
     },
 
-    async getAll(_request: Request, response: Response, _next: NextFunction) {
+    async getAll(_request: Request, response: Response) {
         const offseters = await prisma.offseter.findMany();
         return response.status(200).json(offseters);
     },
 
-    async getAbi(request: Request, response: Response, _next: NextFunction) {
+    async getAbi(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const include = { Implementation: true };
         const offseter = await controller.read(where, include);

@@ -10,7 +10,7 @@ import transferController from './transferSingle.controller';
 import implementationController from './implementation.controller';
 import uriController from './uri.controller';
 
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { Prisma, Badge as PrismaBadge } from '@prisma/client';
 
 const controller = {
@@ -60,7 +60,7 @@ const controller = {
         return await prisma.badge.delete({ where });
     },
 
-    async add(request: Request, response: Response, _next: NextFunction) {
+    async add(request: Request, response: Response) {
         const where = { address: request.params.address };
         const badge = await controller.read(where);
 
@@ -79,7 +79,7 @@ const controller = {
         }
     },
 
-    async remove(request: Request, response: Response, _next: NextFunction) {
+    async remove(request: Request, response: Response) {
         const where = { address: request.params.address };
         const badge = await controller.read(where);
 
@@ -99,7 +99,7 @@ const controller = {
         }
     },
 
-    async getOne(request: Request, response: Response, _next: NextFunction) {
+    async getOne(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const badge = await controller.read(where);
 
@@ -112,12 +112,12 @@ const controller = {
         return response.status(200).json(badge);
     },
 
-    async getAll(_request: Request, response: Response, _next: NextFunction) {
+    async getAll(_request: Request, response: Response) {
         const badges = await prisma.badge.findMany();
         return response.status(200).json(badges);
     },
 
-    async getAbi(request: Request, response: Response, _next: NextFunction) {
+    async getAbi(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const include = { Implementation: true };
         const badge = await controller.read(where, include);
@@ -132,7 +132,7 @@ const controller = {
         return response.status(200).json(implementation);
     },
 
-    async getBalanceOf(request: Request, response: Response, _next: NextFunction) {
+    async getBalanceOf(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const badge = await controller.read(where);
 
@@ -147,7 +147,7 @@ const controller = {
         return response.status(200).json({ address: badge.address, user: request.params.user, balance });
     },
 
-    async getTokenUri(request: Request, response: Response, _next: NextFunction) {
+    async getTokenUri(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const badge = await controller.read(where);
 
@@ -167,7 +167,7 @@ const controller = {
         return response.status(200).json({ address: badge.address, token_id: request.params.token_id, uri });
     },
 
-    async getTransfers(request: Request, response: Response, _next: NextFunction) {
+    async getTransfers(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const include = { TransferSingle: true };
         const badge = await controller.read(where, include);

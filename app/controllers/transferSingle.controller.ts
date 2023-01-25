@@ -1,6 +1,6 @@
 import prisma from '../models/database/client';
 
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 
 const controller = {
@@ -21,7 +21,7 @@ const controller = {
         return await prisma.transferSingle.delete({ where });
     },
 
-    async getOne(request: Request, response: Response, _next: NextFunction) {
+    async getOne(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const transferSingle = await controller.read(where);
 
@@ -34,7 +34,7 @@ const controller = {
         return response.status(200).json(transferSingle);
     },
 
-    async getAll(_request: Request, response: Response, _next: NextFunction) {
+    async getAll(_request: Request, response: Response) {
         const transferSingles = await prisma.transferSingle.findMany();
         return response.status(200).json(transferSingles);
     },
