@@ -125,6 +125,48 @@ const controller = {
         return response.status(200).json(projects);
     },
 
+    async getMinters(request: Request, response: Response) {
+        const include = { Minter: true };
+        const where = { id: Number(request.params.id) };
+        const project = await controller.read(where, include);
+
+        if (!project) {
+            const message = 'project not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        return response.status(200).json(project.Minter);
+    },
+
+    async getOffseters(request: Request, response: Response) {
+        const include = { Offseter: true };
+        const where = { id: Number(request.params.id) };
+        const project = await controller.read(where, include);
+
+        if (!project) {
+            const message = 'project not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        return response.status(200).json(project.Offseter);
+    },
+
+    async getYielders(request: Request, response: Response) {
+        const include = { Yielder: true };
+        const where = { id: Number(request.params.id) };
+        const project = await controller.read(where, include);
+
+        if (!project) {
+            const message = 'project not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        return response.status(200).json(project.Yielder);
+    },
+
     async getAbi(request: Request, response: Response) {
         const where = { id: Number(request.params.id) };
         const include = { Implementation: true };

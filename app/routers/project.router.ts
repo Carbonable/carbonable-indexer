@@ -292,6 +292,75 @@ router.route('/:id/transfers').get(handler(controller.getTransfers));
 
 /**
  * @swagger
+ * /projects/{id}/minters:
+ *   get:
+ *     summary: Return the project minters
+ *     description: Return the project minters corresponding to the specified project id.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Project database identifier
+ *     tags:
+ *       - Projects
+ *     responses:
+ *       '200':
+ *         description: Project minters found
+ *       '404':
+ *         description: Project not found
+*/
+router.route('/:id/minters').get(handler(controller.getMinters));
+
+/**
+ * @swagger
+ * /projects/{id}/offseters:
+ *   get:
+ *     summary: Return the project offseters
+ *     description: Return the project offseters corresponding to the specified project id.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Project database identifier
+ *     tags:
+ *       - Projects
+ *     responses:
+ *       '200':
+ *         description: Project offseters found
+ *       '404':
+ *         description: Project not found
+*/
+router.route('/:id/offseters').get(handler(controller.getOffseters));
+
+/**
+ * @swagger
+ * /projects/{id}/yielders:
+ *   get:
+ *     summary: Return the project yielders
+ *     description: Return the project yielders corresponding to the specified project id.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Project database identifier
+ *     tags:
+ *       - Projects
+ *     responses:
+ *       '200':
+ *         description: Project yielders found
+ *       '404':
+ *         description: Project not found
+*/
+router.route('/:id/yielders').get(handler(controller.getYielders));
+
+/**
+ * @swagger
  * /projects/{address}:
  *   post:
  *     summary: Create a new project
