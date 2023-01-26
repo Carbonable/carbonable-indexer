@@ -347,8 +347,11 @@ const controller = {
         const model = controller.load(address);
         await model.sync();
 
-        const [preSaleOpen] = await Promise.all([model.isPreSaleOpen()]);
-        const data = { preSaleOpen };
+        const [preSaleOpen, whitelistMerkleRoot] = await Promise.all([
+            model.isPreSaleOpen(),
+            model.getWhitelistMerkleRoot(),
+        ]);
+        const data = { preSaleOpen, whitelistMerkleRoot };
         logger.minter(`PreSaleOpen/Close (${address})`);
         await prisma.minter.update({ where, data });
     },

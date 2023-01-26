@@ -6,7 +6,7 @@ const defaultOnReconnect = async (
     err: StatusObject,
     retryCount: number
 ): Promise<OnReconnectResult> => {
-    if (err.code != 14) {
+    if (![13, 14].includes(err.code)) {
         return { reconnect: false };
     }
     await new Promise((resolve) => setTimeout(resolve, retryCount * 1000))

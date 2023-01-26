@@ -4,11 +4,14 @@ import projectController from './project.controller';
 import uriController from './uri.controller';
 
 import { Request, Response } from 'express';
+import { validateHeaderValue } from 'http';
 
 const controller = {
 
     async getOne(request: Request, response: Response) {
+        // Global values
         const user = request.params.user;
+        let total = 0;
 
         // Projects analysis
         const include = {
@@ -18,8 +21,9 @@ const controller = {
                 }
             },
         }
-        const projects = await prisma.project.findMany({ include });
-        const projectData = await Promise.all(projects.map(async (project) => {
+
+        const dataProjects = await prisma.project.findMany({ include });
+        const projects = (await Promise.all(dataProjects.map(async (project) => {
             const model = projectController.load(project.address);
             const balance = await model.getBalanceOf([user]);
             const indexes = Array.from(Array(balance).keys());
@@ -39,17 +43,27 @@ const controller = {
                 }
                 return ({ tokenId, image: tokenUri.data['image'] });
             }));
+
+            // Compute investment
+            if (project.Minter.length !== 1) {
+                const message = 'unexpected project minters count to compute value';
+                throw Error(message);
+            }
+
+            const minter = project.Minter[0];
+            const price = minter.unitPrice / 10 ** minter.Payment.decimals;
+            total += tokens.length * price;
+
             return ({
                 id: project.id,
                 name: project.name,
-                minter: project.Minter,
                 tokens
             });
-        }));
+        }))).filter((project) => project.tokens.length > 0);
 
         // Badges analysis
-        const badges = await prisma.badge.findMany();
-        const badgeData = await Promise.all(badges.map(async (badge) => {
+        const dataBadges = await prisma.badge.findMany();
+        const badges = (await Promise.all(dataBadges.map(async (badge) => {
             const model = badgeController.load(badge.address);
             // FIXME: To test token ids = 0-10, fix after contract implements enumerable
             const rangeIds = Array.from(Array(10).keys());
@@ -57,7 +71,6 @@ const controller = {
                 const balance = await model.getBalanceOf([user, tokenId, 0]);
                 return balance > 0 ? tokenId : null;
             }))).filter((tokenId) => tokenId !== null);
-            console.log(tokenIds);
             const tokens = await Promise.all(tokenIds.map(async (tokenId) => {
                 const uri = await model.getTokenUri([tokenId, 0]);
 
@@ -76,9 +89,13 @@ const controller = {
                 name: badge.name,
                 tokens
             });
-        }));
+        }))).filter((project) => project.tokens.length > 0);
 
-        return response.status(200).json({ projectData, badgeData });
+        return response.status(200).json({
+            global: { total },
+            projects,
+            badges,
+        });
     }
 }
 

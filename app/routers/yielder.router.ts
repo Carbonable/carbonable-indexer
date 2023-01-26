@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import controller from '../controllers/yielder.controller';
 import handler from '../handlers/controller.handler';
+import { verify } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -110,7 +111,7 @@ router.route('/:id/apr').get(handler(controller.getApr));
  *       '500':
  *         description: Contract not found
 */
-router.route('/:address').post(handler(controller.add));
+router.route('/:address').post(verify, handler(controller.add));
 
 /**
  * @swagger
@@ -135,6 +136,6 @@ router.route('/:address').post(handler(controller.add));
  *       '500':
  *         description: Contract not found
 */
-router.route('/:address').delete(handler(controller.remove));
+router.route('/:address').delete(verify, handler(controller.remove));
 
 export default router;

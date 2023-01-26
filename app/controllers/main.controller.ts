@@ -6,6 +6,7 @@ import logger from "../handlers/logger";
 import { data } from '../models/database/client';
 import indexer from '../models/indexer/client';
 
+import { create } from '../middlewares/auth.middleware';
 import badge from './badge.controller';
 import project from './project.controller';
 import minter from './minter.controller';
@@ -16,6 +17,10 @@ import { Request, Response } from 'express';
 
 const main = {
     async init() {
+        // Admin token generation
+        create('admin');
+
+        // Seeding
         data.forEach(async (content: { badge?: string, project?: string, minter?: string, vester?: string, offseter?: string, yielder?: string }) => {
             const isBadge = content.badge ? await badge.read({ address: content.badge }) : true;
             if (!isBadge) {
@@ -51,7 +56,7 @@ const main = {
 
     async configure(
         cursor: v1alpha2.ICursor = StarkNetCursor.createWithBlockNumber(1),
-        finality: v1alpha2.DataFinality = v1alpha2.DataFinality.DATA_STATUS_ACCEPTED
+        finality: v1alpha2.DataFinality = v1alpha2.DataFinality.DATA_STATUS_PENDING
     ) {
         const filter = Filter.create().withHeader({ weak: true });
 

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import controller from '../controllers/minter.controller';
 import handler from '../handlers/controller.handler';
+import { verify } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -174,7 +175,7 @@ router.route('/:id/whitelist').get(handler(controller.getWhitelist));
  *       '422':
  *         description: Whitelist input is missing
 */
-router.route('/:id/whitelist').post(handler(controller.setWhitelist));
+router.route('/:id/whitelist').post(verify, handler(controller.setWhitelist));
 
 /**
  * @swagger
@@ -245,7 +246,7 @@ router.route('/:id/buys').get(handler(controller.getBuys));
  *       '500':
  *         description: Contract not found
 */
-router.route('/:address').post(handler(controller.add));
+router.route('/:address').post(verify, handler(controller.add));
 
 /**
  * @swagger
@@ -270,6 +271,6 @@ router.route('/:address').post(handler(controller.add));
  *       '500':
  *         description: Contract not found
 */
-router.route('/:address').delete(handler(controller.remove));
+router.route('/:address').delete(verify, handler(controller.remove));
 
 export default router;
