@@ -103,7 +103,8 @@ const main = {
             main.handleEntries(block),
         ])
         const blockNumber = Number(block.header?.blockNumber.toString());
-        logger.block(blockNumber);
+        const time = new Date(Number(block.header.timestamp.seconds.toString()) * 1000);
+        logger.block(blockNumber, time);
     },
 
     async handleEvents(block: starknet.Block) {
@@ -117,7 +118,7 @@ const main = {
             await Promise.all([
                 badge.handleEvent(block, transaction, event, key),
                 project.handleEvent(block, transaction, event, key),
-                minter.handleEvent(event, key),
+                minter.handleEvent(block, transaction, event, key),
                 vester.handleEvent(event, key),
                 offseter.handleEvent(event, key),
                 yielder.handleEvent(event, key),

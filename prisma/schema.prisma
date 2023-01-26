@@ -82,6 +82,8 @@ model Minter {
   paymentId           Int
   Implementation      Implementation? @relation(fields: [implementationId], references: [id])
   implementationId    Int?
+  Buy                 Buy[]
+  Airdrop             Airdrop[]
 }
 
 model Offseter {
@@ -159,10 +161,38 @@ model Transfer {
   to        String
   tokenId   Float
   time      DateTime
+  block     Int
   Project   Project  @relation(fields: [projectId], references: [id])
   projectId Int
 
   @@unique([projectId, hash, from, to, tokenId], name: "transferIdentifier")
+}
+
+model Airdrop {
+  id       Int      @id @default(autoincrement())
+  hash     String
+  address  String
+  quantity Int
+  time     DateTime
+  block    Int
+  Minter   Minter   @relation(fields: [minterId], references: [id])
+  minterId Int
+
+  @@unique([minterId, hash, address, quantity], name: "airdropIdentifier")
+}
+
+model Buy {
+  id       Int      @id @default(autoincrement())
+  hash     String
+  address  String
+  amount   Float
+  quantity Int
+  time     DateTime
+  block    Int
+  Minter   Minter   @relation(fields: [minterId], references: [id])
+  minterId Int
+
+  @@unique([minterId, hash, address, quantity], name: "buyIdentifier")
 }
 
 model TransferSingle {
@@ -172,6 +202,7 @@ model TransferSingle {
   to      String
   tokenId Float
   time    DateTime
+  block   Int
   Badge   Badge    @relation(fields: [badgeId], references: [id])
   badgeId Int
 

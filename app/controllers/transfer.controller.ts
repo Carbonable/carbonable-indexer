@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 
 const controller = {
 
-    async create(data: { hash: string, from: string, to: string, tokenId: number, time: Date, projectId: number }) {
+    async create(data: { hash: string, from: string, to: string, tokenId: number, time: Date, block: number, projectId: number }) {
         return await prisma.transfer.create({ data });
     },
 

@@ -9,9 +9,11 @@ import prisma from '../models/database/client';
 import projectController from './project.controller';
 import implementationController from './implementation.controller';
 import paymentController from './payment.controller';
+import airdropController from './airdrop.controller';
+import buyController from './buy.controller';
 
 import { Request, Response } from 'express';
-import { Prisma } from '@prisma/client';
+import { Prisma, Minter as PrismaMinter } from '@prisma/client';
 
 const controller = {
 
@@ -211,6 +213,34 @@ const controller = {
         return response.status(200).json({ address: minter.address, user: request.params.user, slots });
     },
 
+    async getAirdrops(request: Request, response: Response) {
+        const where = { id: Number(request.params.id) };
+        const include = { Airdrop: true };
+        const minter = await controller.read(where, include);
+
+        if (!minter) {
+            const message = 'minter not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        return response.status(200).json(minter.Airdrop);
+    },
+
+    async getBuys(request: Request, response: Response) {
+        const where = { id: Number(request.params.id) };
+        const include = { Buy: true };
+        const minter = await controller.read(where, include);
+
+        if (!minter) {
+            const message = 'minter not found';
+            const code = 404;
+            return response.status(code).json({ message, code });
+        }
+
+        return response.status(200).json(minter.Buy);
+    },
+
     async setFilter(filter: FilterBuilder) {
         const minters = await prisma.minter.findMany();
         minters.forEach((minter) => {
@@ -222,13 +252,15 @@ const controller = {
         })
     },
 
-    async handleEvent(event: starknet.IEvent, key: string) {
+    async handleEvent(block: starknet.Block, transaction: starknet.ITransaction, event: starknet.IEvent, key: string) {
         const minters = await prisma.minter.findMany();
         const found = minters.find(model => model.address === FieldElement.toHex(event.fromAddress));
         if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
             await controller.handleUpgraded(found.address);
-        } else if (found && [FieldElement.toHex(EVENTS.AIRDROP), FieldElement.toHex(EVENTS.BUY)].includes(key)) {
-            await controller.handleAirdropOrBuy(found.address);
+        } else if (found && [FieldElement.toHex(EVENTS.AIRDROP)].includes(key)) {
+            await controller.handleAirdrop(found, block, transaction, event);
+        } else if (found && [FieldElement.toHex(EVENTS.BUY)].includes(key)) {
+            await controller.handleBuy(found, block, transaction, event);
         } else if (found && [FieldElement.toHex(EVENTS.PRE_SALE_OPEN), FieldElement.toHex(EVENTS.PRE_SALE_CLOSE)].includes(key)) {
             await controller.handlePreSale(found.address);
         } else if (found && [FieldElement.toHex(EVENTS.PUBLIC_SALE_OPEN), FieldElement.toHex(EVENTS.PUBLIC_SALE_CLOSE)].includes(key)) {
@@ -270,11 +302,43 @@ const controller = {
         await prisma.minter.update({ where, data });
     },
 
+    async handleAirdrop(minter: PrismaMinter, block: starknet.Block, transaction: starknet.ITransaction, event: starknet.IEvent) {
+        const airdropIdentifier = {
+            hash: FieldElement.toHex(transaction.meta.hash),
+            address: FieldElement.toHex(event.data[0]),
+            quantity: Number(FieldElement.toBigInt(event.data[1])),
+            minterId: minter.id,
+        }
+        const airdrop = await airdropController.read({ airdropIdentifier })
+        if (!airdrop) {
+            const data = {
+                ...airdropIdentifier,
+                time: new Date(Number(block.header.timestamp.seconds.toString()) * 1000),
+                block: Number(block.header.blockNumber.toString()),
+            };
+            await airdropController.create(data);
+        }
+        logger.minter(`Airdrop (${minter.address})`);
+    },
 
-    async handleAirdropOrBuy(address: string) {
-        const model = controller.load(address);
-        const projectAddress = await model.getCarbonableProjectAddress();
-        projectController.handleMint(projectAddress);
+    async handleBuy(minter: PrismaMinter, block: starknet.Block, transaction: starknet.ITransaction, event: starknet.IEvent) {
+        const buyIdentifier = {
+            hash: FieldElement.toHex(transaction.meta.hash),
+            address: FieldElement.toHex(event.data[0]),
+            quantity: Number(FieldElement.toBigInt(event.data[3])),
+            minterId: minter.id,
+        }
+        const buy = await buyController.read({ buyIdentifier })
+        if (!buy) {
+            const data = {
+                ...buyIdentifier,
+                amount: Number(FieldElement.toBigInt(event.data[2])),
+                time: new Date(Number(block.header.timestamp.seconds.toString()) * 1000),
+                block: Number(block.header.blockNumber.toString()),
+            };
+            await buyController.create(data);
+        }
+        logger.minter(`Buy (${minter.address})`);
     },
 
     async handlePreSale(address: string) {

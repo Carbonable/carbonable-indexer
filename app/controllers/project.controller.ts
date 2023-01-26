@@ -106,8 +106,9 @@ const controller = {
     },
 
     async getOne(request: Request, response: Response) {
+        const include = { Uri: true };
         const where = { id: Number(request.params.id) };
-        const project = await controller.read(where);
+        const project = await controller.read(where, include);
 
         if (!project) {
             const message = 'project not found';
@@ -119,7 +120,8 @@ const controller = {
     },
 
     async getAll(_request: Request, response: Response) {
-        const projects = await prisma.project.findMany();
+        const include = { Uri: true };
+        const projects = await prisma.project.findMany({ include });
         return response.status(200).json(projects);
     },
 
@@ -381,7 +383,8 @@ const controller = {
         if (!transfer) {
             const data = {
                 ...transferIdentifier,
-                time: new Date(Number(block.header.timestamp.seconds.toString()) * 1000)
+                time: new Date(Number(block.header.timestamp.seconds.toString()) * 1000),
+                block: Number(block.header.blockNumber.toString()),
             };
             await transferController.create(data);
         }

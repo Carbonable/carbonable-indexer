@@ -240,7 +240,8 @@ const controller = {
         if (!transfer) {
             const data = {
                 ...transferSingleIdentifier,
-                time: new Date(Number(block.header.timestamp.seconds.toString()) * 1000)
+                time: new Date(Number(block.header.timestamp.seconds.toString()) * 1000),
+                block: Number(block.header.blockNumber.toString()),
             };
             await transferController.create(data);
         }

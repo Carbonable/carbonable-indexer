@@ -4,8 +4,7 @@ const log = console.log;
 
 const logger = {
 
-    time() {
-        const date = new Date();
+    parse(date: Date) {
         return date.getFullYear() + "/" +
             ("00" + (date.getMonth() + 1)).slice(-2) + "/" +
             ("00" + date.getDate()).slice(-2) + " " +
@@ -14,13 +13,19 @@ const logger = {
             ("00" + date.getSeconds()).slice(-2);
     },
 
+    time() {
+        const date = new Date();
+        return logger.parse(date);
+    },
+
     memory() {
         const mega = 1_000_000;
         return Math.round(process.memoryUsage().rss / mega);
     },
 
-    block(number: number) {
-        log(blackBright(`[${logger.time()} > ${logger.memory()}Mo]`), bold(blackBright(`BLOCK #${number}`)));
+    block(number: number, time: Date) {
+        const date = logger.parse(time);
+        log(blackBright(`[${logger.time()} > ${logger.memory()}Mo]`), bold(blackBright(`BLOCK #${number}`)), white(`> ${date}`));
     },
 
     badge(message: string) {

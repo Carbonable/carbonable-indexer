@@ -178,6 +178,52 @@ router.route('/:id/whitelist').post(handler(controller.setWhitelist));
 
 /**
  * @swagger
+ * /minters/{id}/airdrops:
+ *   get:
+ *     summary: Return the minter airdrops
+ *     description: Return the minter airdrops corresponding to the specified minter id.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Minter database identifier
+ *     tags:
+ *       - Minters
+ *     responses:
+ *       '200':
+ *         description: Minter airdrops found
+ *       '404':
+ *         description: Minter not found
+*/
+router.route('/:id/airdrops').get(handler(controller.getAirdrops));
+
+/**
+ * @swagger
+ * /minters/{id}/buys:
+ *   get:
+ *     summary: Return the minter buys
+ *     description: Return the minter buys corresponding to the specified minter id.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Minter database identifier
+ *     tags:
+ *       - Minters
+ *     responses:
+ *       '200':
+ *         description: Minter buys found
+ *       '404':
+ *         description: Minter not found
+*/
+router.route('/:id/buys').get(handler(controller.getBuys));
+
+/**
+ * @swagger
  * /minters/{address}:
  *   post:
  *     summary: Create a new minter
