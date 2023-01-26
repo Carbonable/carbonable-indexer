@@ -41,7 +41,7 @@ const controller = {
                         tokenUri = await uriController.read({ uri });
                     }
                 }
-                return ({ tokenId, image: tokenUri.data['image'] });
+                return ({ tokenId, image: tokenUri.data['image'], name: tokenUri.data['name'] });
             }));
 
             // Compute investment
@@ -82,7 +82,7 @@ const controller = {
                         tokenUri = await uriController.read({ uri });
                     }
                 }
-                return ({ tokenId, image: tokenUri.data['image'] });
+                return ({ tokenId, image: tokenUri.data['image'], name: tokenUri.data['name'] });
             }));
             return ({
                 id: badge.id,
