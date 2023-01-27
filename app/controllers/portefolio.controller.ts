@@ -4,7 +4,6 @@ import projectController from './project.controller';
 import uriController from './uri.controller';
 
 import { Request, Response } from 'express';
-import { validateHeaderValue } from 'http';
 
 const controller = {
 
@@ -65,13 +64,8 @@ const controller = {
         const dataBadges = await prisma.badge.findMany();
         const badges = (await Promise.all(dataBadges.map(async (badge) => {
             const model = badgeController.load(badge.address);
-            // FIXME: To test token ids = 0-10, fix after contract implements enumerable
-            const rangeIds = Array.from(Array(10).keys());
-            const tokenIds = (await Promise.all(rangeIds.map(async (tokenId) => {
-                const balance = await model.getBalanceOf([user, tokenId, 0]);
-                return balance > 0 ? tokenId : null;
-            }))).filter((tokenId) => tokenId !== null);
-            const tokens = await Promise.all(tokenIds.map(async (tokenId) => {
+            const tokenIds = await prisma.transferSingle.findMany({ distinct: ['tokenId'], select: { tokenId: true } });
+            const tokens = await Promise.all(tokenIds.map(async ({ tokenId }) => {
                 const uri = await model.getTokenUri([tokenId, 0]);
 
                 let tokenUri = await uriController.read({ uri });
