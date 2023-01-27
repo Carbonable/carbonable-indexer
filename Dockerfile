@@ -13,7 +13,6 @@ RUN volta install node@${NODE_VERSION}
 RUN mkdir /app
 WORKDIR /app
 
-ENV NETWORK testnet2
 ENV GATEWAY https://carbonable.infura-ipfs.io/ipfs/
 ENV APIBARA_MAINNET mainnet.starknet.a5a.ch:443
 ENV APIBARA_TESTNET goerli.starknet.a5a.ch:443
