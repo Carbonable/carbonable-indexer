@@ -56,6 +56,7 @@ const controller = {
             return ({
                 id: project.id,
                 name: project.name,
+                address: project.address,
                 tokens
             });
         }))).filter((project) => project.tokens.length > 0);
@@ -81,6 +82,7 @@ const controller = {
             return ({
                 id: badge.id,
                 name: badge.name,
+                address: badge.address,
                 tokens
             });
         }))).filter((project) => project.tokens.length > 0);
