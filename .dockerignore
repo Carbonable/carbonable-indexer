@@ -1,4 +1,5 @@
 fly.toml
+fly_env/
 Dockerfile
 .dockerignore
 node_modules

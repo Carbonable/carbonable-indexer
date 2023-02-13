@@ -12,6 +12,7 @@ import uriController from './uri.controller';
 
 import { Request, Response } from 'express';
 import { Prisma, Project as PrismaProject, Uri } from '@prisma/client';
+import { getProjectList } from '../services/farming';
 
 const controller = {
     load(address: string) {
@@ -118,6 +119,16 @@ const controller = {
         }
 
         return response.status(200).json(project);
+    },
+
+    async getOneBySlug(request: Request, response: Response) {
+        let { slug } = request.params;
+        let projects = await getProjectList({ where: { slug } })
+        if (0 === projects.length) {
+            return response.status(404).json({ message: "Project not found", code: 404 });
+        }
+
+        return response.status(200).json({ data: projects.pop() });
     },
 
     async getAll(_request: Request, response: Response) {

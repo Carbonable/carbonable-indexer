@@ -14,8 +14,8 @@ import vestingController from './vesting.controller'
 
 import { Request, Response } from 'express';
 import { Minter, Prisma } from '@prisma/client';
+import { getApr } from '../services/apr';
 
-const YEAR_SECONDS = 365.25 * 24 * 3600;
 
 const controller = {
 
@@ -144,35 +144,12 @@ const controller = {
     },
 
     async getApr(request: Request, response: Response) {
-        const where = { id: Number(request.params.id) };
-        const include = { vesting: true, snapshot: true, Project: { include: { Minter: true } } };
-        const yielder = await controller.read(where, include);
-
-        if (!yielder) {
-            const message = 'yielder not found';
-            const code = 404;
-            return response.status(code).json({ message, code });
+        try {
+            let { address, apr } = await getApr({ yielderId: Number(request.params.id), yielderAddress: null });
+            return response.status(200).json({ address, apr });
+        } catch (err) {
+            return response.status(404).json({ message: err, code: 404 });
         }
-
-        if (!yielder.snapshot.length) {
-            const message = 'yielder snapshots not found';
-            const code = 404;
-            return response.status(code).json({ message, code });
-        }
-
-        if (!yielder.vesting.length) {
-            const message = 'yielder vestings not found';
-            const code = 404;
-            return response.status(code).json({ message, code });
-        }
-
-        const vesting = yielder.vesting[yielder.vesting.length - 1];
-        const snapshots = yielder.snapshot.filter((snapshot) => snapshot.time < vesting.time);
-        const snapshot = snapshots[snapshots.length - 1];
-        const total = yielder.Project['Minter'].reduce((total: number, minter: Minter) => total + minter.totalValue, 0);
-        const dt = snapshot.time.getTime() - snapshot.previousTime.getTime();
-        const apr = 100 * vesting.amount * YEAR_SECONDS / dt / total;
-        return response.status(200).json({ address: yielder.address, apr });
     },
 
     async setFilter(filter: FilterBuilder) {

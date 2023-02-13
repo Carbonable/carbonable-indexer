@@ -40,7 +40,29 @@ router.route('/').get(handler(controller.getAll));
  *       '404':
  *         description: Project not found
 */
-router.route('/:id').get(handler(controller.getOne));
+// router.route('/:id').get(handler(controller.getOne));
+/**
+ * @swagger
+ * /projects/{slug}:
+ *   get:
+ *     summary: Return the project
+ *     description: Return the project corresponding to the specified id.
+ *     parameters:
+ *       - in: path
+ *         name: slug
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Project database identifier
+ *     tags:
+ *       - Projects
+ *     responses:
+ *       '200':
+ *         description: Project found
+ *       '404':
+ *         description: Project not found
+*/
+router.route('/:slug').get(handler(controller.getOneBySlug));
 
 /**
  * @swagger
