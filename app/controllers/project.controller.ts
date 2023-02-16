@@ -49,8 +49,14 @@ const controller = {
         if (!uri) {
             uri = await uriController.create(contractUri);
         }
+        // We assume that we always have an external_url set.
+        let externalUrl = uri.data['external_url'];
+        if (externalUrl.endsWith('/')) {
+            externalUrl = externalUrl.substring(0, externalUrl.length - 1);
+        }
+        let slug = externalUrl.split('/').pop();
 
-        const data = { address, name, symbol, totalSupply, owner, tonEquivalent, times, absorptions, setup, implementationId: implementation.id, uriId: uri.id };
+        const data = { address, name, slug, symbol, totalSupply, owner, tonEquivalent, times, absorptions, setup, implementationId: implementation.id, uriId: uri.id };
         return await prisma.project.create({ data });
     },
 
@@ -429,7 +435,12 @@ const controller = {
                 block: Number(block.header.blockNumber.toString()),
             };
             await transferController.create(data);
+
+            if (0 === parseInt(transferIdentifier.from, 16)) {
+                await controller.handleMint(project.address);
+            }
         }
+
         logger.project(`Transfer (${project.address})`);
     },
 

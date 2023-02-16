@@ -34,6 +34,7 @@ model Uri {
 model Project {
   id               Int             @id @default(autoincrement())
   address          String          @unique
+  slug             String          @unique
   name             String
   symbol           String
   totalSupply      Int
