@@ -12,6 +12,7 @@ import yielder from './yielder.router';
 import vesting from './vesting.router';
 import snapshot from './snapshot.router';
 import portfolio from './portfolio.router';
+import farming from './farming.router';
 
 import { Request, Response } from 'express';
 
@@ -28,6 +29,8 @@ router.use('/offseters', offseter);
 router.use('/yielders', yielder);
 router.use('/vestings', vesting);
 router.use('/snapshots', snapshot);
+router.use('/portfolio', portfolio);
+router.use('/farming', farming);
 router.use('/portfolio', portfolio);
 
 // API 404
