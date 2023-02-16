@@ -11,7 +11,7 @@ import implementationController from './implementation.controller';
 import uriController from './uri.controller';
 
 import { Request, Response } from 'express';
-import { Prisma, Project as PrismaProject } from '@prisma/client';
+import { Prisma, Project as PrismaProject, Uri } from '@prisma/client';
 
 const controller = {
     load(address: string) {
@@ -49,12 +49,7 @@ const controller = {
         if (!uri) {
             uri = await uriController.create(contractUri);
         }
-        // We assume that we always have an external_url set.
-        let externalUrl = uri.data['external_url'];
-        if (externalUrl.endsWith('/')) {
-            externalUrl = externalUrl.substring(0, externalUrl.length - 1);
-        }
-        let slug = externalUrl.split('/').pop();
+        let slug = controller.getSlugFromMetadata(uri);
 
         const data = { address, name, slug, symbol, totalSupply, owner, tonEquivalent, times, absorptions, setup, implementationId: implementation.id, uriId: uri.id };
         return await prisma.project.create({ data });
@@ -401,8 +396,10 @@ const controller = {
             const abi = await model.getProxyAbi();
             implementation = await implementationController.create({ address: implementationAddress, abi });
         }
+        let uri = await controller.getUriData(address);
+        let slug = controller.getSlugFromMetadata(uri);
 
-        const data = { implementationId: implementation.id };
+        const data = { implementationId: implementation.id, slug };
         logger.project(`Upgraded (${address})`);
         await prisma.project.update({ where, data });
     },
@@ -464,6 +461,15 @@ const controller = {
     async handleMetadataUpdate(address: string) {
         const where = { address };
 
+        let uri = await controller.getUriData(address);
+        let slug = controller.getSlugFromMetadata(uri);
+
+        const data = { uriId: uri.id, slug };
+        logger.project(`MetadataUpdate (${address})`);
+        await prisma.project.update({ where, data });
+    },
+
+    async getUriData(address: string): Promise<Uri> {
         const model = controller.load(address);
         await model.sync();
 
@@ -476,9 +482,16 @@ const controller = {
             uri = await uriController.create(contractUri);
         }
 
-        const data = { uriId: uri.id };
-        logger.project(`MetadataUpdate (${address})`);
-        await prisma.project.update({ where, data });
+        return uri;
+    },
+
+    getSlugFromMetadata(metadata: Uri): string {
+        // We assume that we always have an external_url set.
+        let externalUrl = metadata.data['external_url'];
+        if (externalUrl.endsWith('/')) {
+            externalUrl = externalUrl.substring(0, externalUrl.length - 1);
+        }
+        return externalUrl.split('/').pop();
     }
 }
 
