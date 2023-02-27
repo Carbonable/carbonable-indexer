@@ -160,17 +160,16 @@ const controller = {
     },
 
     async handleEvent(event: starknet.IEvent, key: string) {
-        const vesters = await prisma.vester.findMany();
-        const found = vesters.find(model => model.address === FieldElement.toHex(event.fromAddress));
-        if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
+        const found = await prisma.vester.findUnique({ where: { address: FieldElement.toHex(event.fromAddress) } });
+
+        if (found && key === FieldElement.toHex(EVENTS.UPGRADED)) {
             await controller.handleUpgraded(found.address);
-        };
+        }
     },
 
     async handleEntry(contractAddress: string, entry: starknet.IStorageEntry) {
-        const vesters = await prisma.vester.findMany();
-        const found = vesters.find(model => model.address === contractAddress);
-        if (found && [ENTRIES.TOTAL_AMOUNT].includes(FieldElement.toBigInt(entry.key))) {
+        const found = await prisma.vester.findUnique({ where: { address: contractAddress } });
+        if (found && FieldElement.toBigInt(entry.key) === ENTRIES.TOTAL_AMOUNT) {
             await controller.handleTotalAmount(found.address);
         };
     },

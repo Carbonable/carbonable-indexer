@@ -55,7 +55,9 @@ const main = {
     },
 
     async configure(
-        cursor: v1alpha2.ICursor = StarkNetCursor.createWithBlockNumber(1),
+        // In testnet first events begins around 497400
+        // TODO: Replace block number with one (this is test purpose only);
+        cursor: v1alpha2.ICursor = StarkNetCursor.createWithBlockNumber(631647),
         finality: v1alpha2.DataFinality = v1alpha2.DataFinality.DATA_STATUS_PENDING
     ) {
         const filter = Filter.create().withHeader({ weak: true });
@@ -69,7 +71,7 @@ const main = {
 
         indexer.configure({
             filter: filter.encode(),
-            batchSize: 1,
+            batchSize: 20,
             cursor,
             finality,
         })

@@ -11,6 +11,7 @@ import implementationController from './implementation.controller';
 
 import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
+import { getTimeFromFieldElement } from '../services/felt-utils';
 
 const controller = {
 
@@ -145,23 +146,31 @@ const controller = {
     },
 
     async handleEvent(event: starknet.IEvent, key: string) {
-        const offseters = await prisma.offseter.findMany();
-        const found = offseters.find(model => model.address === FieldElement.toHex(event.fromAddress));
-        if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
+        const found = await prisma.offseter.findUnique({ where: { address: FieldElement.toHex((event.fromAddress)) } });
+
+        if (null === found) {
+            return;
+        }
+
+        if (key === FieldElement.toHex(EVENTS.UPGRADED)) {
             await controller.handleUpgraded(found.address);
-        } else if (found && [FieldElement.toHex(EVENTS.DEPOSIT), FieldElement.toHex(EVENTS.WITHDRAW)].includes(key)) {
+        }
+
+        if ([FieldElement.toHex(EVENTS.DEPOSIT), FieldElement.toHex(EVENTS.WITHDRAW)].includes(key)) {
             await controller.handleDepositOrWithdraw(found.address);
-        } else if (found && [FieldElement.toHex(EVENTS.CLAIM)].includes(key)) {
+        }
+
+        if (key === FieldElement.toHex(EVENTS.CLAIM)) {
             await controller.handleClaim(found.address);
-        };
+        }
     },
 
     async handleEntry(contractAddress: string, entry: starknet.IStorageEntry) {
-        const offseters = await prisma.offseter.findMany();
-        const found = offseters.find(model => model.address === contractAddress);
-        if (found && [ENTRIES.MIN_CLAIMABLE].includes(FieldElement.toBigInt(entry.key))) {
+        const found = await prisma.offseter.findUnique({ where: { address: contractAddress } });
+
+        if (found && FieldElement.toBigInt(entry.key) === ENTRIES.MIN_CLAIMABLE) {
             await controller.handleMinClaimable(found.address);
-        };
+        }
     },
 
     async handleUpgraded(address: string) {

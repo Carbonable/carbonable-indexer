@@ -193,19 +193,24 @@ const controller = {
     },
 
     async handleEvent(block: starknet.Block, transaction: starknet.ITransaction, event: starknet.IEvent, key: string) {
-        const badges = await prisma.badge.findMany();
-        const found = badges.find(model => model.address === FieldElement.toHex(event.fromAddress));
-        if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
+        const found = await prisma.badge.findUnique({ where: { address: FieldElement.toHex(event.fromAddress) } });
+        if (null === found) {
+            return;
+        }
+
+        if (key === FieldElement.toHex(EVENTS.UPGRADED)) {
             await controller.handleUpgraded(found.address);
-        } else if (found && [FieldElement.toHex(EVENTS.TRANSFER_SINGLE)].includes(key)) {
+        }
+
+        if (key === FieldElement.toHex(EVENTS.TRANSFER_SINGLE)) {
             await controller.handleTransfer(found, block, transaction, event);
-        };
+        }
     },
 
     async handleEntry(contractAddress: string, entry: starknet.IStorageEntry) {
-        const badges = await prisma.badge.findMany();
-        const found = badges.find(model => model.address === contractAddress);
-        if (found && [ENTRIES.METADATA].includes(FieldElement.toBigInt(entry.key))) {
+        const found = await prisma.badge.findUnique({ where: { address: contractAddress } });
+
+        if (found && FieldElement.toBigInt(entry.key) === ENTRIES.METADATA) {
             await controller.handleMetadataUpdate(found.address);
         };
     },

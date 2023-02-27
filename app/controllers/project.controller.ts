@@ -376,23 +376,31 @@ const controller = {
     },
 
     async handleEvent(block: starknet.Block, transaction: starknet.ITransaction, event: starknet.IEvent, key: string) {
-        const projects = await prisma.project.findMany();
-        const found = projects.find(model => model.address === FieldElement.toHex(event.fromAddress));
-        if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
+        const found = await prisma.project.findUnique({ where: { address: FieldElement.toHex(event.fromAddress) } });
+
+        if (null === found) {
+            return;
+        }
+
+        if (key === FieldElement.toHex(EVENTS.UPGRADED)) {
             await controller.handleUpgraded(found.address);
-        } else if (found && [FieldElement.toHex(EVENTS.ABSORPTION_UPDATE)].includes(key)) {
+        }
+
+        if (key === FieldElement.toHex(EVENTS.ABSORPTION_UPDATE)) {
             await controller.handleAbsorptionUpdate(found.address);
-        } else if (found && [FieldElement.toHex(EVENTS.TRANSFER)].includes(key)) {
+        }
+
+        if (key === FieldElement.toHex(EVENTS.TRANSFER)) {
             await controller.handleTransfer(found, block, transaction, event);
-        };
+        }
     },
 
     async handleEntry(contractAddress: string, entry: starknet.IStorageEntry) {
-        const projects = await prisma.project.findMany();
-        const found = projects.find(model => model.address === contractAddress);
-        if (found && [ENTRIES.METADATA].includes(FieldElement.toBigInt(entry.key))) {
+        const found = await prisma.project.findUnique({ where: { address: contractAddress } });
+
+        if (found && FieldElement.toBigInt(entry.key) === ENTRIES.METADATA) {
             await controller.handleMetadataUpdate(found.address);
-        };
+        }
     },
 
     async handleUpgraded(address: string) {

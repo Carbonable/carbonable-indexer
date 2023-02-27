@@ -253,35 +253,51 @@ const controller = {
     },
 
     async handleEvent(block: starknet.Block, transaction: starknet.ITransaction, event: starknet.IEvent, key: string) {
-        const minters = await prisma.minter.findMany();
-        const found = minters.find(model => model.address === FieldElement.toHex(event.fromAddress));
-        if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
+        const found = await prisma.minter.findUnique({ where: { address: FieldElement.toHex(event.fromAddress) } });
+
+        if (null === found) {
+            return;
+        }
+
+        if (key === FieldElement.toHex(EVENTS.UPGRADED)) {
             await controller.handleUpgraded(found.address);
-        } else if (found && [FieldElement.toHex(EVENTS.AIRDROP)].includes(key)) {
+        }
+        if (key === FieldElement.toHex(EVENTS.AIRDROP)) {
             await controller.handleAirdrop(found, block, transaction, event);
-        } else if (found && [FieldElement.toHex(EVENTS.BUY)].includes(key)) {
+        }
+        if (key === FieldElement.toHex(EVENTS.BUY)) {
             await controller.handleBuy(found, block, transaction, event);
-        } else if (found && [FieldElement.toHex(EVENTS.PRE_SALE_OPEN), FieldElement.toHex(EVENTS.PRE_SALE_CLOSE)].includes(key)) {
+        }
+        if ([FieldElement.toHex(EVENTS.PRE_SALE_OPEN), FieldElement.toHex(EVENTS.PRE_SALE_CLOSE)].includes(key)) {
             await controller.handlePreSale(found.address);
-        } else if (found && [FieldElement.toHex(EVENTS.PUBLIC_SALE_OPEN), FieldElement.toHex(EVENTS.PUBLIC_SALE_CLOSE)].includes(key)) {
+        }
+        if ([FieldElement.toHex(EVENTS.PUBLIC_SALE_OPEN), FieldElement.toHex(EVENTS.PUBLIC_SALE_CLOSE)].includes(key)) {
             await controller.handlePublicSale(found.address);
-        } else if (found && [FieldElement.toHex(EVENTS.SOLD_OUT)].includes(key)) {
+        }
+        if (key === FieldElement.toHex(EVENTS.SOLD_OUT)) {
             await controller.handleSoldOut(found.address);
-        };
+        }
     },
 
     async handleEntry(contractAddress: string, entry: starknet.IStorageEntry) {
-        const minters = await prisma.minter.findMany();
-        const found = minters.find(model => model.address === contractAddress);
-        if (found && [ENTRIES.MAX_BUY].includes(FieldElement.toBigInt(entry.key))) {
+        const found = await prisma.minter.findUnique({ where: { address: contractAddress } });
+
+        if (null === found) {
+            return;
+        }
+
+        if (FieldElement.toBigInt(entry.key) === ENTRIES.MAX_BUY) {
             await controller.handleMaxBuy(found.address);
-        } else if (found && [ENTRIES.UNIT_PRICE].includes(FieldElement.toBigInt(entry.key))) {
+        }
+        if (FieldElement.toBigInt(entry.key) === ENTRIES.UNIT_PRICE) {
             await controller.handleUnitPrice(found.address);
-        } else if (found && [ENTRIES.RESERVED_SUPPLY].includes(FieldElement.toBigInt(entry.key))) {
+        }
+        if (FieldElement.toBigInt(entry.key) === ENTRIES.RESERVED_SUPPLY) {
             await controller.handleReservedSupply(found.address);
-        } else if (found && [ENTRIES.MERKLE_ROOT].includes(FieldElement.toBigInt(entry.key))) {
+        }
+        if (FieldElement.toBigInt(entry.key) === ENTRIES.MERKLE_ROOT) {
             await controller.handleMerkleRoot(found.address);
-        };
+        }
     },
 
     async handleUpgraded(address: string) {

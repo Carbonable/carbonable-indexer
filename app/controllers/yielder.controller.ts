@@ -13,7 +13,7 @@ import snapshotController from './snapshot.controller'
 import vestingController from './vesting.controller'
 
 import { Request, Response } from 'express';
-import { Minter, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { getApr } from '../services/apr';
 
 
@@ -164,29 +164,37 @@ const controller = {
     },
 
     async handleEvent(event: starknet.IEvent, key: string) {
-        const yielders = await prisma.yielder.findMany();
-        const found = yielders.find(model => model.address === FieldElement.toHex(event.fromAddress));
-        if (found && [FieldElement.toHex(EVENTS.UPGRADED)].includes(key)) {
+        const found = await prisma.yielder.findUnique({ where: { address: FieldElement.toHex(event.fromAddress) } });
+        if (null === found) {
+            return;
+        }
+
+        if (key === FieldElement.toHex(EVENTS.UPGRADED)) {
             await controller.handleUpgraded(found.address);
-        } else if (found && [FieldElement.toHex(EVENTS.DEPOSIT), FieldElement.toHex(EVENTS.WITHDRAW)].includes(key)) {
+        }
+
+        if ([FieldElement.toHex(EVENTS.DEPOSIT), FieldElement.toHex(EVENTS.WITHDRAW)].includes(key)) {
             await controller.handleDepositOrWithdraw(found.address);
-        } else if (found && [FieldElement.toHex(EVENTS.SNAPSHOT)].includes(key)) {
+        }
+
+        if (key === FieldElement.toHex(EVENTS.SNAPSHOT)) {
             // Remove first value and convert the rest
             const args = event.data.slice(1).map((row) => FieldElement.toHex(row));
             await controller.handleSnapshot(found.address, args);
-        } else if (found && [FieldElement.toHex(EVENTS.VESTING)].includes(key)) {
+        }
+
+        if (key === FieldElement.toHex(EVENTS.VESTING)) {
             // Remove first value and convert the rest
             const args = event.data.slice(1).map((row) => FieldElement.toHex(row));
             await controller.handleVesting(found.address, args);
-        };
+        }
     },
 
     async handleEntry(contractAddress: string, entry: starknet.IStorageEntry) {
-        const yielders = await prisma.yielder.findMany();
-        const found = yielders.find(model => model.address === contractAddress);
+        const found = await prisma.yielder.findUnique({ where: { address: contractAddress } });
         if (found && [ENTRIES.SNAPSHOTED_TIME].includes(FieldElement.toBigInt(entry.key))) {
             await controller.handleSnapshotedTime(found.address);
-        };
+        }
     },
 
     async handleUpgraded(address: string) {
